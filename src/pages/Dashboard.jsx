@@ -9,7 +9,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token"); // JWT after login
 
     const connectFacebook = () => {
-        const appId = "YOUR_FB_APP_ID";
+        const appId = "4196581700605802";
         const redirectUri = "http://localhost:5000/social/facebook/callback";
 
         window.location.href = `https://www.facebook.com/v16.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=pages_manage_posts,pages_read_engagement`;
