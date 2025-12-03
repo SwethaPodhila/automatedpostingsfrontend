@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 //import Dashboard from "./pages/Dashboard";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Dashboard from "./pages/Dashboard";
+import FacebookConnect from "./pages/FacebookConnect";
+import Success from "./pages/Success";
 
 function App() {
   return (
@@ -13,7 +15,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route path="/facebook" element={<FacebookConnect />} />
+        <Route path="/sucess" element={<Success />} />
         {/*  */}
       </Routes>
     </Router>

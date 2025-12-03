@@ -8,20 +8,6 @@ export default function Dashboard() {
 
     const token = localStorage.getItem("token"); // JWT after login
 
-    const connectFacebook = () => {
-        const appId = "4196581700605802";
-        const redirectUri = "http://localhost:5000/social/facebook/callback";
-
-        window.location.href = `https://www.facebook.com/v16.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=pages_manage_posts,pages_read_engagement`;
-    };
-
-    const connectInstagram = () => {
-        const appId = "YOUR_IG_APP_ID";
-        const redirectUri = "http://localhost:5000/social/instagram/callback";
-
-        window.location.href = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`;
-    };
-
     return (
         <div style={styles.page}>
             <Navbar />
@@ -41,14 +27,14 @@ export default function Dashboard() {
                     <div style={styles.cardsContainer}>
                         <div style={styles.card}>
                             <h3>Facebook</h3>
-                            <button style={styles.btn} onClick={connectFacebook}>
+                            <button style={styles.btn}>
                                 Connect Facebook
                             </button>
                         </div>
 
                         <div style={styles.card}>
                             <h3>Instagram</h3>
-                            <button style={styles.btn} onClick={connectInstagram}>
+                            <button style={styles.btn}>
                                 Connect Instagram
                             </button>
                         </div>
