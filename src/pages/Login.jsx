@@ -16,7 +16,7 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent default form submission
         try {
-            const res = await axios.post("http://localhost:5000/user/login", form);
+            const res = await axios.post("https://automatedpostingbackend.onrender.com/user/login", form);
 
             if (res.data.success) {
                 alert("Login successful");
