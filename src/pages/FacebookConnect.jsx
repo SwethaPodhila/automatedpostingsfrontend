@@ -1,15 +1,34 @@
+import jwtDecode from "jwt-decode";
+
 export default function FacebookConnect() {
   const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
 
   const connectFacebook = () => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
       alert("Please login first!");
       return;
     }
 
-    window.location.href =
-      `${BACKEND_URL}/social/facebook?userId=${userId}`;
+    let decoded;
+    try {
+      decoded = jwtDecode(token);
+      console.log("DECODED TOKEN:", decoded);
+    } catch (error) {
+      console.error("Invalid token:", error);
+      alert("Invalid token. Please login again.");
+      return;
+    }
+
+    const userId = decoded.id; // <-- THIS IS CORRECT
+
+    if (!userId) {
+      alert("User ID not found in token!");
+      return;
+    }
+
+    window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}`;
   };
 
   return (
@@ -28,6 +47,5 @@ export default function FacebookConnect() {
     >
       Connect with Facebook
     </button>
-    
   );
 }
