@@ -28,7 +28,7 @@ export default function FacebookConnect() {
       return;
     }
 
-    window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}`;
+    window.location.href = `${BACKEND_URL}/social/facebook?userId=${encodeURIComponent(userId)}`;
   };
 
   return (
