@@ -28,5 +28,6 @@ export default function FacebookConnect() {
     >
       Connect with Facebook
     </button>
+    
   );
 }
