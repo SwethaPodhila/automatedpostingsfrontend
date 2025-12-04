@@ -21,7 +21,7 @@ export default function FacebookConnect() {
       return;
     }
 
-    const userId = decoded._id;  // <-- THIS IS CORRECT
+    const userId = decoded.id; // <-- THIS IS CORRECT
 
     if (!userId) {
       alert("User ID not found in token!");
