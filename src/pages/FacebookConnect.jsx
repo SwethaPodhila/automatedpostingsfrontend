@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export default function FacebookConnect() {
   const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
