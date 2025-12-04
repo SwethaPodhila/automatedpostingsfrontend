@@ -36,7 +36,7 @@ export default function Login() {
         setError("");
         
         try {
-            const res = await axios.post("http://localhost:5000/user/login", form);
+            const res = await axios.post("https://automatedpostingbackend.onrender.com/user/login", form);
             if (res.data.success) {
                 alert("Login successful");
                 localStorage.setItem("token", res.data.token);
