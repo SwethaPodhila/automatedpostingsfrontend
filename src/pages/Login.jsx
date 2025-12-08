@@ -40,6 +40,7 @@ export default function Login() {
             if (res.data.success) {
                 alert("Login successful");
                 localStorage.setItem("token", res.data.token);
+                localStorage.setItem("userId", res.data.userId);
                 navigate("/dashboard");
             } else {
                 setError(res.data.msg || "Login failed");

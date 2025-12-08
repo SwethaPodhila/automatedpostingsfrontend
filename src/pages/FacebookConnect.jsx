@@ -1,7 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 
 export default function FacebookConnect() {
-  const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+  const BACKEND_URL = "http://localhost:5000"; // Update if needed
 
   const connectFacebook = () => {
     const token = localStorage.getItem("token");

@@ -17,7 +17,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/facebook" element={<FacebookConnect />} />
-        <Route path="/sucess" element={<Success />} />
+        <Route path="/success" element={<Success />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         {/*  */}
       </Routes>
