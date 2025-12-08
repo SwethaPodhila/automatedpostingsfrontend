@@ -32,7 +32,7 @@ export default function PostToPage() {
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/social/metrics/${pageId}`
+        `https://automatedpostingbackend.onrender.com/social/metrics?pageId=${pageId}`
       );
       if (res.data.success) setMetrics(res.data.metrics);
     } catch (err) {

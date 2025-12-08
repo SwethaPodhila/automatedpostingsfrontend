@@ -2,8 +2,39 @@ import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
+import { jwtDecode } from "jwt-decode";
 
 export default function Dashboard() {
+    const BACKEND_URL = "http://localhost:5000"; // Update if needed
+
+    const connectFacebook = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("Please login first!");
+            return;
+        }
+
+        let decoded;
+        try {
+            decoded = jwtDecode(token);
+            console.log("DECODED TOKEN:", decoded);
+        } catch (error) {
+            console.error("Invalid token:", error);
+            alert("Invalid token. Please login again.");
+            return;
+        }
+
+        const userId = decoded.id; // <-- THIS IS CORRECT
+
+        if (!userId) {
+            alert("User ID not found in token!");
+            return;
+        }
+
+        window.location.href = `${BACKEND_URL}/social/facebook?userId=${encodeURIComponent(userId)}`;
+    };
+
     const [sidebarWidth, setSidebarWidth] = useState(50);
 
     const token = localStorage.getItem("token"); // JWT after login
@@ -27,8 +58,20 @@ export default function Dashboard() {
                     <div style={styles.cardsContainer}>
                         <div style={styles.card}>
                             <h3>Facebook</h3>
-                            <button style={styles.btn}>
-                                Connect Facebook
+                            <button
+                                onClick={connectFacebook}
+                                style={{
+                                    padding: "12px 25px",
+                                    backgroundColor: "#1877F2",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontSize: "16px",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                Connect with Facebook
                             </button>
                         </div>
 
