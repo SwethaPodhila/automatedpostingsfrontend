@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Dashboard from "./pages/Dashboard";
 import FacebookConnect from "./pages/FacebookConnect";
 import Success from "./pages/Success";
+import PrivacyPolicy from "./pages/Privacy-policy";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/facebook" element={<FacebookConnect />} />
         <Route path="/sucess" element={<Success />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         {/*  */}
       </Routes>
     </Router>

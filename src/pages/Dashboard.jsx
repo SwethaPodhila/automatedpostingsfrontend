@@ -48,6 +48,25 @@ export default function Dashboard() {
                             <h3>LinkedIn</h3>
                             <button style={styles.btn}>Connect LinkedIn</button>
                         </div>
+                        <div style={styles.card}>
+                            <h3>Youtube</h3>
+                            <button
+                                style={styles.btn}
+                                onClick={() => {
+                                    const token = localStorage.getItem("token");
+                                    if (!token) return alert("Please login first!");
+
+                                    const decoded = JSON.parse(atob(token.split(".")[1]));
+                                    const userId = decoded.id;
+
+                                    window.location.href =
+                                        `http://localhost:5000/social/youtube/auth?user=${userId}`;
+                                }}
+                            >
+                                Connect YouTube
+                            </button>
+                        </div>
+
                     </div>
                 </main>
             </div>
