@@ -6,6 +6,12 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+    const [twitterAccount, setTwitterAccount] = useState(null);
+        // Sidebar width
+    const [sidebarWidth, setSidebarWidth] = useState(50);
+    const token = localStorage.getItem("token");
+
+
     const navigate = useNavigate();
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
 
@@ -83,8 +89,38 @@ export default function Dashboard() {
         }
     };
 
-    // Sidebar width
-    const [sidebarWidth, setSidebarWidth] = useState(50);
+    const disconnectTwitter = async () => {
+        if (!window.confirm("Are you sure you want to disconnect your Twitter account?")) {
+            return;
+        }
+
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+
+            const response = await fetch(`${BACKEND_URL}/api/twitter/disconnect`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setTwitterAccount(null);
+                localStorage.removeItem('twitter_account');
+                alert("Twitter account disconnected successfully!");
+            } else {
+                alert("Failed to disconnect: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error disconnecting:", error);
+            alert("Failed to disconnect Twitter account");
+        }
+    };
+
 
     return (
         <div style={styles.page}>
@@ -180,7 +216,60 @@ export default function Dashboard() {
                         {/* TWITTER */}
                         <div style={styles.card}>
                             <h3>Twitter (X)</h3>
-                            <button style={styles.btn}>Connect Twitter</button>
+                            {twitterAccount ? (
+                                <>
+                                    <div style={styles.accountInfo}>
+                                        <div style={styles.accountRow}>
+                                            <img
+                                                src={twitterAccount.profileImage || `https://unavatar.io/twitter/${twitterAccount.username}`}
+                                                alt="Profile"
+                                                style={styles.profileImage}
+                                                onError={(e) => {
+                                                    e.target.src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png";
+                                                }}
+                                            />
+                                            <div style={styles.accountDetails}>
+                                                <p style={styles.accountName}>{twitterAccount.name || twitterAccount.username}</p>
+                                                <p style={styles.accountUsername}>@{twitterAccount.username}</p>
+                                            </div>
+                                        </div>
+                                        <p style={styles.connectedText}>✅ Connected</p>
+                                    </div>
+                                    <div style={styles.buttonGroup}>
+                                        <button
+                                            onClick={() => window.location.href = "/twitter-manager"}
+                                            style={{
+                                                ...styles.btn,
+                                                backgroundColor: "#1DA1F2",
+                                                flex: 1
+                                            }}
+                                        >
+                                            Manage Twitter
+                                        </button>
+                                        <button
+                                            onClick={disconnectTwitter}
+                                            style={{
+                                                ...styles.btn,
+                                                backgroundColor: "#ff4d4f",
+                                                marginLeft: "10px",
+                                                flex: 1
+                                            }}
+                                        >
+                                            Disconnect
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => window.location.href = `${BACKEND_URL}/auth/twitter?userId=${jwtDecode(token)?.id || ''}`}
+                                    style={{
+                                        ...styles.btn,
+                                        backgroundColor: "#000000",
+                                    }}
+                                >
+                                    Connect Twitter
+                                </button>
+                            )}
                         </div>
 
                         {/* LINKEDIN */}
@@ -216,6 +305,7 @@ export default function Dashboard() {
         </div>
     );
 }
+
 
 const styles = {
     page: {

@@ -9,6 +9,8 @@ import Success from "./pages/Success";
 import PrivacyPolicy from "./pages/Privacy-policy";
 import PostToPage from "./pages/PostToPage";
 import ManualPost from "./pages/MannualPost";
+import TwitterConnect from "./pages/TwitterConnect";
+import TwitterManager from "./pages/TwitterManger";
 
 function App() {
   return (
@@ -21,6 +23,9 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/post" element={<PostToPage />} />
         <Route path="/manual-post" element={<ManualPost />} />
+        <Route path="/twitter-connect" element={<TwitterConnect />} />
+        <Route path="/twitter-manager" element={<TwitterManager />} />
+
         {/*  */}
       </Routes>
     </Router>
