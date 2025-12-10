@@ -79,7 +79,7 @@ export default function FacebookDashboard() {
             if (aiPrompt) formData.append("aiPrompt", aiPrompt);
 
             const res = await axios.post(
-                "http://localhost:5000/social/publish/facebook",
+                "https://automatedpostingsfrontend.onrender.com/social/publish/facebook",
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );

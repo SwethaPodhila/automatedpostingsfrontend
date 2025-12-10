@@ -7,10 +7,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
     const [twitterAccount, setTwitterAccount] = useState(null);
-        // Sidebar width
+    // Sidebar width
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const token = localStorage.getItem("token");
-
 
     const navigate = useNavigate();
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
@@ -86,6 +85,42 @@ export default function Dashboard() {
         } catch (err) {
             console.error(err);
             alert("Failed to disconnect account");
+        }
+    };
+
+    useEffect(() => {
+        checkTwitterConnection();
+    }, []);
+
+    const checkTwitterConnection = async () => {
+        if (!token) return;
+
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+
+            const response = await fetch(`${BACKEND_URL}/api/twitter/check?userId=${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.connected) {
+                    setTwitterAccount(data.account);
+                    // Also save to localStorage for persistence
+                    localStorage.setItem('twitter_account', JSON.stringify(data.account));
+                } else {
+                    // Check localStorage as fallback
+                    const savedAccount = localStorage.getItem('twitter_account');
+                    if (savedAccount) {
+                        setTwitterAccount(JSON.parse(savedAccount));
+                    }
+                }
+            }
+        } catch (error) {
+            console.log("Twitter check error:", error);
+            // Check localStorage as fallback
+            const savedAccount = localStorage.getItem('twitter_account');
+            if (savedAccount) {
+                setTwitterAccount(JSON.parse(savedAccount));
+            }
         }
     };
 
@@ -261,7 +296,16 @@ export default function Dashboard() {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => window.location.href = `${BACKEND_URL}/auth/twitter?userId=${jwtDecode(token)?.id || ''}`}
+                                    onClick={() => {
+                                        const decoded = jwtDecode(token);
+                                        if (!decoded?.id) {
+                                            alert("User not logged in. Please login again.");
+                                            return;
+                                        }
+
+                                        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${decoded.id}`;
+                                    }}
+
                                     style={{
                                         ...styles.btn,
                                         backgroundColor: "#000000",
