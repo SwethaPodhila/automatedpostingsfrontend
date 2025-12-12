@@ -5,8 +5,8 @@ import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
 export default function TwitterConnect() {
-    // Use environment variable or fallback to production URL
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://automatedpostingbackend.onrender.com";
+    // 🔧 UPDATED TO PRODUCTION URL
+    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [isConnecting, setIsConnecting] = useState(false);
@@ -15,13 +15,11 @@ export default function TwitterConnect() {
     const token = localStorage.getItem("token");
 
     useEffect(() => {
-        // Check if user is logged in
         if (!token) {
             window.location.href = "/login";
             return;
         }
         
-        // Check URL parameters for callback result
         const urlParams = new URLSearchParams(window.location.search);
         const twitterStatus = urlParams.get('twitter');
         const username = urlParams.get('username');
@@ -29,7 +27,6 @@ export default function TwitterConnect() {
         
         if (twitterStatus === 'connected' && username) {
             alert(`✅ Twitter connected successfully! Welcome @${username}`);
-            // Redirect to Twitter Manager instead of Dashboard
             setTimeout(() => {
                 window.location.href = "/twitter-manager";
             }, 2000);
@@ -65,19 +62,32 @@ export default function TwitterConnect() {
         setError("");
 
         try {
-            console.log("Getting Twitter OAuth URL for user:", userId);
+            console.log("🔄 Fetching Twitter OAuth URL for user:", userId);
             
-            // ✅ DIRECTLY use the correct auth endpoint
-            // Add userId as query parameter
-            const authUrl = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`;
+            // ✅ FIX: FETCH the auth URL first, then redirect
+            const response = await fetch(`${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`, {
+                credentials: 'include' // Important for sessions
+            });
             
-            console.log("Redirecting to:", authUrl);
+            console.log("📡 Response status:", response.status);
             
-            // ✅ Direct redirect (simplest solution)
-            window.location.href = authUrl;
+            if (!response.ok) {
+                throw new Error(`Backend error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("📊 Response data:", data);
+            
+            if (data.success && data.authUrl) {
+                console.log("✅ Got Twitter auth URL, redirecting...");
+                window.location.href = data.authUrl;
+            } else {
+                setError("Failed to get Twitter auth URL: " + (data.error || "Unknown error"));
+                setIsConnecting(false);
+            }
             
         } catch (error) {
-            console.error("Twitter connection error:", error);
+            console.error("❌ Twitter connection error:", error);
             setError("Failed to connect to Twitter: " + error.message);
             setIsConnecting(false);
         }
@@ -120,6 +130,10 @@ export default function TwitterConnect() {
                             {error && (
                                 <div style={styles.errorBox}>
                                     ❌ {error}
+                                    <br />
+                                    <small style={{fontSize: "12px", marginTop: "5px", display: "block"}}>
+                                        Check browser console for details
+                                    </small>
                                 </div>
                             )}
                             
@@ -129,6 +143,7 @@ export default function TwitterConnect() {
                                 style={{
                                     ...styles.connectButton,
                                     backgroundColor: isConnecting ? "#666" : "#000",
+                                    cursor: isConnecting ? "wait" : "pointer"
                                 }}
                             >
                                 {isConnecting ? (
@@ -145,10 +160,20 @@ export default function TwitterConnect() {
                                 <h4>How it works:</h4>
                                 <ol style={styles.stepsList}>
                                     <li>Click "Connect with Twitter"</li>
-                                    <li>Authorize our app on Twitter</li>
+                                    <li>Your app fetches OAuth URL from backend</li>
+                                    <li>Redirects to Twitter/X login page</li>
+                                    <li>Login and authorize the app</li>
+                                    <li>Twitter redirects back to your app</li>
                                     <li>You'll be redirected to Twitter Manager page</li>
-                                    <li>Start posting and scheduling tweets!</li>
                                 </ol>
+                            </div>
+                            
+                            <div style={styles.debugInfo}>
+                                <h4>Debug Info:</h4>
+                                <p style={{fontSize: "12px", color: "#666"}}>
+                                    Backend URL: {BACKEND_URL}<br />
+                                    Endpoint: {BACKEND_URL}/auth/twitter?userId=YOUR_ID
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -215,7 +240,8 @@ const styles = {
         padding: "15px",
         borderRadius: "8px",
         marginBottom: "20px",
-        textAlign: "left"
+        textAlign: "left",
+        borderLeft: "4px solid #d32f2f"
     },
     connectButton: { 
         background: "#000", 
@@ -249,7 +275,15 @@ const styles = {
     },
     stepsList: {
         paddingLeft: "20px",
-        lineHeight: "1.8"
+        lineHeight: "1.8",
+        fontSize: "14px"
+    },
+    debugInfo: {
+        marginTop: "20px",
+        padding: "10px",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "8px",
+        fontSize: "12px"
     }
 };
 

@@ -4,10 +4,12 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
+
+
 export default function TwitterManager() {
-    // Use environment variable or fallback to production URL
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://automatedpostingbackend.onrender.com";
-    
+    // 🔧 UPDATED TO PRODUCTION URL
+    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [twitterAccount, setTwitterAccount] = useState(null);
     const [tweetContent, setTweetContent] = useState("");
@@ -16,7 +18,7 @@ export default function TwitterManager() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [postedTweets, setPostedTweets] = useState([]);
-    
+
     const token = localStorage.getItem("token");
 
     useEffect(() => {
@@ -25,20 +27,23 @@ export default function TwitterManager() {
             return;
         }
 
-        // Check URL params for success message
         const urlParams = new URLSearchParams(window.location.search);
-        const twitterStatus = urlParams.get('twitter');
-        const username = urlParams.get('username');
-        
-        if (twitterStatus === 'connected' && username) {
-            setMessage(`✅ Successfully connected to @${username}!`);
-            // Save connected account to localStorage for dashboard
-            localStorage.setItem('twitter_account', JSON.stringify({
-                username: username,
+        const twitterStatus = urlParams.get("twitter");
+        const username = urlParams.get("username");
+
+        if (twitterStatus === "connected" && username) {
+            const account = {
+                username,
+                name: username,
+                profileImage: `https://unavatar.io/twitter/${username}`,
                 connectedAt: new Date().toISOString()
-            }));
-            // Clear URL params
+            };
+            setTwitterAccount(account);
+            localStorage.setItem("twitter_account", JSON.stringify(account));
+            setMessage(`✅ Successfully connected to @${username}!`);
             window.history.replaceState({}, document.title, "/twitter-manager");
+            setIsLoading(false);
+            return; // skip backend fetch
         }
 
         loadTwitterAccount();
@@ -50,39 +55,41 @@ export default function TwitterManager() {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            console.log("🔄 Loading Twitter account for user:", userId);
-            
-            // Use direct endpoint
             const response = await fetch(`${BACKEND_URL}/auth/twitter/account/${userId}`);
-            
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
-            }
-            
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+
             const data = await response.json();
-            console.log("✅ Twitter check response:", data);
-            
+
             if (data.success && data.connected && data.account) {
-                setTwitterAccount(data.account);
-                setError("");
-                console.log("✅ Twitter account loaded:", data.account.username);
-                
-                // Save to localStorage for dashboard
-                localStorage.setItem('twitter_account', JSON.stringify({
+                const account = {
                     username: data.account.username,
-                    name: data.account.name,
-                    connectedAt: data.account.connectedAt
-                }));
+                    name: data.account.name || data.account.username,
+                    profileImage: data.account.profileImage || `https://unavatar.io/twitter/${data.account.username}`,
+                    connectedAt: data.account.connectedAt || new Date().toISOString()
+                };
+                setTwitterAccount(account);
+                setError("");
+                localStorage.setItem("twitter_account", JSON.stringify(account));
             } else {
-                setError("Twitter account not connected. Please connect first.");
-                console.log("❌ No Twitter account found");
-                // Clear from localStorage if disconnected
-                localStorage.removeItem('twitter_account');
+                // fallback to localStorage
+                const savedAccount = localStorage.getItem("twitter_account");
+                if (savedAccount) {
+                    setTwitterAccount(JSON.parse(savedAccount));
+                    setError("");
+                } else {
+                    setError("Twitter account not connected. Please connect first.");
+                    localStorage.removeItem("twitter_account");
+                }
             }
-            
-        } catch (error) {
-            console.error("❌ Error loading Twitter account:", error);
-            setError("Failed to load Twitter account. Please try reconnecting.");
+        } catch (err) {
+            console.error("❌ Error loading Twitter account:", err);
+            const savedAccount = localStorage.getItem("twitter_account");
+            if (savedAccount) {
+                setTwitterAccount(JSON.parse(savedAccount));
+                setError("");
+            } else {
+                setError("Failed to load Twitter account. Please reconnect.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -93,7 +100,6 @@ export default function TwitterManager() {
             setError("Please enter tweet content");
             return;
         }
-
         if (tweetContent.length > 280) {
             setError("Tweet cannot exceed 280 characters");
             return;
@@ -106,24 +112,15 @@ export default function TwitterManager() {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            const response = await fetch(`${BACKEND_URL}/auth/twitter/post`, {
+            const response = await fetch(`${BACKEND_URL}/api/twitter/post`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId,
-                    content: tweetContent
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, content: tweetContent })
             });
-
             const data = await response.json();
-            
+
             if (data.success) {
                 setMessage(`✅ Tweet posted successfully!`);
-                setTweetContent("");
-                
-                // Add to posted tweets list
                 const newTweet = {
                     id: data.tweetId,
                     content: tweetContent,
@@ -131,54 +128,45 @@ export default function TwitterManager() {
                     url: data.tweetUrl
                 };
                 setPostedTweets(prev => [newTweet, ...prev]);
-                
+                setTweetContent("");
             } else {
                 setError(data.error || "Failed to post tweet");
             }
-        } catch (error) {
-            console.error("Error posting tweet:", error);
-            setError("Failed to post tweet. Check if posting endpoint exists.");
+        } catch (err) {
+            console.error(err);
+            setError("Failed to post tweet. Check backend.");
         } finally {
             setIsPosting(false);
         }
     };
 
     const disconnectTwitter = async () => {
-        if (!window.confirm("Are you sure you want to disconnect your Twitter account?")) {
-            return;
-        }
+        if (!window.confirm("Are you sure you want to disconnect your Twitter account?")) return;
 
         try {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            // Clear localStorage first
-            localStorage.removeItem('twitter_account');
-            
-            // Disconnect from backend
-            const response = await fetch(`${BACKEND_URL}/auth/twitter/disconnect`, {
+            localStorage.removeItem("twitter_account");
+
+            const response = await fetch(`${BACKEND_URL}/api/twitter/disconnect`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId })
             });
-
             const data = await response.json();
-            
+
             if (data.success) {
                 setMessage("✅ Twitter account disconnected successfully");
                 setTwitterAccount(null);
-                
-                // Redirect to connect page with FORCE parameter
                 setTimeout(() => {
                     window.location.href = `/twitter-connect?force=true&userId=${userId}`;
                 }, 1500);
             } else {
                 setError(data.error || "Failed to disconnect");
             }
-        } catch (error) {
-            console.error("Error disconnecting:", error);
+        } catch (err) {
+            console.error(err);
             setError("Failed to disconnect Twitter account");
         }
     };
@@ -186,17 +174,13 @@ export default function TwitterManager() {
     const reconnectTwitter = () => {
         const decoded = jwtDecode(token);
         const userId = decoded.id;
-        // Redirect with force parameter to force re-authorization
-        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${userId}&force=true`;
+        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`;
     };
 
     const viewTweetOnTwitter = (tweetUrl) => {
-        if (tweetUrl) {
-            window.open(tweetUrl, '_blank', 'noopener,noreferrer');
-        }
+        if (tweetUrl) window.open(tweetUrl, "_blank", "noopener,noreferrer");
     };
 
-    // Loading state
     if (isLoading) {
         return (
             <div style={styles.page}>
