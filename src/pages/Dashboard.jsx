@@ -2,262 +2,218 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
+const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
 
 export default function Dashboard() {
-    const [twitterAccount, setTwitterAccount] = useState(null);
-    // Sidebar width
     const [sidebarWidth, setSidebarWidth] = useState(50);
-    const token = localStorage.getItem("token");
-
-    const navigate = useNavigate();
-    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
-
-    // Store connected accounts
     const [connected, setConnected] = useState({
         facebook: null,
-        instagram: null
+        instagram: null,
     });
+    const [twitterAccount, setTwitterAccount] = useState(null);
 
-    // Fetch connected accounts on load
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+
+    // --- Get current userId ---
+    const getUserId = () => {
+        if (!token) return null;
+        try {
+            const decoded = jwtDecode(token);
+            return decoded.id;
+        } catch (err) {
+            console.error("Invalid token:", err);
+            return null;
+        }
+    };
+
+    const userId = getUserId();
+
+    // --- Fetch connected accounts on mount ---
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const decoded = jwtDecode(token);
-        const userId = decoded.id;
+        if (!userId) return;
 
         fetch(`${BACKEND_URL}/social/${userId}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    const fb = data.accounts.find(a => a.platform === "facebook");
-                    const ig = data.accounts.find(a => a.platform === "instagram");
-
-                    setConnected(prev => ({
-                        facebook: fb !== undefined ? fb : prev.facebook,
-                        instagram: ig !== undefined ? ig : prev.instagram
-                    }));
+                    const fb = data.accounts.find((a) => a.platform === "facebook");
+                    const ig = data.accounts.find((a) => a.platform === "instagram");
+                    setConnected({ facebook: fb || null, instagram: ig || null });
                 }
             })
-            .catch(err => console.error("Failed to fetch accounts:", err));
-    }, []);
+            .catch((err) => console.error("Failed to fetch accounts:", err));
+    }, [userId]);
 
-    // Connect Facebook
+    // --- OAuth Connect Handlers ---
     const connectFacebook = () => {
-        const token = localStorage.getItem("token");
-        if (!token) return alert("Please login first!");
-        const decoded = jwtDecode(token);
-        const userId = decoded.id;
-
+        if (!userId) return alert("Please login first!");
         window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}`;
     };
 
-    // Connect Instagram
-    const connectInstagram = async () => {
-        try {
-            // 1. Redirect to backend OAuth endpoint
-            const res = await axios.get(
-                `${BACKEND_URL}/social/instagram/connect`,
-                { withCredentials: true } // if using cookies/session
-            );
-
-            // 2. Backend redirects user to Instagram OAuth
-            window.location.href = res.data.authUrl;
-        } catch (error) {
-            console.error("Instagram connect error:", error);
-        }
+    const connectInstagram = () => {
+        if (!userId) return alert("Please login first!");
+        // Redirect directly to backend connect endpoint
+        window.location.href = `${BACKEND_URL}/social/instagram/connect?userId=${userId}`;
     };
 
-
-    // Disconnect account
+    // --- Disconnect Handler ---
     const disconnectAccount = async (platform) => {
-        const token = localStorage.getItem("token");
-        if (!token) return alert("Please login first!");
-        const decoded = jwtDecode(token);
-        const userId = decoded.id;
-
+        if (!userId) return alert("Please login first!");
         if (!window.confirm(`Disconnect ${platform}?`)) return;
 
         try {
-            const res = await fetch(`${BACKEND_URL}/social/${platform}/${userId}`, {
-                method: "DELETE"
+            const res = await fetch(`${BACKEND_URL}/social/${platform}/disconnect`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
             });
             const data = await res.json();
             if (data.success) {
-                setConnected(prev => ({ ...prev, [platform]: null }));
-                alert(`${platform} disconnected`);
+                setConnected((prev) => ({ ...prev, [platform]: null }));
+                alert(`${platform} disconnected successfully!`);
+            }
+        } catch (err) {
+            console.error("Disconnect error:", err);
+            alert("Failed to disconnect account.");
+        }
+    };
+
+    // --- Twitter Check & Disconnect ---
+    useEffect(() => {
+        if (!userId) return;
+        const saved = localStorage.getItem("twitter_account");
+        if (saved) setTwitterAccount(JSON.parse(saved));
+
+        fetch(`${BACKEND_URL}/api/twitter/check?userId=${userId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success && data.connected) {
+                    setTwitterAccount(data.account);
+                    localStorage.setItem("twitter_account", JSON.stringify(data.account));
+                }
+            })
+            .catch(console.error);
+    }, [userId]);
+
+    const disconnectTwitter = async () => {
+        if (!window.confirm("Disconnect Twitter?")) return;
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/twitter/disconnect`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setTwitterAccount(null);
+                localStorage.removeItem("twitter_account");
+                alert("Twitter disconnected successfully!");
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to disconnect account");
+            alert("Failed to disconnect Twitter.");
         }
     };
 
-    useEffect(() => {
-        checkTwitterConnection();
-    }, []);
+    // --- Render Card ---
+    const renderSocialCard = (platform) => {
+        const account = connected[platform];
+        switch (platform) {
+            case "facebook":
+                return account ? (
+                    <>
+                        <div
+                            onClick={() => navigate("/success")}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                                cursor: "pointer",
+                                padding: 10,
+                                borderRadius: 10,
+                                background: "#f4f4f4",
+                            }}
+                        >
+                            <img
+                                src={account.meta?.picture}
+                                alt={account.meta?.name}
+                                style={{ width: 50, height: 50, borderRadius: "50%" }}
+                            />
+                            <span style={{ color: "green", fontWeight: "bold" }}>
+                                {account.meta?.name}
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => disconnectAccount(platform)}
+                            style={styles.disconnectBtn}
+                        >
+                            Disconnect
+                        </button>
+                    </>
+                ) : (
+                    <button onClick={connectFacebook} style={styles.facebookBtn}>
+                        Connect Facebook
+                    </button>
+                );
 
-    const checkTwitterConnection = async () => {
-        if (!token) return;
+            case "instagram":
+                return account ? (
+                    <>
+                        <img
+                            src={account.profilePicture || ""}
+                            alt="IG Profile"
+                            style={{ width: 50, borderRadius: "50%", marginBottom: 10 }}
+                        />
+                        <p style={{ color: "green", fontWeight: "bold" }}>
+                            Connected (IG: {account.username})
+                        </p>
+                        <button
+                            onClick={() => disconnectAccount(platform)}
+                            style={styles.disconnectBtn}
+                        >
+                            Disconnect
+                        </button>
+                    </>
+                ) : (
+                    <button onClick={connectInstagram} style={styles.btn}>
+                        Connect Instagram
+                    </button>
+                );
 
-        try {
-            const decoded = jwtDecode(token);
-            const userId = decoded.id;
-
-            const response = await fetch(`${BACKEND_URL}/api/twitter/check?userId=${userId}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.connected) {
-                    setTwitterAccount(data.account);
-                    // Also save to localStorage for persistence
-                    localStorage.setItem('twitter_account', JSON.stringify(data.account));
-                } else {
-                    // Check localStorage as fallback
-                    const savedAccount = localStorage.getItem('twitter_account');
-                    if (savedAccount) {
-                        setTwitterAccount(JSON.parse(savedAccount));
-                    }
-                }
-            }
-        } catch (error) {
-            console.log("Twitter check error:", error);
-            // Check localStorage as fallback
-            const savedAccount = localStorage.getItem('twitter_account');
-            if (savedAccount) {
-                setTwitterAccount(JSON.parse(savedAccount));
-            }
+            default:
+                return null;
         }
     };
-
-    const disconnectTwitter = async () => {
-        if (!window.confirm("Are you sure you want to disconnect your Twitter account?")) {
-            return;
-        }
-
-        try {
-            const decoded = jwtDecode(token);
-            const userId = decoded.id;
-
-            const response = await fetch(`${BACKEND_URL}/api/twitter/disconnect`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ userId })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setTwitterAccount(null);
-                localStorage.removeItem('twitter_account');
-                alert("Twitter account disconnected successfully!");
-            } else {
-                alert("Failed to disconnect: " + data.error);
-            }
-        } catch (error) {
-            console.error("Error disconnecting:", error);
-            alert("Failed to disconnect Twitter account");
-        }
-    };
-
 
     return (
         <div style={styles.page}>
             <Navbar />
             <div style={styles.layout}>
-                <Sidebar onWidthChange={w => setSidebarWidth(w)} />
-
+                <Sidebar onWidthChange={(w) => setSidebarWidth(w)} />
                 <main
                     style={{
                         ...styles.content,
                         marginLeft: sidebarWidth,
                         transition: "0.3s ease",
-                        marginTop: "60px",
+                        marginTop: 60,
                     }}
                 >
                     <h2>Connect Your Social Media Accounts</h2>
-
                     <div style={styles.cardsContainer}>
-
                         {/* FACEBOOK */}
-
                         <div style={styles.card}>
-
                             <h3>Facebook</h3>
-
-                            {connected.facebook ? (
-                                <>
-                                    <div
-                                        onClick={() => navigate("/success")}      // 👈 CLICK → REDIRECT
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "10px",
-                                            cursor: "pointer",                     // 👈 cursor pointer
-                                            padding: "10px",
-                                            borderRadius: "10px",
-                                            background: "#f4f4f4"
-                                        }}
-                                    >
-                                        <img
-                                            src={connected.facebook.meta.picture}
-                                            alt={connected.facebook.meta.name}
-                                            style={{ width: 50, height: 50, borderRadius: "50%" }}
-                                        />
-
-                                        <span style={{ color: "green", fontWeight: "bold" }}>
-                                            {connected.facebook.meta.name}
-                                        </span>
-                                    </div>
-
-                                    <button
-                                        onClick={() => disconnectAccount("facebook")}
-                                        style={styles.disconnectBtn}
-                                    >
-                                        Disconnect
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={connectFacebook}
-                                    style={styles.facebookBtn}
-                                >
-                                    Connect Facebook
-                                </button>
-                            )}
+                            {renderSocialCard("facebook")}
                         </div>
 
+                        {/* INSTAGRAM */}
                         <div style={styles.card}>
                             <h3>Instagram</h3>
-                            {connected.instagram ? (
-                                <>
-                                    <img
-                                        src={connected.instagram.profilePicture}
-                                        alt="IG Profile"
-                                        style={{ width: 50, borderRadius: "50%", marginBottom: 10 }}
-                                    />
-                                    <p style={{ color: "green", fontWeight: "bold" }}>
-                                        Connected (IG: {connected.instagram.username})
-                                    </p>
-                                    <button
-                                        onClick={() => disconnectAccount("instagram")}
-                                        style={styles.disconnectBtn}
-                                    >
-                                        Disconnect
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={connectInstagram}
-                                    style={styles.btn}
-                                >
-                                    Connect Instagram
-                                </button>
-                            )}
+                            {renderSocialCard("instagram")}
                         </div>
 
                         {/* TWITTER */}
@@ -266,41 +222,33 @@ export default function Dashboard() {
                             {twitterAccount ? (
                                 <>
                                     <div style={styles.accountInfo}>
-                                        <div style={styles.accountRow}>
-                                            <img
-                                                src={twitterAccount.profileImage || `https://unavatar.io/twitter/${twitterAccount.username}`}
-                                                alt="Profile"
-                                                style={styles.profileImage}
-                                                onError={(e) => {
-                                                    e.target.src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png";
-                                                }}
-                                            />
-                                            <div style={styles.accountDetails}>
-                                                <p style={styles.accountName}>{twitterAccount.name || twitterAccount.username}</p>
-                                                <p style={styles.accountUsername}>@{twitterAccount.username}</p>
-                                            </div>
+                                        <img
+                                            src={
+                                                twitterAccount.profileImage ||
+                                                `https://unavatar.io/twitter/${twitterAccount.username}`
+                                            }
+                                            alt="Twitter Profile"
+                                            style={styles.profileImage}
+                                        />
+                                        <div>
+                                            <p style={styles.accountName}>
+                                                {twitterAccount.name || twitterAccount.username}
+                                            </p>
+                                            <p style={styles.accountUsername}>
+                                                @{twitterAccount.username}
+                                            </p>
                                         </div>
-                                        <p style={styles.connectedText}>✅ Connected</p>
                                     </div>
                                     <div style={styles.buttonGroup}>
                                         <button
-                                            onClick={() => window.location.href = "/twitter-manager"}
-                                            style={{
-                                                ...styles.btn,
-                                                backgroundColor: "#1DA1F2",
-                                                flex: 1
-                                            }}
+                                            style={{ ...styles.btn, backgroundColor: "#1DA1F2" }}
+                                            onClick={() => (window.location.href = "/twitter-manager")}
                                         >
                                             Manage Twitter
                                         </button>
                                         <button
+                                            style={{ ...styles.btn, backgroundColor: "#ff4d4f" }}
                                             onClick={disconnectTwitter}
-                                            style={{
-                                                ...styles.btn,
-                                                backgroundColor: "#ff4d4f",
-                                                marginLeft: "10px",
-                                                flex: 1
-                                            }}
                                         >
                                             Disconnect
                                         </button>
@@ -308,52 +256,32 @@ export default function Dashboard() {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => {
-                                        const decoded = jwtDecode(token);
-                                        if (!decoded?.id) {
-                                            alert("User not logged in. Please login again.");
-                                            return;
-                                        }
-
-                                        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${decoded.id}`;
-                                    }}
-
-                                    style={{
-                                        ...styles.btn,
-                                        backgroundColor: "#000000",
-                                    }}
+                                    style={{ ...styles.btn, backgroundColor: "#000" }}
+                                    onClick={() =>
+                                        (window.location.href = `${BACKEND_URL}/auth/twitter?userId=${userId}`)
+                                    }
                                 >
                                     Connect Twitter
                                 </button>
                             )}
                         </div>
 
-                        {/* LINKEDIN */}
+                        {/* Placeholder: LinkedIn & YouTube */}
                         <div style={styles.card}>
                             <h3>LinkedIn</h3>
                             <button style={styles.btn}>Connect LinkedIn</button>
                         </div>
-
-                        {/* YOUTUBE */}
                         <div style={styles.card}>
                             <h3>YouTube</h3>
                             <button
                                 style={styles.btn}
-                                onClick={() => {
-                                    const token = localStorage.getItem("token");
-                                    if (!token) return alert("Please login first!");
-                                    const decoded = jwtDecode(token);
-                                    const userId = decoded.id;
-
-                                    window.location.href =
-                                        `${BACKEND_URL}/social/youtube/auth?user=${userId}`;
-                                }}
+                                onClick={() =>
+                                    (window.location.href = `${BACKEND_URL}/social/youtube/auth?user=${userId}`)
+                                }
                             >
                                 Connect YouTube
                             </button>
-
                         </div>
-
                     </div>
                 </main>
             </div>
@@ -361,7 +289,6 @@ export default function Dashboard() {
         </div>
     );
 }
-
 
 const styles = {
     page: {
