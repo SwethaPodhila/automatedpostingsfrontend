@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Dashboard() {
     const [twitterAccount, setTwitterAccount] = useState(null);
@@ -35,10 +36,10 @@ export default function Dashboard() {
                     const fb = data.accounts.find(a => a.platform === "facebook");
                     const ig = data.accounts.find(a => a.platform === "instagram");
 
-                    setConnected({
-                        facebook: fb || null,
-                        instagram: ig || null
-                    });
+                    setConnected(prev => ({
+                        facebook: fb !== undefined ? fb : prev.facebook,
+                        instagram: ig !== undefined ? ig : prev.instagram
+                    }));
                 }
             })
             .catch(err => console.error("Failed to fetch accounts:", err));
@@ -55,14 +56,21 @@ export default function Dashboard() {
     };
 
     // Connect Instagram
-    const connectInstagram = () => {
-        const token = localStorage.getItem("token");
-        if (!token) return alert("Please login first!");
-        const decoded = jwtDecode(token);
-        const userId = decoded.id;
+    const connectInstagram = async () => {
+        try {
+            // 1. Redirect to backend OAuth endpoint
+            const res = await axios.get(
+                `${BACKEND_URL}/social/instagram/connect`,
+                { withCredentials: true } // if using cookies/session
+            );
 
-        window.location.href = `${BACKEND_URL}/social/instagram?userId=${userId}`;
+            // 2. Backend redirects user to Instagram OAuth
+            window.location.href = res.data.authUrl;
+        } catch (error) {
+            console.error("Instagram connect error:", error);
+        }
     };
+
 
     // Disconnect account
     const disconnectAccount = async (platform) => {
@@ -223,13 +231,17 @@ export default function Dashboard() {
                             )}
                         </div>
 
-                        {/* INSTAGRAM */}
                         <div style={styles.card}>
                             <h3>Instagram</h3>
                             {connected.instagram ? (
                                 <>
+                                    <img
+                                        src={connected.instagram.profilePicture}
+                                        alt="IG Profile"
+                                        style={{ width: 50, borderRadius: "50%", marginBottom: 10 }}
+                                    />
                                     <p style={{ color: "green", fontWeight: "bold" }}>
-                                        Connected (IG ID: {connected.instagram.providerId})
+                                        Connected (IG: {connected.instagram.username})
                                     </p>
                                     <button
                                         onClick={() => disconnectAccount("instagram")}
