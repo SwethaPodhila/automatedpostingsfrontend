@@ -17,6 +17,10 @@ export default function FacebookManualPost() {
   const [responseMsg, setResponseMsg] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(50);
 
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiGeneratedText, setAiGeneratedText] = useState("");
+
+
   const navigate = useNavigate();
 
   // Fetch pages
@@ -37,19 +41,29 @@ export default function FacebookManualPost() {
 
   const handleGenerateAI = async () => {
     if (!aiPrompt.trim()) return alert("Please enter an AI prompt!");
+
     setLoading(true);
     try {
-      const res = await axios.post("https://automatedpostingbackend.onrender.com/social/ai-generate", { prompt: aiPrompt });
+      const res = await axios.post(
+        "https://automatedpostingbackend.onrender.com/social/ai-generate",
+        { prompt: aiPrompt }
+      );
+
       if (res.data.text) {
-        setMessage(res.data.text);
-        setResponseMsg("✨ AI Caption Generated!");
+        setAiGeneratedText(res.data.text);
+        setShowAIModal(true); // ✅ open popup
       }
     } catch (err) {
       console.error(err);
-      setResponseMsg("❌ AI failed to generate caption.");
+      alert("❌ AI failed to generate caption");
     }
     setLoading(false);
   };
+  const handleUseAICaption = () => {
+    setMessage(aiGeneratedText); // textarea lo set
+    setShowAIModal(false);       // popup close
+  };
+
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) setImageFile(e.target.files[0]);
@@ -80,7 +94,7 @@ export default function FacebookManualPost() {
       formData.append("message", message);
       formData.append("userId", localStorage.getItem("userId"));
       if (imageFile) formData.append("image", imageFile);
-      if (aiPrompt) formData.append("aiPrompt", aiPrompt);
+      //if (aiPrompt) formData.append("aiPrompt", aiPrompt);
       if (scheduleTime) formData.append("scheduleTime", scheduleTime);
 
       const res = await axios.post(
@@ -93,7 +107,7 @@ export default function FacebookManualPost() {
         setResponseMsg("🎉 Post published successfully!");
         setMessage("");
         setImageFile(null);
-        setAiPrompt("");
+       // setAiPrompt("");
         setScheduleTime("");
       } else {
         setResponseMsg("❌ Failed to publish post.");
@@ -195,6 +209,40 @@ export default function FacebookManualPost() {
           </div>
         </main>
       </div>
+
+
+      {showAIModal && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <h3 style={{ marginBottom: 10 }}>✨ AI Generated Caption</h3>
+
+            <textarea
+              value={aiGeneratedText}
+              readOnly
+              rows={8}
+              style={styles.modalTextarea}
+            />
+
+            <div style={styles.modalActions}>
+              <button
+                onClick={handleUseAICaption}
+                style={{ ...styles.button, background: "#16a34a" }}
+              >
+                ✅ Use this caption
+              </button>
+
+              <button
+                onClick={() => setShowAIModal(false)}
+                style={{ ...styles.button, background: "#6b7280" }}
+              >
+                ❌ Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <Footer />
     </div>
   );
@@ -243,4 +291,39 @@ const styles = {
   },
   response: { marginTop: 10, fontWeight: 600, fontSize: 15, color: "rgb(124, 58, 237)" },
   row: { display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap" },
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+
+  modal: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "500px",
+    maxWidth: "90%",
+  },
+
+  modalTextarea: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    resize: "none",
+  },
+
+  modalActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 15,
+  },
 };
