@@ -7,10 +7,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Dashboard from "./pages/Dashboard";
 import Success from "./pages/Success";
 import PrivacyPolicy from "./pages/Privacy-policy";
-import PostToPage from "./pages/PostToPage";
 import ManualPost from "./pages/MannualPost";
 import TwitterConnect from "./pages/TwitterConnect";
 import TwitterManager from "./pages/TwitterManger";
+import TwitterCard from "./pages/TwitterCard";
+import FacebookCard from "./pages/FacebookCard";
+import InstagramCard from "./pages/InstagramCard";
+import LinkedInCard from "./pages/LinkedinCard";
+import YouTubeCard from "./pages/YoutubeCard";
+import AllPost from "./pages/AllPosts";
+import InstagramDashboard from "./pages/InstagramDashboard";
 
 function App() {
   return (
@@ -21,10 +27,19 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/success" element={<Success />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/post" element={<PostToPage />} />
         <Route path="/manual-post" element={<ManualPost />} />
+
         <Route path="/twitter-connect" element={<TwitterConnect />} />
         <Route path="/twitter-manager" element={<TwitterManager />} />
+
+          <Route path="/twitter-card" element={<TwitterCard />} />
+          <Route path="/facebook-card" element={<FacebookCard />} />
+          <Route path="/instagram-card" element={<InstagramCard />} />
+          <Route path="/linkedin-card" element={<LinkedInCard />} />
+          <Route path="/youtube-card" element={<YouTubeCard />} />
+          <Route path="/all-posts" element={<AllPost />} />
+
+          <Route path="/instagram-dashboard" element={<InstagramDashboard />} />
 
         {/*  */}
       </Routes>
