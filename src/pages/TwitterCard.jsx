@@ -25,9 +25,6 @@ const TwitterCard = ({ account, connect, disconnect }) => {
                         </div>
                     </div>
 
-                    {/* Connected badge */}
-                    <span style={styles.connectedBadge}>✓ Connected</span>
-
                     {/* Actions */}
                     <div style={styles.actions}>
                         <button
@@ -85,18 +82,6 @@ const styles = {
     username: {
         fontSize: 13,
         color: "#6b7280",
-    },
-
-    connectedBadge: {
-        display: "inline-block",
-        marginTop: 6,
-        marginBottom: 12,
-        background: "#e6f7ee",
-        color: "#16a34a",
-        fontSize: 12,
-        fontWeight: 600,
-        padding: "4px 10px",
-        borderRadius: 20,
     },
 
     actions: {

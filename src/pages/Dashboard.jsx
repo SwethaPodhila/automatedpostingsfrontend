@@ -20,6 +20,13 @@ export default function Dashboard() {
     const [twitterAccount, setTwitterAccount] = useState(null);
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
+    const [linkedinAccount, setLinkedinAccount] = useState(null);
+
+   useEffect(() => {
+        if (token) {
+            checkLinkedInConnection();
+        }
+    }, [token]);
 
     const getUserId = () => {
         if (!token) return null;
@@ -62,7 +69,7 @@ export default function Dashboard() {
         const id = jwtDecode(token).id;
         window.location.href = `${BACKEND_URL}/auth/twitter?userId=${id}`;
     };
- 
+
     const disconnectTwitter = async () => {
         if (!window.confirm("Disconnect Twitter?")) return;
         try {
@@ -87,6 +94,69 @@ export default function Dashboard() {
         })();
     }, []);
 
+    const checkLinkedInConnection = async () => {
+        if (!token) return;
+
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+
+            const response = await fetch(`${BACKEND_URL}/api/linkedin/check?userId=${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.connected) {
+                    setLinkedinAccount(data.account);
+                    localStorage.setItem('linkedin_account', JSON.stringify(data.account));
+                } else {
+                    const savedAccount = localStorage.getItem('linkedin_account');
+                    if (savedAccount) {
+                        setLinkedinAccount(JSON.parse(savedAccount));
+                    }
+                }
+            }
+        } catch (error) {
+            console.log("LinkedIn check error:", error);
+            const savedAccount = localStorage.getItem('linkedin_account');
+            if (savedAccount) {
+                setLinkedinAccount(JSON.parse(savedAccount));
+            }
+        }
+    };
+
+    // ==== ADD THIS FUNCTION ====
+    const disconnectLinkedIn = async () => {
+        if (!window.confirm("Are you sure you want to disconnect your LinkedIn account?")) {
+            return;
+        }
+
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+
+            const response = await fetch(`${BACKEND_URL}/api/linkedin/disconnect`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setLinkedinAccount(null);
+                localStorage.removeItem('linkedin_account');
+                alert("LinkedIn account disconnected successfully!");
+            } else {
+                alert("Failed to disconnect: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error disconnecting:", error);
+            alert("Failed to disconnect LinkedIn account");
+        }
+    };
+
+
     return (
         <div style={styles.page}>
             <Navbar />
@@ -98,13 +168,27 @@ export default function Dashboard() {
                         <div style={styles.card}><h3>Facebook</h3><FacebookCard account={connected.facebook} connect={connectFacebook} disconnect={disconnectAccount} navigate={navigate} /></div>
                         <div style={styles.card}><h3>Instagram</h3><InstagramCard account={connected.instagram} connect={connectInstagram} disconnect={disconnectAccount} /></div>
                         <div style={styles.card}><h3>Twitter</h3><TwitterCard account={twitterAccount} connect={connectTwitter} disconnect={disconnectTwitter} /></div>
-                        <div style={styles.card}><h3>LinkedIn</h3><LinkedInCard connect={() => alert("LinkedIn connect")} /></div>
+
+                        <h3>LinkedIn</h3>
+                        <LinkedInCard
+                            connect={() => {
+                                const decoded = jwtDecode(token);
+                                if (!decoded?.id) {
+                                    alert("User not logged in. Please login again.");
+                                    return;
+                                }
+                                window.location.href = `${BACKEND_URL}/auth/linkedin?userId=${decoded.id}`;
+                            }}
+                            linkedinAccount={linkedinAccount}
+                            disconnectLinkedIn={disconnectLinkedIn}
+                        />
+
                         <div style={styles.card}><h3>YouTube</h3><YouTubeCard connect={() => window.location.href = `${BACKEND_URL}/social/youtube/auth?user=${userId}`} /></div>
                     </div>
                 </main>
-            </div>
+            </div >
             <Footer />
-        </div>
+        </div >
     );
 }
 

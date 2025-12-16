@@ -4,12 +4,9 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
-
-
 export default function TwitterManager() {
-    // 🔧 UPDATED TO PRODUCTION URL
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
-
+    
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [twitterAccount, setTwitterAccount] = useState(null);
     const [tweetContent, setTweetContent] = useState("");
@@ -21,6 +18,29 @@ export default function TwitterManager() {
 
     const token = localStorage.getItem("token");
 
+    // Android session verification function
+    const verifyAndroidSession = async (sessionId) => {
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/api/twitter/verify-session?session_id=${sessionId}`
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                // Load Twitter account after verification
+                loadTwitterAccount();
+                setMessage("✅ Twitter connected successfully via Android!");
+                // Clear the URL parameters
+                window.history.replaceState({}, document.title, "/twitter-manager");
+            } else {
+                setError("Failed to verify Twitter session");
+            }
+        } catch (err) {
+            console.error("Session verification error:", err);
+            setError("Failed to verify Twitter session. Please try again.");
+        }
+    };
+
     useEffect(() => {
         if (!token) {
             window.location.href = "/login";
@@ -28,6 +48,18 @@ export default function TwitterManager() {
         }
 
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Check for Android callback first
+        const sessionId = urlParams.get("session_id");
+        const status = urlParams.get("status");
+        
+        if (sessionId && status === "success") {
+            // This is an Android callback - verify the session
+            verifyAndroidSession(sessionId);
+            return;
+        }
+
+        // Check for web callback
         const twitterStatus = urlParams.get("twitter");
         const username = urlParams.get("username");
 
@@ -43,7 +75,7 @@ export default function TwitterManager() {
             setMessage(`✅ Successfully connected to @${username}!`);
             window.history.replaceState({}, document.title, "/twitter-manager");
             setIsLoading(false);
-            return; // skip backend fetch
+            return;
         }
 
         loadTwitterAccount();
@@ -55,7 +87,7 @@ export default function TwitterManager() {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            const response = await fetch(`${BACKEND_URL}/auth/twitter/account/${userId}`);
+            const response = await fetch(`${BACKEND_URL}/api/twitter/check?userId=${userId}`);
             if (!response.ok) throw new Error(`API error: ${response.status}`);
 
             const data = await response.json();
@@ -71,7 +103,6 @@ export default function TwitterManager() {
                 setError("");
                 localStorage.setItem("twitter_account", JSON.stringify(account));
             } else {
-                // fallback to localStorage
                 const savedAccount = localStorage.getItem("twitter_account");
                 if (savedAccount) {
                     setTwitterAccount(JSON.parse(savedAccount));
@@ -174,7 +205,17 @@ export default function TwitterManager() {
     const reconnectTwitter = () => {
         const decoded = jwtDecode(token);
         const userId = decoded.id;
-        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`;
+        
+        // Detect Android
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+            // For Android - add platform parameter
+            window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}&platform=android`;
+        } else {
+            // For Web
+            window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`;
+        }
     };
 
     const viewTweetOnTwitter = (tweetUrl) => {

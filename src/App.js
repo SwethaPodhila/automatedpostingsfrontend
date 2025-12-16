@@ -17,6 +17,10 @@ import LinkedInCard from "./pages/LinkedinCard";
 import YouTubeCard from "./pages/YoutubeCard";
 import AllPost from "./pages/AllPosts";
 import InstagramDashboard from "./pages/InstagramDashboard";
+import AutomationForm from "./pages/AutomationForm";
+import LinkedInCard from "./pages/LinkedinCard";
+import LinkedInConnect from "./pages/LinkedinConnection";
+import LinkedinManager from "./pages/LinkedinManager";
 
 function App() {
   return (
@@ -32,14 +36,19 @@ function App() {
         <Route path="/twitter-connect" element={<TwitterConnect />} />
         <Route path="/twitter-manager" element={<TwitterManager />} />
 
-          <Route path="/twitter-card" element={<TwitterCard />} />
-          <Route path="/facebook-card" element={<FacebookCard />} />
-          <Route path="/instagram-card" element={<InstagramCard />} />
-          <Route path="/linkedin-card" element={<LinkedInCard />} />
-          <Route path="/youtube-card" element={<YouTubeCard />} />
-          <Route path="/all-posts" element={<AllPost />} />
+        <Route path="/twitter-card" element={<TwitterCard />} />
+        <Route path="/facebook-card" element={<FacebookCard />} />
+        <Route path="/instagram-card" element={<InstagramCard />} />
+        
+        <Route path="/youtube-card" element={<YouTubeCard />} />
+        <Route path="/all-posts" element={<AllPost />} />
+        <Route path="/auto-post" element={<AutomationForm />} /> 
 
-          <Route path="/instagram-dashboard" element={<InstagramDashboard />} />
+        <Route path="/instagram-dashboard" element={<InstagramDashboard />} />
+
+        <Route path="/linkedin-card" element={<LinkedInCard />} />
+        <Route path="/linkedin-connect" element={<LinkedInConnect />} />
+        <Route path="/linkedin-manager" element={<LinkedinManager />} />
 
         {/*  */}
       </Routes>
