@@ -18,7 +18,6 @@ import YouTubeCard from "./pages/YoutubeCard";
 import AllPost from "./pages/AllPosts";
 import InstagramDashboard from "./pages/InstagramDashboard";
 import AutomationForm from "./pages/AutomationForm";
-import LinkedInCard from "./pages/LinkedinCard";
 import LinkedInConnect from "./pages/LinkedinConnection";
 import LinkedinManager from "./pages/LinkedinManager";
 
