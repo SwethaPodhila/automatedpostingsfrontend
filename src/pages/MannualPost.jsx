@@ -12,7 +12,8 @@ export default function FacebookManualPost() {
   const [scheduleTime, setScheduleTime] = useState("");
   const [message, setMessage] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
-  const [imageFile, setImageFile] = useState(null);
+  // const [imageFile, setImageFile] = useState(null);
+  const [mediaFile, setMediaFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [responseMsg, setResponseMsg] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(50);
@@ -65,15 +66,15 @@ export default function FacebookManualPost() {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files.length > 0) setImageFile(e.target.files[0]);
-    else setImageFile(null);
+    if (e.target.files.length > 0) setMediaFile(e.target.files[0]);
+    else setMediaFile(null);
   };
 
   const handlePost = async () => {
     if (!selectedPage) return alert("Select a page first!");
-    if (!message.trim() && !imageFile) return alert("Message or image required!");
+    if (!message.trim() && !mediaFile)
+      return alert("Message or image/video required!");
 
-    // ✅ Schedule time validation (min 10 minutes from now)
     if (scheduleTime) {
       const selectedTime = new Date(scheduleTime);
       const now = new Date();
@@ -92,21 +93,18 @@ export default function FacebookManualPost() {
       formData.append("pageId", selectedPage);
       formData.append("message", message);
       formData.append("userId", localStorage.getItem("userId"));
-      if (imageFile) formData.append("image", imageFile);
-      //if (aiPrompt) formData.append("aiPrompt", aiPrompt);
+      if (mediaFile) formData.append("media", mediaFile);
       if (scheduleTime) formData.append("scheduleTime", scheduleTime);
 
       const res = await axios.post(
-        "https://automatedpostingbackend.onrender.com/social/publish/facebook",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        "http://localhost:5000/social/publish/facebook",
+        formData
       );
 
       if (res.data.success) {
         setResponseMsg("🎉 Post published successfully!");
         setMessage("");
-        setImageFile(null);
-       // setAiPrompt("");
+        setMediaFile(null);
         setScheduleTime("");
       } else {
         setResponseMsg("❌ Failed to publish post.");
@@ -183,9 +181,13 @@ export default function FacebookManualPost() {
           {/* Image + Schedule Row */}
           <div style={styles.row}>
             <div style={{ ...styles.card, flex: 5 }}>
-              <div style={styles.cardHeader}>📷 Upload Image (Optional)</div>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-              {imageFile && <p>Selected: {imageFile.name}</p>}
+              <div style={styles.cardHeader}>📷 Upload Image / Video (Optional)</div>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+              />
+              {mediaFile && <p>Selected: {mediaFile.name}</p>}
             </div>
             <div style={{ ...styles.card, flex: 5 }}>
               <div style={styles.cardHeader}>⏰ Schedule Post (Optional)</div>
