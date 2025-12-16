@@ -64,7 +64,6 @@ export default function FacebookManualPost() {
     setShowAIModal(false);       // popup close
   };
 
-
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) setImageFile(e.target.files[0]);
     else setImageFile(null);

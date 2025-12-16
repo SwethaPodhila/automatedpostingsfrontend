@@ -59,7 +59,7 @@ export default function InstagramDashboard() {
         try {
             setLoading(true);
             await axios.post(
-                "https://automatedpostingbackend.onrender.com/social/publish/instagram",
+                "http://localhost:5000/social/publish/instagram",
                 formData
             );
             alert(scheduleTime ? "Post Scheduled ✅" : "Post Published 🚀");

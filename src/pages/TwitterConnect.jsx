@@ -5,7 +5,6 @@ import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
 export default function TwitterConnect() {
-    // 🔧 UPDATED TO PRODUCTION URL
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
@@ -21,19 +20,32 @@ export default function TwitterConnect() {
         }
         
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Check for Android callback
+        const sessionId = urlParams.get("session_id");
+        const status = urlParams.get("status");
+        
+        if (sessionId && status === "success") {
+            // Android callback - redirect to manager
+            setTimeout(() => {
+                window.location.href = "/twitter-manager";
+            }, 1000);
+            return;
+        }
+        
+        // Check for web callback
         const twitterStatus = urlParams.get('twitter');
         const username = urlParams.get('username');
         const errorMsg = urlParams.get('error');
         
         if (twitterStatus === 'connected' && username) {
-            alert(`✅ Twitter connected successfully! Welcome @${username}`);
             setTimeout(() => {
                 window.location.href = "/twitter-manager";
             }, 2000);
         }
         
         if (errorMsg) {
-            setError(`Twitter connection failed: ${errorMsg}`);
+            setError(`Twitter connection failed: ${decodeURIComponent(errorMsg)}`);
         }
     }, [token]);
 
@@ -62,29 +74,22 @@ export default function TwitterConnect() {
         setError("");
 
         try {
-            console.log("🔄 Fetching Twitter OAuth URL for user:", userId);
+            console.log("🔄 Starting Twitter OAuth for user:", userId);
             
-            // ✅ FIX: FETCH the auth URL first, then redirect
-            const response = await fetch(`${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`, {
-                credentials: 'include' // Important for sessions
-            });
+            // Detect Android
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const platform = isAndroid ? "android" : "web";
             
-            console.log("📡 Response status:", response.status);
+            console.log("📱 Platform detected:", platform);
             
-            if (!response.ok) {
-                throw new Error(`Backend error: ${response.status}`);
-            }
+            // ✅ FIXED: Direct redirect to backend OAuth endpoint
+            // Don't fetch - just redirect directly
+            const authUrl = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}&platform=${platform}`;
             
-            const data = await response.json();
-            console.log("📊 Response data:", data);
+            console.log("✅ Redirecting to:", authUrl);
             
-            if (data.success && data.authUrl) {
-                console.log("✅ Got Twitter auth URL, redirecting...");
-                window.location.href = data.authUrl;
-            } else {
-                setError("Failed to get Twitter auth URL: " + (data.error || "Unknown error"));
-                setIsConnecting(false);
-            }
+            // Direct redirect (no fetch needed)
+            window.location.href = authUrl;
             
         } catch (error) {
             console.error("❌ Twitter connection error:", error);
@@ -117,23 +122,25 @@ export default function TwitterConnect() {
                                 </svg>
                             </div>
                             
-                            <h3>Connect Your Twitter (X) Account</h3>
+                            <h3>Connect Your Twitter Account</h3>
                             
                             <p style={styles.description}>
-                                Connect your Twitter account to post tweets, schedule content, and analyze your Twitter performance.
+                                Connect your Twitter account to post tweets directly from AI Media Hub.
                             </p>
                             
                             <p style={styles.permissions}>
-                                📝 <strong>Permissions required:</strong> Post tweets, Read your profile
+                                🔐 <strong>Secure connection:</strong> Your Twitter credentials are never stored
                             </p>
                             
                             {error && (
                                 <div style={styles.errorBox}>
                                     ❌ {error}
-                                    <br />
-                                    <small style={{fontSize: "12px", marginTop: "5px", display: "block"}}>
-                                        Check browser console for details
-                                    </small>
+                                    <button 
+                                        onClick={() => setError("")}
+                                        style={styles.closeButton}
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
                             )}
                             
@@ -156,24 +163,32 @@ export default function TwitterConnect() {
                                 )}
                             </button>
                             
+                            <div style={styles.platformInfo}>
+                                <p style={{ fontSize: "14px", color: "#666", marginTop: "20px" }}>
+                                    {/Android/i.test(navigator.userAgent) 
+                                        ? "📱 Android mode: Will redirect back to app" 
+                                        : "💻 Web mode: Will redirect to manager page"}
+                                </p>
+                            </div>
+                            
                             <div style={styles.steps}>
                                 <h4>How it works:</h4>
                                 <ol style={styles.stepsList}>
                                     <li>Click "Connect with Twitter"</li>
-                                    <li>Your app fetches OAuth URL from backend</li>
-                                    <li>Redirects to Twitter/X login page</li>
-                                    <li>Login and authorize the app</li>
-                                    <li>Twitter redirects back to your app</li>
-                                    <li>You'll be redirected to Twitter Manager page</li>
+                                    <li>You'll be redirected to Twitter login</li>
+                                    <li>Authorize AI Media Hub to post tweets</li>
+                                    <li>You'll be redirected back automatically</li>
+                                    <li>Start posting tweets immediately!</li>
                                 </ol>
                             </div>
                             
-                            <div style={styles.debugInfo}>
-                                <h4>Debug Info:</h4>
-                                <p style={{fontSize: "12px", color: "#666"}}>
-                                    Backend URL: {BACKEND_URL}<br />
-                                    Endpoint: {BACKEND_URL}/auth/twitter?userId=YOUR_ID
-                                </p>
+                            <div style={styles.troubleshoot}>
+                                <h4>Having issues?</h4>
+                                <ul style={styles.troubleshootList}>
+                                    <li>Make sure you're logged into Twitter</li>
+                                    <li>Check if any browser extensions are blocking redirects</li>
+                                    <li>Try in a private/incognito window</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -240,8 +255,18 @@ const styles = {
         padding: "15px",
         borderRadius: "8px",
         marginBottom: "20px",
-        textAlign: "left",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
         borderLeft: "4px solid #d32f2f"
+    },
+    closeButton: {
+        background: "none",
+        border: "none",
+        color: "#d32f2f",
+        fontSize: "18px",
+        cursor: "pointer",
+        padding: "0 5px"
     },
     connectButton: { 
         background: "#000", 
@@ -267,6 +292,9 @@ const styles = {
         height: "20px",
         animation: "spin 1s linear infinite"
     },
+    platformInfo: {
+        marginBottom: "20px"
+    },
     steps: {
         textAlign: "left",
         marginTop: "30px",
@@ -276,14 +304,21 @@ const styles = {
     stepsList: {
         paddingLeft: "20px",
         lineHeight: "1.8",
-        fontSize: "14px"
+        fontSize: "14px",
+        marginBottom: "20px"
     },
-    debugInfo: {
+    troubleshoot: {
+        textAlign: "left",
         marginTop: "20px",
-        padding: "10px",
+        padding: "15px",
         backgroundColor: "#f9f9f9",
-        borderRadius: "8px",
-        fontSize: "12px"
+        borderRadius: "8px"
+    },
+    troubleshootList: {
+        paddingLeft: "20px",
+        lineHeight: "1.8",
+        fontSize: "13px",
+        color: "#666"
     }
 };
 
