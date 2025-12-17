@@ -50,7 +50,9 @@ export default function Dashboard() {
     }, [userId]);
 
     const connectFacebook = () => userId && (window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}`);
+ 
     const connectInstagram = () => userId && (window.location.href = `${BACKEND_URL}/social/instagram/connect?userId=${userId}`);
+   
     const disconnectAccount = async (platform) => {
         if (!userId || !window.confirm(`Disconnect ${platform}?`)) return;
         try {

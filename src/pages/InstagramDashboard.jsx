@@ -12,7 +12,13 @@ export default function InstagramDashboard() {
     const [metrics, setMetrics] = useState(null);
     const [caption, setCaption] = useState("");
     const [scheduleTime, setScheduleTime] = useState("");
-    const [image, setImage] = useState(null);
+
+    const [media, setMedia] = useState(null);
+    const [showAIModal, setShowAIModal] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState("");
+    const [aiGeneratedCaption, setAiGeneratedCaption] = useState("");
+    const [aiLoading, setAiLoading] = useState(false);
+
     const [loading, setLoading] = useState(false);
     const nowPlus10 = new Date(Date.now() + 10 * 60000);
 
@@ -32,27 +38,23 @@ export default function InstagramDashboard() {
     }, [userId]);
 
     const publishPost = async () => {
-        if (!caption || !image) {
-            alert("Caption and image required");
+        if (!caption && !media) {
+            alert("Caption or media required");
             return;
         }
 
         const formData = new FormData();
         formData.append("caption", caption);
-        formData.append("image", image);
+        formData.append("media", media); // must be a File object
         formData.append("userId", userId);
 
-        // validation before appending
         if (scheduleTime) {
             const selectedTime = new Date(scheduleTime);
             const nowPlus10 = new Date(Date.now() + 10 * 60 * 1000);
-
             if (selectedTime < nowPlus10) {
                 alert("Scheduled time must be at least 10 minutes from now");
                 return;
             }
-
-            // only append if valid
             formData.append("scheduleTime", scheduleTime);
         }
 
@@ -60,19 +62,47 @@ export default function InstagramDashboard() {
             setLoading(true);
             await axios.post(
                 "http://localhost:5000/social/publish/instagram",
-                formData
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
             );
+
             alert(scheduleTime ? "Post Scheduled ✅" : "Post Published 🚀");
-            // ✅ RESET FORM
             setCaption("");
-            setImage(null);
+            setMedia(null);
             setScheduleTime("");
-        } catch {
+        } catch (err) {
+            console.error(err.response?.data || err.message);
             alert("Post failed ❌");
         } finally {
             setLoading(false);
         }
     };
+
+    const handleGenerateAI = async () => {
+        if (!aiPrompt.trim()) {
+            alert("Enter prompt text");
+            return;
+        }
+
+        try {
+            setAiLoading(true);
+            const res = await axios.post(
+                "https://automatedpostingbackend.onrender.com/social/ai-generate",
+                { prompt: aiPrompt }
+            );
+
+            setAiGeneratedCaption(res.data.text);
+        } catch {
+            alert("AI generation failed");
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
 
     return (
         <div style={{ background: "#f5f7fb", minHeight: "100vh" }}>
@@ -148,15 +178,22 @@ export default function InstagramDashboard() {
                                         style={textarea}
                                     />
 
+                                    <button
+                                        style={{ marginTop: "10px" }}
+                                        onClick={() => setShowAIModal(true)}
+                                    >
+                                        🤖 AI Assistant
+                                    </button>
+
                                     {/* Upload + Schedule */}
                                     <div style={row}>
                                         {/* Image Upload */}
                                         <div style={inputCard}>
-                                            <label style={label}>Upload Image</label>
+                                            <label style={label}>Upload Image / Video</label>
                                             <input
                                                 type="file"
-                                                accept="image/*"
-                                                onChange={e => setImage(e.target.files[0])}
+                                                accept="image/*,video/*"
+                                                onChange={e => setMedia(e.target.files[0])}
                                                 style={fileInput}
                                             />
                                         </div>
@@ -190,6 +227,78 @@ export default function InstagramDashboard() {
                         )}
                     </div>
                 </main>
+
+                {showAIModal && (
+                    <div style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        background: "rgba(0,0,0,0.6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            background: "#fff",
+                            padding: "20px",
+                            width: "400px",
+                            borderRadius: "8px"
+                        }}>
+                            <h3>🤖 AI Caption Assistant</h3>
+
+                            {/* Prompt */}
+                            <textarea
+                                placeholder="Enter prompt for caption..."
+                                value={aiPrompt}
+                                onChange={(e) => setAiPrompt(e.target.value)}
+                                style={{ width: "100%", height: "80px" }}
+                            />
+
+                            <button onClick={handleGenerateAI} disabled={aiLoading}>
+                                {aiLoading ? "Generating..." : "Generate Caption"}
+                            </button>
+
+                            {/* Generated Caption */}
+                            {aiGeneratedCaption && (
+                                <>
+                                    <textarea
+                                        value={aiGeneratedCaption}
+                                        readOnly
+                                        style={{ width: "100%", height: "100px", marginTop: "10px" }}
+                                    />
+
+                                    <div style={{ marginTop: "10px" }}>
+                                        <button
+                                            onClick={() => {
+                                                setCaption(aiGeneratedCaption);
+                                                setShowAIModal(false);
+                                                setAiPrompt("");
+                                                setAiGeneratedCaption("");
+                                            }}
+                                        >
+                                            Use this caption ✅
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setShowAIModal(false);
+                                                setAiPrompt("");
+                                                setAiGeneratedCaption("");
+                                            }}
+                                            style={{ marginLeft: "10px" }}
+                                        >
+                                            Cancel ❌
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
 
                 <Footer />
             </div>
