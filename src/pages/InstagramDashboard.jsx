@@ -169,7 +169,26 @@ export default function InstagramDashboard() {
 
                                 {/* CREATE POST */}
                                 <div style={postCard}>
-                                    <h3 style={postTitle}>Create Instagram Post</h3>
+                                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16}}>
+                                        <h3 style={postTitle}>Create Instagram Post</h3>
+
+                                        <button
+                                            onClick={() => setShowAIModal(true)}
+                                            style={{
+                                                padding: "10px 16px",
+                                                borderRadius: 12,
+                                                background: "linear-gradient(90deg,#7c3aed,#ec4899)",
+                                                color: "#fff",
+                                                fontWeight: 700,
+                                                border: "none",
+                                                cursor: "pointer",
+                                                flexShrink: 0,
+                                                alignSelf: "flex-start"
+                                            }}
+                                        >
+                                            🤖Generate Ai Caption
+                                        </button>
+                                    </div>
 
                                     <textarea
                                         value={caption}
@@ -177,13 +196,6 @@ export default function InstagramDashboard() {
                                         placeholder="Write your caption here..."
                                         style={textarea}
                                     />
-
-                                    <button
-                                        style={{ marginTop: "10px" }}
-                                        onClick={() => setShowAIModal(true)}
-                                    >
-                                        🤖 AI Assistant
-                                    </button>
 
                                     {/* Upload + Schedule */}
                                     <div style={row}>
@@ -235,7 +247,7 @@ export default function InstagramDashboard() {
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        background: "rgba(0,0,0,0.6)",
+                        background: "rgba(0,0,0,0.5)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -243,40 +255,63 @@ export default function InstagramDashboard() {
                     }}>
                         <div style={{
                             background: "#fff",
-                            padding: "20px",
-                            width: "400px",
-                            borderRadius: "8px"
+                            padding: "30px",
+                            width: "450px",
+                            borderRadius: "18px",
+                            boxShadow: "0 15px 40px rgba(0,0,0,0.2)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "15px"
                         }}>
-                            <h3>🤖 AI Caption Assistant</h3>
+                            <h3 style={{ margin: 0, fontWeight: 700 }}>🤖 AI Caption Assistant</h3>
 
-                            {/* Prompt */}
                             <textarea
                                 placeholder="Enter prompt for caption..."
                                 value={aiPrompt}
                                 onChange={(e) => setAiPrompt(e.target.value)}
-                                style={{ width: "100%", height: "80px" }}
+                                style={{ width: "100%", height: "80px", padding: "12px", borderRadius: "12px", border: "1px solid #d1d5db", resize: "none" }}
                             />
 
-                            <button onClick={handleGenerateAI} disabled={aiLoading}>
+                            <button
+                                onClick={handleGenerateAI}
+                                disabled={aiLoading}
+                                style={{
+                                    padding: "10px 16px",
+                                    borderRadius: "12px",
+                                    background: "linear-gradient(90deg,#7c3aed,#ec4899)",
+                                    color: "#fff",
+                                    fontWeight: 700,
+                                    border: "none",
+                                    cursor: "pointer"
+                                }}
+                            >
                                 {aiLoading ? "Generating..." : "Generate Caption"}
                             </button>
 
-                            {/* Generated Caption */}
                             {aiGeneratedCaption && (
                                 <>
                                     <textarea
                                         value={aiGeneratedCaption}
                                         readOnly
-                                        style={{ width: "100%", height: "100px", marginTop: "10px" }}
+                                        style={{ width: "100%", height: "100px", padding: "12px", borderRadius: "12px", border: "1px solid #d1d5db", resize: "none" }}
                                     />
 
-                                    <div style={{ marginTop: "10px" }}>
+                                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                                         <button
                                             onClick={() => {
                                                 setCaption(aiGeneratedCaption);
                                                 setShowAIModal(false);
                                                 setAiPrompt("");
                                                 setAiGeneratedCaption("");
+                                            }}
+                                            style={{
+                                                padding: "8px 14px",
+                                                borderRadius: "10px",
+                                                background: "#22c55e",
+                                                color: "#fff",
+                                                fontWeight: 700,
+                                                border: "none",
+                                                cursor: "pointer"
                                             }}
                                         >
                                             Use this caption ✅
@@ -288,7 +323,15 @@ export default function InstagramDashboard() {
                                                 setAiPrompt("");
                                                 setAiGeneratedCaption("");
                                             }}
-                                            style={{ marginLeft: "10px" }}
+                                            style={{
+                                                padding: "8px 14px",
+                                                borderRadius: "10px",
+                                                background: "#ef4444",
+                                                color: "#fff",
+                                                fontWeight: 700,
+                                                border: "none",
+                                                cursor: "pointer"
+                                            }}
                                         >
                                             Cancel ❌
                                         </button>
@@ -298,7 +341,6 @@ export default function InstagramDashboard() {
                         </div>
                     </div>
                 )}
-
 
                 <Footer />
             </div>
