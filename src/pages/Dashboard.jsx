@@ -49,7 +49,7 @@ export default function Dashboard() {
             .catch((err) => console.error(err));
     }, [userId]);
 
-    const connectFacebook = () => userId && (window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}&platform=web`);
+    const connectFacebook = () => userId && (window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}&source=web`);
  
     const connectInstagram = () => userId && (window.location.href = `${BACKEND_URL}/social/instagram/connect?userId=${userId}`);
    
