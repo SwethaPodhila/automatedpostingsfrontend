@@ -35,6 +35,13 @@ export default function AllPosts() {
         fetchPosts();
     }, [userId]);
 
+    const truncateText = (text, maxLength = 160) => {
+        if (!text) return "";
+        return text.length > maxLength
+            ? text.substring(0, maxLength) + "..."
+            : text;
+    };
+
     return (
         <>
             <Navbar />
@@ -77,74 +84,110 @@ export default function AllPosts() {
                                 key={post._id}
                                 style={{
                                     background: "#fff",
-                                    borderRadius: "12px",
-                                    padding: "16px",
-                                    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+                                    borderRadius: "14px",
+                                    padding: "18px",
+                                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "10px",
                                 }}
                             >
-                                <div
-                                    style={{
-                                        fontSize: "13px",
-                                        color: "#1877f2",
-                                        marginBottom: "6px",
-                                    }}
-                                >
-                                    Facebook
-                                </div>
-
-                                <p
-                                    style={{
-                                        fontSize: "14px",
-                                        marginBottom: "8px",
-                                    }}
-                                >
-                                    {post.message || "(No caption)"}
-                                </p>
-
-                                {post.imageName && (
-                                    <img
-                                        src={`https://automatedpostingbackend.onrender.com/uploads/${post.imageName}`}
-                                        alt="Post"
-                                        style={{
-                                            width: "100%",
-                                            height: "180px",
-                                            objectFit: "cover",
-                                            borderRadius: "10px",
-                                            marginBottom: "10px",
-                                            border: "1px solid #eee",
-                                        }}
-                                        onError={(e) => {
-                                            e.target.style.display = "none";
-                                        }}
-                                    />
-                                )}
-
+                                {/* PLATFORM + STATUS */}
                                 <div
                                     style={{
                                         display: "flex",
                                         justifyContent: "space-between",
                                         alignItems: "center",
-                                        fontSize: "12px",
-                                        color: "#555",
-                                        borderTop: "1px solid #eee",
-                                        paddingTop: "8px",
                                     }}
                                 >
-                                    <span>
-                                        {new Date(post.createdAt).toLocaleString()}
+                                    <span
+                                        style={{
+                                            padding: "4px 12px",
+                                            borderRadius: "20px",
+                                            fontSize: "11px",
+                                            fontWeight: "600",
+                                            background:
+                                                post.platform === "instagram"
+                                                    ? "linear-gradient(45deg,#f58529,#dd2a7b,#8134af)"
+                                                    : "#1877f2",
+                                            color: "#fff",
+                                            textTransform: "capitalize",
+                                        }}
+                                    >
+                                        {post.platform}
                                     </span>
 
+
+                                </div>
+
+                                {/* MESSAGE */}
+                                <p
+                                    style={{
+                                        fontSize: "14px",
+                                        color: "#333",
+                                        lineHeight: "1.5",
+                                        margin: 0,
+                                    }}
+                                >
+                                    <p
+                                        title={post.message}
+                                        style={{
+                                            fontSize: "14px",
+                                            color: "#333",
+                                            lineHeight: "1.5",
+                                            margin: 0,
+                                        }}
+                                    >
+                                        {truncateText(post.message || "(No caption)", 160)}
+                                    </p>
+
+                                </p>
+
+                                {/* POST URL */}
+                                {post.mediaUrl && (
+                                    <a
+                                        href={post.mediaUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            fontSize: "13px",
+                                            color: "#2563eb",
+                                            textDecoration: "none",
+                                            fontWeight: "500",
+                                            wordBreak: "break-all",
+                                        }}
+                                    >
+                                        🔗 View Post
+                                    </a>
+                                )}
+
+                                {/* DATE */}
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <div
+                                        style={{
+                                            fontSize: "12px",
+                                            color: "#6b7280",
+                                            borderTop: "1px solid #eee",
+                                            paddingTop: "8px",
+                                            marginTop: "6px",
+                                        }}
+                                    >
+                                        {new Date(post.createdAt).toLocaleString()}
+                                    </div>
                                     <span
                                         style={{
                                             padding: "3px 10px",
+                                            marginTop: "10px",
                                             borderRadius: "12px",
+                                            fontSize: "11px",
                                             color: "#fff",
                                             backgroundColor:
                                                 post.status === "posted"
-                                                    ? "green"
+                                                    ? "#16a34a"
                                                     : post.status === "scheduled"
-                                                        ? "#0d6efd"
-                                                        : "red",
+                                                        ? "#2563eb"
+                                                        : "#dc2626",
+                                            textTransform: "capitalize",
                                         }}
                                     >
                                         {post.status}
@@ -152,6 +195,7 @@ export default function AllPosts() {
                                 </div>
                             </div>
                         ))}
+
                     </div>
                 </main>
             </div>
