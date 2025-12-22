@@ -22,7 +22,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     const [linkedinAccount, setLinkedinAccount] = useState(null);
 
-   useEffect(() => {
+    useEffect(() => {
         if (token) {
             checkLinkedInConnection();
         }
@@ -50,9 +50,9 @@ export default function Dashboard() {
     }, [userId]);
 
     const connectFacebook = () => userId && (window.location.href = `${BACKEND_URL}/social/facebook?userId=${userId}&source=web`);
- 
+
     const connectInstagram = () => userId && (window.location.href = `${BACKEND_URL}/social/instagram/connect?userId=${userId}`);
-   
+
     const disconnectAccount = async (platform) => {
         if (!userId || !window.confirm(`Disconnect ${platform}?`)) return;
         try {
@@ -171,19 +171,22 @@ export default function Dashboard() {
                         <div style={styles.card}><h3>Instagram</h3><InstagramCard account={connected.instagram} connect={connectInstagram} disconnect={disconnectAccount} /></div>
                         <div style={styles.card}><h3>Twitter</h3><TwitterCard account={twitterAccount} connect={connectTwitter} disconnect={disconnectTwitter} /></div>
 
-                        <h3>LinkedIn</h3>
-                        <LinkedInCard
-                            connect={() => {
-                                const decoded = jwtDecode(token);
-                                if (!decoded?.id) {
-                                    alert("User not logged in. Please login again.");
-                                    return;
-                                }
-                                window.location.href = `${BACKEND_URL}/auth/linkedin?userId=${decoded.id}`;
-                            }}
-                            linkedinAccount={linkedinAccount}
-                            disconnectLinkedIn={disconnectLinkedIn}
-                        />
+                        <div style={{ ...styles.card, justifyContent: "flex-start" }}>
+                            <h3 style={{ marginBottom: "8px" }}>LinkedIn</h3>
+
+                            <LinkedInCard
+                                connect={() => {
+                                    const decoded = jwtDecode(token);
+                                    if (!decoded?.id) {
+                                        alert("User not logged in. Please login again.");
+                                        return;
+                                    }
+                                    window.location.href = `${BACKEND_URL}/auth/linkedin?userId=${decoded.id}`;
+                                }}
+                                linkedinAccount={linkedinAccount}
+                                disconnectLinkedIn={disconnectLinkedIn}
+                            />
+                        </div>
 
                         <div style={styles.card}><h3>YouTube</h3><YouTubeCard connect={() => window.location.href = `${BACKEND_URL}/social/youtube/auth?user=${userId}`} /></div>
                     </div>
