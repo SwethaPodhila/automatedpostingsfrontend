@@ -102,7 +102,6 @@ export default function InstagramDashboard() {
         }
     };
 
-
     return (
         <div style={{ background: "#f5f7fb", minHeight: "100vh" }}>
             {/* SIDEBAR – UNCHANGED */}
@@ -120,9 +119,8 @@ export default function InstagramDashboard() {
                 }}
             >
                 <Navbar />
+
                 <main style={{ transition: "0.3s ease", marginTop: 60 }}>
-
-
                     <div style={page}>
                         {/* HEADER */}
                         <div style={headerRow}>
@@ -130,14 +128,12 @@ export default function InstagramDashboard() {
                                 <h2 style={title}>Instagram Dashboard</h2>
                                 <p style={subtitle}>Manage posts & analytics</p>
                             </div>
-
                         </div>
 
                         {!account && <p>Instagram account not connected</p>}
 
                         {account && (
                             <>
-                                {/* INFO CARDS */}
                                 <div style={grid4}>
                                     <InfoCard
                                         title="Account"
@@ -233,7 +229,6 @@ export default function InstagramDashboard() {
                                         {loading ? "Publishing..." : "Publish Post 🚀"}
                                     </button>
                                 </div>
-
                             </>
                         )}
                     </div>

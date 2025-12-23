@@ -15,7 +15,7 @@ const AutomationForm = () => {
   ======================== */
   const today = new Date();
 
- //const today = new Date();
+  //const today = new Date();
   today.setDate(today.getDate() + 0);
 
   const formatDate = (date) => date.toISOString().split("T")[0];
@@ -30,12 +30,14 @@ const AutomationForm = () => {
   /* =======================
      FETCH ACCOUNTS
   ======================== */
+
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const userId = localStorage.getItem("userId");
+        const userId = localStorage.getItem("userId")
+        console.log("Fetching accounts for userId:", userId);
         const res = await axios.get(
-          `http://localhost:5000/automation/accounts?userId=${userId}`,
+          `http://localhost:5000/automation/accounts/${userId}`,
           { headers: { "Cache-Control": "no-cache" } }
         );
         setAccounts(res.data.data || []);
@@ -59,6 +61,7 @@ const AutomationForm = () => {
   /* =======================
      SUBMIT
   ======================== */
+
   const submitAutomation = async () => {
     if (!prompt || !startDate || !endDate || !time || !selectedAccounts.length) {
       alert("Please fill all fields");
