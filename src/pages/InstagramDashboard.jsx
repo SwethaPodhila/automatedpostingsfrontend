@@ -22,7 +22,6 @@ export default function InstagramDashboard() {
     const [loading, setLoading] = useState(false);
     const nowPlus10 = new Date(Date.now() + 10 * 60000);
 
-
     const userId = localStorage.getItem("userId");
 
     useEffect(() => {
@@ -61,7 +60,7 @@ export default function InstagramDashboard() {
         try {
             setLoading(true);
             await axios.post(
-                "http://localhost:5000/social/publish/instagram",
+                "https://automatedpostingbackend.onrender.com/social/publish/instagram",
                 formData,
                 {
                     headers: {
