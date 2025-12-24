@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function Sidebar({ onWidthChange }) {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const handleEnter = () => {
     setExpanded(true);
@@ -23,44 +25,40 @@ export default function Sidebar({ onWidthChange }) {
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      <div style={styles.menuItem}>
+      <div style={styles.menuItem} onClick={() => navigate("/dashboard")}>
         <i className="bi bi-speedometer2"></i>
         {expanded && <span style={styles.text}>Dashboard</span>}
       </div>
 
-      <div style={styles.menuItem}>
-        <i className="bi bi-link-45deg"></i>
-        {expanded && <span style={styles.text}>Connections</span>}
-      </div>
-
-      <div style={styles.menuItem}>
+      <div style={styles.menuItem} onClick={() => navigate("/all-posts")}>
         <i className="bi bi-pencil-square"></i>
-        {expanded && <span style={styles.text}>Manual Posting</span>}
+        {expanded && <span style={styles.text}>Posts</span>}
       </div>
 
-      <div style={styles.menuItem}>
+      <div style={styles.menuItem} onClick={() => navigate("/auto-post")}>
         <i className="bi bi-robot"></i>
         {expanded && <span style={styles.text}>Automation</span>}
       </div>
 
-      <div style={styles.menuItem}>
-        <i className="bi bi-calendar-event"></i>
-        {expanded && <span style={styles.text}>Calendar</span>}
-      </div>
-
-      <div style={styles.menuItem}>
+      <div style={styles.menuItem} onClick={() => navigate("/analytics")}>
         <i className="bi bi-graph-up"></i>
         {expanded && <span style={styles.text}>Analytics</span>}
       </div>
 
-      <div style={styles.menuItem}>
+      {/* 🆕 SUPPORT */}
+      <div style={styles.menuItem} onClick={() => navigate("/support")}>
+        <i className="bi bi-headset"></i>
+        {expanded && <span style={styles.text}>Support</span>}
+      </div>
+
+      <div style={styles.menuItem} onClick={() => navigate("/settings")}>
         <i className="bi bi-gear"></i>
         {expanded && <span style={styles.text}>Settings</span>}
       </div>
 
-      <div style={styles.menuItem}>
+      <div style={styles.menuItem} onClick={() => navigate("/help")}>
         <i className="bi bi-question-circle"></i>
-        {expanded && <span style={styles.text}>Help</span>}
+        {expanded && <span style={styles.text}>Docs</span>}
       </div>
     </div>
   );

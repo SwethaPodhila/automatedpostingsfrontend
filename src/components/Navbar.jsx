@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // 👉 Close dropdown when clicked outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    // 🔴 clear auth data here
+    localStorage.clear();
+    navigate("/");
+  };
 
   return (
     <div style={styles.navbar}>
@@ -13,40 +32,37 @@ export default function Navbar() {
         SyncSocial AI
       </h2>
 
-      <div style={styles.menu}>
-        <span style={styles.item} onClick={() => navigate("/dashboard")}>
-          Dashboard
-        </span>
-
-        <span style={styles.item} onClick={() => navigate("/all-posts")}>
-          Posts
-        </span>
-
-        <span style={styles.item} onClick={() => navigate("/automation")}>
-          Automation
-        </span>
-
-        <span style={styles.item} onClick={() => navigate("/analytics")}>
-          Analytics
-        </span>
-
-        <span style={styles.item} onClick={() => navigate("/help")}>
-          Help
-        </span>
-      </div>
-
-      <div style={styles.profile}>
+      <div style={{ position: "relative" }} ref={dropdownRef}>
         <img
           src="https://ui-avatars.com/api/?name=User"
           alt="profile"
-          style={styles.avatar}
+          style={{ ...styles.avatar, cursor: "pointer" }}
+          onClick={() => setOpen(!open)}
         />
+
+        {open && (
+          <div style={styles.dropdown}>
+            <div
+              style={styles.dropdownItem}
+              onClick={() => navigate("/profile")}
+            >
+              Profile
+            </div>
+
+            <div
+              style={styles.dropdownItem}
+              onClick={handleLogout}
+            >
+              Logout
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-/* 🔴 CSS EXACT SAME – NO CHANGES */
+/* 🔴 EXISTING CSS UNCHANGED */
 const styles = {
   navbar: {
     height: "60px",
@@ -80,5 +96,24 @@ const styles = {
     width: "35px",
     height: "35px",
     borderRadius: "50%",
+  },
+
+  /* 🆕 DROPDOWN STYLES */
+  dropdown: {
+    position: "absolute",
+    right: 0,
+    top: "45px",
+    background: "#fff",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    minWidth: "140px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    overflow: "hidden",
+  },
+  dropdownItem: {
+    padding: "10px 15px",
+    cursor: "pointer",
+    fontSize: "14px",
+    borderBottom: "1px solid #eee",
   },
 };

@@ -14,6 +14,10 @@ export default function AllPosts() {
     const [loading, setLoading] = useState(true);
     const [sidebarWidth, setSidebarWidth] = useState(50);
 
+    const [platformFilter, setPlatformFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [selectedDate, setSelectedDate] = useState("");
+
     useEffect(() => {
         if (!userId) return;
 
@@ -31,7 +35,6 @@ export default function AllPosts() {
                 setLoading(false);
             }
         };
-
         fetchPosts();
     }, [userId]);
 
@@ -41,6 +44,21 @@ export default function AllPosts() {
             ? text.substring(0, maxLength) + "..."
             : text;
     };
+
+    const filteredPosts = posts.filter((post) => {
+        const postDate = new Date(post.createdAt).toISOString().split("T")[0];
+
+        const matchesPlatform =
+            platformFilter === "all" || post.platform === platformFilter;
+
+        const matchesStatus =
+            statusFilter === "all" || post.status === statusFilter;
+
+        const matchesDate =
+            !selectedDate || postDate === selectedDate;
+
+        return matchesPlatform && matchesStatus && matchesDate;
+    });
 
     return (
         <>
@@ -63,6 +81,61 @@ export default function AllPosts() {
                         📄 My Posts
                     </h2>
 
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "18px",
+                            flexWrap: "wrap",
+                            marginBottom: "22px",
+                            background: "#ffffff",
+                            padding: "16px 26px",
+                            borderRadius: "12px",
+                            boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+                        }}
+                    >
+                        {/* PLATFORM */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <label style={styles.label}>Platform</label>
+                            <select
+                                style={styles.select}
+                                value={platformFilter}
+                                onChange={(e) => setPlatformFilter(e.target.value)}
+                            >
+                                <option value="all">All</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                            </select>
+                        </div>
+
+                        {/* STATUS */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <label style={styles.label}>Status</label>
+                            <select
+                                style={styles.select}
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                                <option value="all">All</option>
+                                <option value="posted">Posted</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+
+                        {/* DATE */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <label style={styles.label}>Date</label>
+                            <input
+                                type="date"
+                                style={styles.input}
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+
                     {loading && <p>Loading posts...</p>}
 
                     {!loading && posts.length === 0 && (
@@ -79,7 +152,7 @@ export default function AllPosts() {
                             gap: "16px",
                         }}
                     >
-                        {posts.map((post) => (
+                        {filteredPosts.map((post) => (
                             <div
                                 key={post._id}
                                 style={{
@@ -116,7 +189,6 @@ export default function AllPosts() {
                                     >
                                         {post.platform}
                                     </span>
-
 
                                 </div>
 
@@ -195,6 +267,11 @@ export default function AllPosts() {
                                 </div>
                             </div>
                         ))}
+                        {!loading && filteredPosts.length === 0 && (
+                            <p style={{ color: "#777" }}>
+                                No posts match the selected filters
+                            </p>
+                        )}
 
                     </div>
                 </main>
@@ -204,3 +281,27 @@ export default function AllPosts() {
         </>
     );
 }
+
+const styles = {
+    label: {
+        fontSize: "12px",
+        fontWeight: "600",
+        color: "#6b7280",
+    },
+    select: {
+        padding: "8px 12px",
+        borderRadius: "8px",
+        border: "1px solid #d1d5db",
+        fontSize: "14px",
+        outline: "none",
+        background: "#fff",
+        minWidth: "150px",
+    },
+    input: {
+        padding: "8px 12px",
+        borderRadius: "8px",
+        border: "1px solid #d1d5db",
+        fontSize: "14px",
+        outline: "none",
+    },
+};
