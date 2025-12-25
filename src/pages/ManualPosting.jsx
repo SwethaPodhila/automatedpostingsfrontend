@@ -11,6 +11,21 @@ const ManualPosting = () => {
     const [loading, setLoading] = useState(false);
     const [mediaFile, setMediaFile] = useState(null);
 
+    const [times, setTimes] = useState([""]); // default 1 time input
+
+    const addTime = () => {
+        if (times.length >= 3) {
+            alert("Maximum 3 times per day allowed");
+            return;
+        }
+        setTimes([...times, ""]);
+    };
+
+    const removeTime = (index) => {
+        setTimes(times.filter((_, i) => i !== index));
+    };
+
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -86,13 +101,6 @@ const ManualPosting = () => {
        UI
     ======================== */
 
-    const PLATFORM_APIS = {
-        facebook: "http://localhost:5000/social/publish/facebook",
-        instagram: "http://localhost:5000/social/publish/instagram",
-        twitter: "http://localhost:5000/api/twitter/post",
-        linkedin: "http://localhost:5000/api/linkedin/post",
-    };
-
     const submitAutomation = async () => {
         if (!prompt || selectedAccounts.length === 0) {
             alert("Please fill all required fields");
@@ -103,52 +111,60 @@ const ManualPosting = () => {
             setLoading(true);
 
             const groupedAccounts = groupAccountsByPlatform();
+            const userId = localStorage.getItem("userId");
 
             const requests = Object.entries(groupedAccounts).map(
-                async ([platform, accountIds]) => {
+                async ([platform, pageIds]) => {
 
                     const formData = new FormData();
-                    formData.append("prompt", prompt);
-                    formData.append("startDate", startDate);
-                    formData.append("endDate", endDate);
-                    formData.append("time", time);
-                    formData.append("accounts", JSON.stringify(accountIds));
+
+                    formData.append("platform", platform);
+                    formData.append("userId", userId);
+                    formData.append("message", prompt);
+                    formData.append("pageIds", JSON.stringify(pageIds)); // 🔥 SEND ARRAY
+
+                    const validTimes = times.filter(t => t); // empty array allowed
+
+                    formData.append("times", JSON.stringify(validTimes)); // [] ok
+                    formData.append("startDate", startDate || "");
+                    formData.append("endDate", endDate || "");
 
                     if (mediaFile) {
                         formData.append("media", mediaFile);
                     }
 
-                    const apiUrl = PLATFORM_APIS[platform];
-                    if (!apiUrl) return;
-
-                    return axios.post(apiUrl, formData, {
-                        headers: { "Content-Type": "multipart/form-data" }
-                    });
+                    return axios.post(
+                        "http://localhost:5000/automation/publish",
+                        formData,
+                        {
+                            headers: { "Content-Type": "multipart/form-data" }
+                        }
+                    );
                 }
             );
 
             await Promise.all(requests);
-
-            alert("Posts scheduled for selected platforms ✅");
+            alert("Posts scheduled for all selected pages ✅");
 
         } catch (error) {
-            console.error(error);
+            console.error("Automation error:", error);
             alert("Failed to create automation ❌");
         } finally {
             setLoading(false);
         }
     };
 
-
     const groupAccountsByPlatform = () => {
         return selectedAccounts.reduce((acc, accountId) => {
-            const account = accounts.find((a) => a._id === accountId);
+            const account = accounts.find(a => a._id === accountId);
             if (!account) return acc;
 
             if (!acc[account.platform]) {
                 acc[account.platform] = [];
             }
-            acc[account.platform].push(account._id);
+
+            // 🔥 THIS IS THE KEY FIX
+            acc[account.platform].push(account.providerId);
 
             return acc;
         }, {});
@@ -207,14 +223,47 @@ const ManualPosting = () => {
                 style={styles.input}
             />
 
-            {/* TIME */}
-            <label>Time</label>
-            <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                style={styles.input}
-            />
+            <label>Post Times (max 3)</label>
+
+            {times.map((t, index) => (
+                <div key={index} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                    <input
+                        type="time"
+                        value={t}
+                        onChange={(e) => {
+                            const updated = [...times];
+                            updated[index] = e.target.value;
+                            setTimes(updated);
+                        }}
+                        style={{ ...styles.input, flex: 1 }}
+                    />
+
+                    {times.length > 1 && (
+                        <button
+                            type="button"
+                            onClick={() => removeTime(index)}
+                            style={{ background: "#ff4d4d", color: "#fff" }}
+                        >
+                            ✖
+                        </button>
+                    )}
+                </div>
+            ))}
+
+            {times.length < 3 && (
+                <button
+                    type="button"
+                    onClick={addTime}
+                    style={{
+                        background: "#4caf50",
+                        color: "#fff",
+                        padding: "6px 10px",
+                        marginBottom: 10
+                    }}
+                >
+                    ➕ Add Time
+                </button>
+            )}
 
             {/* ACCOUNTS */}
             <h4>Select Social Accounts</h4>
