@@ -35,6 +35,11 @@ export default function Sidebar({ onWidthChange }) {
         {expanded && <span style={styles.text}>Posts</span>}
       </div>
 
+      <div style={styles.menuItem} onClick={() => navigate("/manualPosting")}>
+        <i className="bi bi-pencil-square"></i>
+        {expanded && <span style={styles.text}>Manual Posting</span>}
+      </div>
+
       <div style={styles.menuItem} onClick={() => navigate("/auto-post")}>
         <i className="bi bi-robot"></i>
         {expanded && <span style={styles.text}>Automation</span>}

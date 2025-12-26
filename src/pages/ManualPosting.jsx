@@ -25,7 +25,6 @@ const ManualPosting = () => {
         setTimes(times.filter((_, i) => i !== index));
     };
 
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -74,7 +73,7 @@ const ManualPosting = () => {
                 console.log("Fetching accounts for userId:", userId);
 
                 const res = await axios.get(
-                    `http://localhost:5000/automation/accounts/${userId}`,
+                    `https://automatedpostingbackend.onrender.com/automation/accounts/${userId}`,
                     { headers: { "Cache-Control": "no-cache" } }
                 );
 
@@ -134,7 +133,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "http://localhost:5000/automation/publish",
+                        "https://automatedpostingbackend.onrender.com/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }
@@ -173,121 +172,125 @@ const ManualPosting = () => {
 
     return (
         <div style={styles.container}>
-            <h2>AI Automation Posting</h2>
+            <div style={styles.page}>
+                <div style={styles.card}>
+                    <h1 style={styles.title}>Manual Posting</h1>
 
-            {/* PROMPT */}
-            <textarea
-                placeholder="Enter your content idea..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                style={styles.textarea}
-            />
-
-            {/* IMAGE / VIDEO (OPTIONAL) */}
-            <label>Image / Video (optional)</label>
-            <input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleFileChange}
-                style={styles.input}
-            />
-
-            {mediaFile && (
-                <p style={{ fontSize: 13 }}>
-                    Selected: {mediaFile.name}
-                </p>
-            )}
-
-            {/* START DATE */}
-            <label>Start Date</label>
-            <input
-                type="date"
-                value={startDate}
-                min={formatDate(today)}
-                onChange={(e) => {
-                    setStartDate(e.target.value);
-                    setEndDate(""); // 🔥 reset end date
-                }}
-                style={styles.input}
-            />
-
-            {/* END DATE */}
-            <label>End Date</label>
-            <input
-                type="date"
-                value={endDate}
-                min={startDate}
-                max={getMaxEndDate()}
-                disabled={!startDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                style={styles.input}
-            />
-
-            <label>Post Times (max 3)</label>
-
-            {times.map((t, index) => (
-                <div key={index} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
-                    <input
-                        type="time"
-                        value={t}
-                        onChange={(e) => {
-                            const updated = [...times];
-                            updated[index] = e.target.value;
-                            setTimes(updated);
-                        }}
-                        style={{ ...styles.input, flex: 1 }}
+                    {/* PROMPT */}
+                    <textarea
+                        placeholder="Enter your content idea..."
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        style={styles.textarea}
                     />
 
-                    {times.length > 1 && (
+                    {/* IMAGE / VIDEO (OPTIONAL) */}
+                    <label>Image / Video (optional)</label>
+                    <input
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={handleFileChange}
+                        style={styles.input}
+                    />
+
+                    {mediaFile && (
+                        <p style={{ fontSize: 13 }}>
+                            Selected: {mediaFile.name}
+                        </p>
+                    )}
+
+                    {/* START DATE */}
+                    <label>Start Date</label>
+                    <input
+                        type="date"
+                        value={startDate}
+                        min={formatDate(today)}
+                        onChange={(e) => {
+                            setStartDate(e.target.value);
+                            setEndDate(""); // 🔥 reset end date
+                        }}
+                        style={styles.input}
+                    />
+
+                    {/* END DATE */}
+                    <label>End Date</label>
+                    <input
+                        type="date"
+                        value={endDate}
+                        min={startDate}
+                        max={getMaxEndDate()}
+                        disabled={!startDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        style={styles.input}
+                    />
+
+                    <label>Post Times (max 3)</label>
+
+                    {times.map((t, index) => (
+                        <div key={index} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                            <input
+                                type="time"
+                                value={t}
+                                onChange={(e) => {
+                                    const updated = [...times];
+                                    updated[index] = e.target.value;
+                                    setTimes(updated);
+                                }}
+                                style={{ ...styles.input, flex: 1 }}
+                            />
+
+                            {times.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeTime(index)}
+                                    style={{ background: "#ff4d4d", color: "#fff" }}
+                                >
+                                    ✖
+                                </button>
+                            )}
+                        </div>
+                    ))}
+
+                    {times.length < 3 && (
                         <button
                             type="button"
-                            onClick={() => removeTime(index)}
-                            style={{ background: "#ff4d4d", color: "#fff" }}
+                            onClick={addTime}
+                            style={{
+                                background: "#4caf50",
+                                color: "#fff",
+                                padding: "6px 10px",
+                                marginBottom: 10
+                            }}
                         >
-                            ✖
+                            ➕ Add Time
                         </button>
                     )}
+
+                    {/* ACCOUNTS */}
+                    <h4>Select Social Accounts</h4>
+                    {accounts.length === 0 && <p>No accounts connected</p>}
+                    {accounts.map((acc) => (
+                        <div key={acc._id} style={styles.checkboxRow}>
+                            <input
+                                type="checkbox"
+                                checked={selectedAccounts.includes(acc._id)}
+                                onChange={() => toggleAccount(acc._id)}
+                            />
+                            <span>
+                                {acc.platform} — {acc.meta?.name || acc.meta?.username}
+                            </span>
+                        </div>
+                    ))}
+
+                    <button
+                        onClick={submitAutomation}
+                        disabled={loading}
+                        style={styles.button}
+                    >
+                        {loading ? "Creating..." : "Create Automation"}
+                    </button>
                 </div>
-            ))}
-
-            {times.length < 3 && (
-                <button
-                    type="button"
-                    onClick={addTime}
-                    style={{
-                        background: "#4caf50",
-                        color: "#fff",
-                        padding: "6px 10px",
-                        marginBottom: 10
-                    }}
-                >
-                    ➕ Add Time
-                </button>
-            )}
-
-            {/* ACCOUNTS */}
-            <h4>Select Social Accounts</h4>
-            {accounts.length === 0 && <p>No accounts connected</p>}
-            {accounts.map((acc) => (
-                <div key={acc._id} style={styles.checkboxRow}>
-                    <input
-                        type="checkbox"
-                        checked={selectedAccounts.includes(acc._id)}
-                        onChange={() => toggleAccount(acc._id)}
-                    />
-                    <span>
-                        {acc.platform} — {acc.meta?.name || acc.meta?.username}
-                    </span>
-                </div>
-            ))}
-
-            <button
-                onClick={submitAutomation}
-                disabled={loading}
-                style={styles.button}
-            >
-                {loading ? "Creating..." : "Create Automation"}
-            </button>
+            </div>
         </div>
     );
 };
@@ -296,37 +299,130 @@ const ManualPosting = () => {
    STYLES
 ======================== */
 const styles = {
-    container: {
-        maxWidth: 520,
-        margin: "40px auto",
-        padding: 20,
-        border: "1px solid #ddd",
-        borderRadius: 8,
-        background: "#fff"
-    },
-    textarea: {
-        width: "100%",
-        height: 100,
-        marginBottom: 12,
-        padding: 8
-    },
-    input: {
-        width: "100%",
-        marginBottom: 12,
-        padding: 8
-    },
-    checkboxRow: {
+    page: {
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #7c3aed, #ec4899)",
         display: "flex",
         alignItems: "center",
-        gap: 8,
-        marginBottom: 6
+        justifyContent: "center",
+        padding: "30px"
     },
-    button: {
-        marginTop: 15,
-        padding: 12,
+
+    card: {
         width: "100%",
+        maxWidth: 900,
+        background: "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(10px)",
+        borderRadius: 20,
+        padding: "30px 28px",
+        boxShadow: "0 30px 60px rgba(0,0,0,0.25)"
+    },
+
+    title: {
+        textAlign: "center",
+        fontSize: 24,
+        fontWeight: 800,
+        marginBottom: 25,
+        color: "#111827"
+    },
+
+    label: {
+        fontSize: 14,
+        fontWeight: 600,
+        marginBottom: 6,
+        display: "block",
+        color: "#374151"
+    },
+
+    textarea: {
+        width: "100%",
+        minHeight: 120,
+        padding: 14,
+        borderRadius: 12,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        outline: "none",
+        marginBottom: 18
+    },
+
+    input: {
+        width: "100%",
+        padding: 12,
+        borderRadius: 12,
+        border: "1px solid #d1d5db",
+        fontSize: 14,
+        outline: "none",
+        marginBottom: 16
+    },
+
+    fileInfo: {
+        fontSize: 13,
+        color: "#6b7280",
+        marginBottom: 16
+    },
+
+    timeRow: {
+        display: "flex",
+        gap: 10,
+        marginBottom: 10
+    },
+
+    removeBtn: {
+        background: "#ef4444",
+        border: "none",
+        borderRadius: 10,
+        color: "#fff",
+        padding: "0 14px",
         cursor: "pointer",
-        fontWeight: "bold"
+        fontSize: 16
+    },
+
+    addBtn: {
+        background: "#10b981",
+        border: "none",
+        borderRadius: 10,
+        color: "#fff",
+        padding: "8px 14px",
+        cursor: "pointer",
+        fontSize: 13,
+        marginBottom: 18
+    },
+
+    section: {
+        fontSize: 15,
+        fontWeight: 700,
+        margin: "20px 0 12px",
+        color: "#111827"
+    },
+
+    account: {
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px 14px",
+        borderRadius: 12,
+        border: "1px solid #e5e7eb",
+        marginBottom: 10,
+        background: "#f9fafb"
+    },
+
+    button: {
+        width: "100%",
+        padding: 15,
+        borderRadius: 14,
+        border: "none",
+        background: "linear-gradient(135deg,#7c3aed,#ec4899)",
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: 700,
+        cursor: "pointer",
+        boxShadow: "0 15px 30px rgba(124,58,237,0.45)",
+        marginTop: 20
+    },
+
+    disabled: {
+        opacity: 0.6,
+        cursor: "not-allowed"
     }
 };
 
