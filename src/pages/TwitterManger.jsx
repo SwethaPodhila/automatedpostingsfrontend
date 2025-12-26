@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
-export default function TwitterManager() {
+export default function TwitterPublisher() {
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
@@ -14,32 +14,13 @@ export default function TwitterManager() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
-    const [postedTweets, setPostedTweets] = useState([]);
+    const [posts, setPosts] = useState([]);
+    const [showSchedule, setShowSchedule] = useState(false);
+    const [scheduleTime, setScheduleTime] = useState("");
+    const [aiPrompt, setAiPrompt] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const token = localStorage.getItem("token");
-
-    // Android session verification function
-    const verifyAndroidSession = async (sessionId) => {
-        try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/twitter/verify-session?session_id=${sessionId}`
-            );
-            const data = await response.json();
-            
-            if (data.success) {
-                // Load Twitter account after verification
-                loadTwitterAccount();
-                setMessage("✅ Twitter connected successfully via Android!");
-                // Clear the URL parameters
-                window.history.replaceState({}, document.title, "/twitter-manager");
-            } else {
-                setError("Failed to verify Twitter session");
-            }
-        } catch (err) {
-            console.error("Session verification error:", err);
-            setError("Failed to verify Twitter session. Please try again.");
-        }
-    };
 
     useEffect(() => {
         if (!token) {
@@ -47,38 +28,8 @@ export default function TwitterManager() {
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Check for Android callback first
-        const sessionId = urlParams.get("session_id");
-        const status = urlParams.get("status");
-        
-        if (sessionId && status === "success") {
-            // This is an Android callback - verify the session
-            verifyAndroidSession(sessionId);
-            return;
-        }
-
-        // Check for web callback
-        const twitterStatus = urlParams.get("twitter");
-        const username = urlParams.get("username");
-
-        if (twitterStatus === "connected" && username) {
-            const account = {
-                username,
-                name: username,
-                profileImage: `https://unavatar.io/twitter/${username}`,
-                connectedAt: new Date().toISOString()
-            };
-            setTwitterAccount(account);
-            localStorage.setItem("twitter_account", JSON.stringify(account));
-            setMessage(`✅ Successfully connected to @${username}!`);
-            window.history.replaceState({}, document.title, "/twitter-manager");
-            setIsLoading(false);
-            return;
-        }
-
         loadTwitterAccount();
+        loadPosts();
     }, [token]);
 
     const loadTwitterAccount = async () => {
@@ -126,100 +77,191 @@ export default function TwitterManager() {
         }
     };
 
-    const postTweet = async () => {
+    const loadPosts = async () => {
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+
+            const response = await fetch(`${BACKEND_URL}/api/twitter/posts?userId=${userId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                setPosts(data.posts || []);
+            }
+        } catch (err) {
+            console.error("❌ Error loading posts:", err);
+        }
+    };
+
+    const generateAICaption = async () => {
+        if (!aiPrompt.trim()) {
+            setError("Please enter a prompt for AI generation");
+            return;
+        }
+
+        setIsGenerating(true);
+        setError("");
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/twitter/ai-generate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: aiPrompt })
+            });
+            const data = await response.json();
+
+            if (data.success && data.text) {
+                setTweetContent(data.text);
+                setAiPrompt("");
+                setMessage("✅ AI caption generated successfully!");
+            } else if (data.text) {
+                setTweetContent(data.text);
+                setAiPrompt("");
+                setMessage("✅ AI caption generated successfully!");
+            } else {
+                setError(data.error || "Failed to generate caption");
+            }
+        } catch (err) {
+            console.error("❌ AI Generation error:", err);
+            setError("Failed to generate AI caption");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const publishTweet = async () => {
         if (!tweetContent.trim()) {
             setError("Please enter tweet content");
             return;
         }
+
         if (tweetContent.length > 280) {
             setError("Tweet cannot exceed 280 characters");
             return;
         }
 
+        // Validate schedule time if enabled
+        if (showSchedule && scheduleTime) {
+            const scheduleDate = new Date(scheduleTime);
+            const now = new Date();
+            if (scheduleDate <= now) {
+                setError("Schedule time must be in the future");
+                return;
+            }
+        }
+
         setIsPosting(true);
         setError("");
+        setMessage("");
 
         try {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            const response = await fetch(`${BACKEND_URL}/api/twitter/post`, {
+            const postData = {
+                userId: userId,
+                content: tweetContent,
+                scheduleTime: showSchedule && scheduleTime ? scheduleTime : null
+            };
+
+            console.log("📤 Sending tweet data:", postData);
+
+            const response = await fetch(`${BACKEND_URL}/api/twitter/publish`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, content: tweetContent })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData)
             });
+            
             const data = await response.json();
+            console.log("📤 API Response:", data);
 
             if (data.success) {
-                setMessage(`✅ Tweet posted successfully!`);
-                const newTweet = {
-                    id: data.tweetId,
-                    content: tweetContent,
-                    time: new Date().toISOString(),
-                    url: data.tweetUrl
-                };
-                setPostedTweets(prev => [newTweet, ...prev]);
+                if (data.type === "scheduled") {
+                    setMessage(`✅ Tweet scheduled for ${new Date(scheduleTime).toLocaleString()}!`);
+                } else {
+                    setMessage(`✅ Tweet posted successfully! ${data.tweetUrl ? `View it here: ${data.tweetUrl}` : ''}`);
+                }
+                
+                // Reset form
                 setTweetContent("");
+                setScheduleTime("");
+                setShowSchedule(false);
+                setAiPrompt("");
+                
+                // Reload posts after delay
+                setTimeout(() => {
+                    loadPosts();
+                }, 1000);
             } else {
-                setError(data.error || "Failed to post tweet");
+                setError(data.error || "Failed to publish tweet");
+                
+                // Check for specific error codes
+                if (data.code === "AUTH_EXPIRED") {
+                    setError("Twitter authentication expired. Please reconnect your account.");
+                    localStorage.removeItem("twitter_account");
+                    setTwitterAccount(null);
+                } else if (data.code === "RATE_LIMIT") {
+                    setError("Rate limit exceeded. Please wait a few minutes and try again.");
+                }
             }
         } catch (err) {
-            console.error(err);
-            setError("Failed to post tweet. Check backend.");
+            console.error("❌ Publish error:", err);
+            setError("Failed to publish tweet. Please check your connection and try again.");
         } finally {
             setIsPosting(false);
         }
     };
 
-    const disconnectTwitter = async () => {
-        if (!window.confirm("Are you sure you want to disconnect your Twitter account?")) return;
+    const deleteScheduledPost = async (postId) => {
+        if (!window.confirm("Are you sure you want to delete this scheduled tweet?")) return;
 
         try {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            localStorage.removeItem("twitter_account");
-
-            const response = await fetch(`${BACKEND_URL}/api/twitter/disconnect`, {
-                method: "POST",
+            const response = await fetch(`${BACKEND_URL}/api/twitter/post/delete`, {
+                method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({ postId, userId })
             });
+            
             const data = await response.json();
 
             if (data.success) {
-                setMessage("✅ Twitter account disconnected successfully");
-                setTwitterAccount(null);
-                setTimeout(() => {
-                    window.location.href = `/twitter-connect?force=true&userId=${userId}`;
-                }, 1500);
+                setMessage("✅ Scheduled tweet deleted successfully!");
+                loadPosts(); // Refresh the list
             } else {
-                setError(data.error || "Failed to disconnect");
+                setError(data.error || "Failed to delete scheduled tweet");
             }
         } catch (err) {
-            console.error(err);
-            setError("Failed to disconnect Twitter account");
+            console.error("❌ Delete error:", err);
+            setError("Failed to delete scheduled tweet");
         }
     };
 
-    const reconnectTwitter = () => {
-        const decoded = jwtDecode(token);
-        const userId = decoded.id;
-        
-        // Detect Android
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        
-        if (isAndroid) {
-            // For Android - add platform parameter
-            window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}&platform=android`;
-        } else {
-            // For Web
-            window.location.href = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}`;
-        }
+    const formatDateTimeLocal = (date) => {
+        const d = new Date(date);
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        return d.toISOString().slice(0, 16);
     };
 
-    const viewTweetOnTwitter = (tweetUrl) => {
-        if (tweetUrl) window.open(tweetUrl, "_blank", "noopener,noreferrer");
+    const clearMessages = () => {
+        setMessage("");
+        setError("");
+    };
+
+    const testBackendConnection = async () => {
+        try {
+            const response = await fetch(`${BACKEND_URL}/health`);
+            const data = await response.json();
+            console.log("🔗 Backend health check:", data);
+            return data.status === "OK";
+        } catch (err) {
+            console.error("❌ Backend connection failed:", err);
+            return false;
+        }
     };
 
     if (isLoading) {
@@ -236,7 +278,43 @@ export default function TwitterManager() {
                     }}>
                         <div style={styles.loadingContainer}>
                             <div style={styles.spinner}></div>
-                            <p>Loading Twitter account information...</p>
+                            <p>Loading Twitter publisher...</p>
+                        </div>
+                    </main>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (!twitterAccount) {
+        return (
+            <div style={styles.page}>
+                <Navbar />
+                <div style={styles.layout}>
+                    <Sidebar onWidthChange={(w) => setSidebarWidth(w)} />
+                    <main style={{
+                        ...styles.content,
+                        marginLeft: sidebarWidth,
+                        transition: "0.3s ease",
+                        marginTop: "60px",
+                    }}>
+                        <div style={styles.container}>
+                            <div style={styles.card}>
+                                <div style={styles.iconContainer}>
+                                    <svg style={styles.twitterIcon} viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
+                                </div>
+                                <h3>Twitter Account Not Connected</h3>
+                                <p>Please connect your Twitter account to start posting tweets and managing your content.</p>
+                                <button
+                                    onClick={() => window.location.href = "/twitter-connect"}
+                                    style={styles.connectButton}
+                                >
+                                    Connect Twitter Account
+                                </button>
+                            </div>
                         </div>
                     </main>
                 </div>
@@ -256,38 +334,53 @@ export default function TwitterManager() {
                     marginLeft: sidebarWidth,
                     transition: "0.3s ease",
                     marginTop: "60px",
+                    padding: "30px 40px"
                 }}>
                     <div style={styles.header}>
-                        <h2>Twitter Manager</h2>
-                        {twitterAccount && (
+                        <div style={styles.headerLeft}>
+                            <h2>Twitter Publisher</h2>
                             <button 
-                                onClick={reconnectTwitter}
-                                style={styles.reconnectButton}
+                                onClick={testBackendConnection}
+                                style={styles.testButton}
+                                title="Test backend connection"
                             >
-                                🔄 Reconnect
+                                🔗 Test Connection
                             </button>
-                        )}
+                        </div>
+                        <div style={styles.accountBadge}>
+                            <img 
+                                src={twitterAccount.profileImage} 
+                                alt="Profile" 
+                                style={styles.badgeImage}
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = `https://ui-avatars.com/api/?name=${twitterAccount.username}&background=1DA1F2&color=fff`;
+                                }}
+                            />
+                            <div style={styles.accountInfo}>
+                                <strong>@{twitterAccount.username}</strong>
+                                <small>Connected: {new Date(twitterAccount.connectedAt).toLocaleDateString()}</small>
+                            </div>
+                        </div>
                     </div>
                     
                     {message && (
                         <div style={styles.successBox}>
-                            ✅ {message}
-                            {message.includes("Tweet posted") && (
-                                <button 
-                                    onClick={() => setMessage("")}
-                                    style={styles.closeButton}
-                                >
-                                    ✕
-                                </button>
-                            )}
+                            <span>✅ {message}</span>
+                            <button 
+                                onClick={clearMessages}
+                                style={styles.closeButton}
+                            >
+                                ✕
+                            </button>
                         </div>
                     )}
                     
                     {error && (
                         <div style={styles.errorBox}>
-                            ❌ {error}
+                            <span>❌ {error}</span>
                             <button 
-                                onClick={() => setError("")}
+                                onClick={clearMessages}
                                 style={styles.closeButton}
                             >
                                 ✕
@@ -295,119 +388,240 @@ export default function TwitterManager() {
                         </div>
                     )}
 
-                    {twitterAccount ? (
-                        <div style={styles.container}>
-                            <div style={styles.card}>
-                                <div style={styles.accountHeader}>
-                                    <img 
-                                        src={twitterAccount.profileImage || `https://unavatar.io/twitter/${twitterAccount.username}`} 
-                                        alt="Profile" 
-                                        style={styles.profileImage}
-                                        onError={(e) => {
-                                            e.target.src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png";
-                                        }}
-                                    />
-                                    <div style={styles.accountInfo}>
-                                        <h3>{twitterAccount.name || twitterAccount.username}</h3>
-                                        <p style={styles.username}>@{twitterAccount.username}</p>
-                                        <p style={styles.connectedDate}>
-                                            Connected: {new Date(twitterAccount.connectedAt).toLocaleDateString()}
-                                        </p>
-                                    </div>
+                    <div style={styles.publisherContainer}>
+                        {/* Left Column: Tweet Composer */}
+                        <div style={styles.composerCard}>
+                            <h3 style={styles.sectionTitle}>Compose Tweet</h3>
+                            
+                            {/* AI Caption Generator */}
+                            <div style={styles.aiSection}>
+                                <div style={styles.aiHeader}>
+                                    <h4>🤖 AI Caption Generator</h4>
+                                    <small style={styles.aiHint}>Enter a topic and let AI create a tweet for you</small>
                                 </div>
-
-                                <div style={styles.section}>
-                                    <h4>Post a Tweet</h4>
-                                    <textarea
-                                        value={tweetContent}
-                                        onChange={(e) => setTweetContent(e.target.value)}
-                                        placeholder="What's happening?"
-                                        style={styles.tweetInput}
-                                        maxLength={280}
-                                        rows={4}
+                                <div style={styles.aiInputGroup}>
+                                    <input
+                                        type="text"
+                                        value={aiPrompt}
+                                        onChange={(e) => setAiPrompt(e.target.value)}
+                                        placeholder="Enter topic (e.g., 'Morning motivation', 'Tech news', 'Product launch')"
+                                        style={styles.aiInput}
+                                        onKeyPress={(e) => e.key === 'Enter' && generateAICaption()}
                                     />
-                                    <div style={styles.charCount}>
-                                        <span style={{ color: tweetContent.length > 260 ? "#ff4d4f" : "#657786" }}>
-                                            {tweetContent.length}
-                                        </span>/280 characters
-                                    </div>
                                     <button
-                                        onClick={postTweet}
-                                        disabled={isPosting || !tweetContent.trim()}
-                                        style={{
-                                            ...styles.postButton,
-                                            opacity: (!tweetContent.trim() || isPosting) ? 0.7 : 1,
-                                            cursor: (!tweetContent.trim() || isPosting) ? 'not-allowed' : 'pointer'
-                                        }}
+                                        onClick={generateAICaption}
+                                        disabled={isGenerating || !aiPrompt.trim()}
+                                        style={styles.aiButton}
                                     >
-                                        {isPosting ? (
+                                        {isGenerating ? (
                                             <>
                                                 <span style={styles.buttonSpinner}></span>
-                                                Posting...
+                                                Generating...
                                             </>
-                                        ) : "Post Tweet"}
+                                        ) : "✨ Generate"}
                                     </button>
                                 </div>
-
-                                {postedTweets.length > 0 && (
-                                    <div style={styles.section}>
-                                        <h4>Recent Tweets</h4>
-                                        <div style={styles.tweetsList}>
-                                            {postedTweets.slice(0, 3).map((tweet, index) => (
-                                                <div key={index} style={styles.tweetItem}>
-                                                    <p style={styles.tweetContent}>{tweet.content}</p>
-                                                    <div style={styles.tweetActions}>
-                                                        <span style={styles.tweetTime}>
-                                                            {new Date(tweet.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                        {tweet.url && (
-                                                            <button 
-                                                                onClick={() => viewTweetOnTwitter(tweet.url)}
-                                                                style={styles.viewTweetButton}
-                                                            >
-                                                                View on Twitter
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
+                            </div>
+                            
+                            {/* Tweet Textarea */}
+                            <div style={styles.textareaContainer}>
+                                <textarea
+                                    value={tweetContent}
+                                    onChange={(e) => setTweetContent(e.target.value)}
+                                    placeholder="What's happening?"
+                                    style={styles.tweetInput}
+                                    maxLength={280}
+                                    rows={6}
+                                />
+                                <div style={styles.charCount}>
+                                    <span style={{ 
+                                        color: tweetContent.length > 260 ? "#ff4d4f" : 
+                                               tweetContent.length > 230 ? "#ffa500" : "#657786" 
+                                    }}>
+                                        {tweetContent.length}
+                                    </span>/280 characters
+                                    {tweetContent.length > 260 && (
+                                        <span style={styles.charWarning}> (Almost full!)</span>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {/* Scheduling */}
+                            <div style={styles.scheduleSection}>
+                                <label style={styles.scheduleToggle}>
+                                    <input
+                                        type="checkbox"
+                                        checked={showSchedule}
+                                        onChange={(e) => setShowSchedule(e.target.checked)}
+                                        style={styles.checkbox}
+                                    />
+                                    <span style={styles.scheduleLabel}>
+                                        📅 Schedule this tweet
+                                    </span>
+                                </label>
+                                
+                                {showSchedule && (
+                                    <div style={styles.schedulePicker}>
+                                        <div style={styles.datetimeGroup}>
+                                            <label style={styles.datetimeLabel}>Schedule Date & Time:</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={scheduleTime}
+                                                onChange={(e) => setScheduleTime(e.target.value)}
+                                                min={formatDateTimeLocal(new Date())}
+                                                style={styles.datetimeInput}
+                                            />
                                         </div>
+                                        <p style={styles.scheduleHint}>
+                                            ⏰ Tweet will be published automatically at the scheduled time
+                                        </p>
                                     </div>
                                 )}
-
-                                <div style={styles.section}>
-                                    <h4>Account Actions</h4>
-                                    <button
-                                        onClick={disconnectTwitter}
-                                        style={styles.disconnectButton}
-                                    >
-                                        🚫 Disconnect Twitter Account
-                                    </button>
-                                    <p style={styles.note}>
-                                        Note: Disconnecting will remove your Twitter access. You'll need to reconnect to post tweets.
-                                    </p>
-                                </div>
                             </div>
+                            
+                            {/* Post Button */}
+                            <button
+                                onClick={publishTweet}
+                                disabled={isPosting || !tweetContent.trim()}
+                                style={{
+                                    ...styles.publishButton,
+                                    opacity: !tweetContent.trim() ? 0.6 : 1,
+                                    cursor: !tweetContent.trim() ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                {isPosting ? (
+                                    <>
+                                        <span style={styles.buttonSpinner}></span>
+                                        {showSchedule && scheduleTime ? "Scheduling..." : "Posting..."}
+                                    </>
+                                ) : (
+                                    showSchedule && scheduleTime ? (
+                                        <>
+                                            <span style={styles.calendarIcon}>📅</span>
+                                            Schedule Tweet
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span style={styles.birdIcon}>🐦</span>
+                                            Post Tweet
+                                        </>
+                                    )
+                                )}
+                            </button>
                         </div>
-                    ) : (
-                        <div style={styles.container}>
-                            <div style={styles.card}>
-                                <div style={styles.iconContainer}>
-                                    <svg style={styles.twitterIcon} viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                    </svg>
-                                </div>
-                                <h3>Twitter Account Not Connected</h3>
-                                <p>Please connect your Twitter account to start posting tweets and managing your content.</p>
-                                <button
-                                    onClick={reconnectTwitter}
-                                    style={styles.connectButton}
+                        
+                        {/* Right Column: Recent Posts */}
+                        <div style={styles.postsCard}>
+                            <div style={styles.postsHeader}>
+                                <h3 style={styles.sectionTitle}>Recent Posts</h3>
+                                <button 
+                                    onClick={loadPosts}
+                                    style={styles.refreshSmallButton}
+                                    title="Refresh posts"
                                 >
-                                    Connect Twitter Account
+                                    🔄
                                 </button>
                             </div>
+                            
+                            {posts.length === 0 ? (
+                                <div style={styles.emptyPosts}>
+                                    <div style={styles.emptyIcon}>📭</div>
+                                    <p>No tweets posted yet</p>
+                                    <small>Your published tweets will appear here</small>
+                                </div>
+                            ) : (
+                                <div style={styles.postsList}>
+                                    {posts.slice(0, 8).map((post, index) => (
+                                        <div key={post._id || index} style={styles.postItem}>
+                                            <div style={styles.postHeader}>
+                                                <span style={{
+                                                    ...styles.statusBadge,
+                                                    backgroundColor: post.status === 'posted' ? '#e7f7ef' :
+                                                                   post.status === 'scheduled' ? '#fff3cd' :
+                                                                   post.status === 'failed' ? '#ffe6e6' :
+                                                                   '#f0f0f0',
+                                                    color: post.status === 'posted' ? '#0a7c42' :
+                                                          post.status === 'scheduled' ? '#856404' :
+                                                          post.status === 'failed' ? '#d32f2f' :
+                                                          '#666'
+                                                }}>
+                                                    {post.status?.charAt(0).toUpperCase() + post.status?.slice(1)}
+                                                </span>
+                                                {post.status === 'scheduled' && post.scheduledTime && (
+                                                    <span style={styles.scheduledTime}>
+                                                        📅 {new Date(post.scheduledTime).toLocaleString()}
+                                                    </span>
+                                                )}
+                                                {post.status === 'posted' && post.postedAt && (
+                                                    <span style={styles.postedTime}>
+                                                        🕐 {new Date(post.postedAt).toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div style={styles.postContentContainer}>
+                                                <p style={styles.postContent}>
+                                                    {post.content?.length > 100 
+                                                        ? post.content.substring(0, 100) + '...' 
+                                                        : post.content
+                                                    }
+                                                </p>
+                                                {post.mediaType && (
+                                                    <div style={styles.postMedia}>
+                                                        {post.mediaType === 'video' ? '🎥 Video' : '📸 Image'}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            <div style={styles.postActions}>
+                                                {post.status === 'scheduled' && (
+                                                    <button
+                                                        onClick={() => deleteScheduledPost(post._id)}
+                                                        style={styles.deleteButton}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
+                                                {post.status === 'posted' && post.postUrl && (
+                                                    <button
+                                                        onClick={() => window.open(post.postUrl, '_blank')}
+                                                        style={styles.viewButton}
+                                                    >
+                                                        View
+                                                    </button>
+                                                )}
+                                                {post.status === 'failed' && (
+                                                    <button
+                                                        onClick={() => setError(post.error || 'Post failed')}
+                                                        style={styles.errorButton}
+                                                        title={post.error}
+                                                    >
+                                                        Error
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {posts.length > 0 && (
+                                <div style={styles.postsFooter}>
+                                    <span style={styles.postsCount}>
+                                        Showing {Math.min(posts.length, 8)} of {posts.length} posts
+                                    </span>
+                                    {posts.length > 8 && (
+                                        <button 
+                                            onClick={() => window.alert('View all posts feature coming soon!')}
+                                            style={styles.viewAllButton}
+                                        >
+                                            View All
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </main>
             </div>
             <Footer />
@@ -427,26 +641,8 @@ const styles = {
         flex: 1 
     },
     content: { 
-        flex: 1, 
-        padding: "30px 40px" 
-    },
-    header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-    },
-    reconnectButton: {
-        background: "#1DA1F2",
-        color: "white",
-        padding: "8px 16px",
-        border: "none",
-        borderRadius: "20px",
-        cursor: "pointer",
-        fontSize: "14px",
-        display: "flex",
-        alignItems: "center",
-        gap: "5px"
+        flex: 1,
+        background: "#f5f6fa"
     },
     loadingContainer: {
         display: "flex",
@@ -469,179 +665,17 @@ const styles = {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "60vh"
+        minHeight: "60vh",
+        padding: "40px"
     },
     card: { 
         background: "white", 
         padding: "40px",
         borderRadius: "16px", 
         boxShadow: "0px 5px 15px rgba(0,0,0,0.1)", 
-        maxWidth: "600px",
-        width: "100%"
-    },
-    successBox: {
-        backgroundColor: "#e7f7ef",
-        color: "#0a7c42",
-        padding: "15px",
-        borderRadius: "8px",
-        marginBottom: "20px",
-        borderLeft: "4px solid #0a7c42",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    errorBox: {
-        backgroundColor: "#ffe6e6",
-        color: "#d32f2f",
-        padding: "15px",
-        borderRadius: "8px",
-        marginBottom: "20px",
-        borderLeft: "4px solid #d32f2f",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    closeButton: {
-        background: "none",
-        border: "none",
-        color: "inherit",
-        fontSize: "18px",
-        cursor: "pointer",
-        padding: "0",
-        marginLeft: "10px"
-    },
-    accountHeader: {
-        display: "flex",
-        alignItems: "center",
-        gap: "20px",
-        marginBottom: "30px",
-        paddingBottom: "20px",
-        borderBottom: "1px solid #eee"
-    },
-    profileImage: {
-        width: "80px",
-        height: "80px",
-        borderRadius: "50%",
-        objectFit: "cover",
-        border: "3px solid #1DA1F2"
-    },
-    accountInfo: {
-        flex: 1
-    },
-    username: {
-        color: "#657786",
-        margin: "5px 0",
-        fontSize: "16px"
-    },
-    connectedDate: {
-        color: "#999",
-        fontSize: "14px",
-        marginTop: "5px"
-    },
-    section: {
-        marginBottom: "30px",
-        paddingBottom: "20px",
-        borderBottom: "1px solid #eee"
-    },
-    tweetInput: {
+        maxWidth: "500px",
         width: "100%",
-        padding: "15px",
-        borderRadius: "8px",
-        border: "1px solid #ddd",
-        fontSize: "16px",
-        marginBottom: "10px",
-        resize: "vertical",
-        fontFamily: "inherit",
-        boxSizing: "border-box"
-    },
-    charCount: {
-        textAlign: "right",
-        color: "#657786",
-        fontSize: "14px",
-        marginBottom: "15px"
-    },
-    postButton: {
-        background: "#1DA1F2",
-        color: "white",
-        padding: "12px 25px",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontSize: "16px",
-        fontWeight: "bold",
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "10px"
-    },
-    buttonSpinner: {
-        border: "2px solid rgba(255,255,255,0.3)",
-        borderTop: "2px solid white",
-        borderRadius: "50%",
-        width: "16px",
-        height: "16px",
-        animation: "spin 1s linear infinite"
-    },
-    tweetsList: {
-        marginTop: "15px"
-    },
-    tweetItem: {
-        padding: "15px",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "8px",
-        marginBottom: "10px",
-        borderLeft: "3px solid #1DA1F2"
-    },
-    tweetContent: {
-        margin: "0 0 10px 0",
-        lineHeight: "1.5"
-    },
-    tweetActions: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    tweetTime: {
-        color: "#657786",
-        fontSize: "13px"
-    },
-    viewTweetButton: {
-        background: "none",
-        color: "#1DA1F2",
-        border: "1px solid #1DA1F2",
-        padding: "5px 12px",
-        borderRadius: "15px",
-        fontSize: "13px",
-        cursor: "pointer"
-    },
-    disconnectButton: {
-        background: "#ff4d4f",
-        color: "white",
-        padding: "12px 25px",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontSize: "16px",
-        fontWeight: "bold",
-        width: "100%",
-        marginBottom: "10px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px"
-    },
-    connectButton: {
-        background: "#000",
-        color: "white",
-        padding: "15px 30px",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontSize: "16px",
-        fontWeight: "bold",
-        width: "100%",
-        marginTop: "20px"
+        textAlign: "center"
     },
     iconContainer: {
         display: "flex",
@@ -653,11 +687,490 @@ const styles = {
         height: "60px",
         color: "#000"
     },
-    note: {
-        color: "#666",
+    connectButton: {
+        background: "#1DA1F2",
+        color: "white",
+        padding: "15px 30px",
+        border: "none",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontSize: "16px",
+        fontWeight: "bold",
+        width: "100%",
+        marginTop: "20px",
+        transition: "background 0.3s",
+        "&:hover": {
+            background: "#0c8de4"
+        }
+    },
+    header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "30px",
+        paddingBottom: "20px",
+        borderBottom: "1px solid #e0e0e0"
+    },
+    headerLeft: {
+        display: "flex",
+        alignItems: "center",
+        gap: "15px"
+    },
+    testButton: {
+        background: "transparent",
+        border: "1px solid #1DA1F2",
+        color: "#1DA1F2",
+        padding: "5px 10px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        cursor: "pointer",
+        transition: "all 0.3s",
+        "&:hover": {
+            background: "#1DA1F2",
+            color: "white"
+        }
+    },
+    accountBadge: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        background: "white",
+        padding: "10px 20px",
+        borderRadius: "30px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        transition: "transform 0.2s",
+        "&:hover": {
+            transform: "translateY(-2px)"
+        }
+    },
+    badgeImage: {
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        objectFit: "cover",
+        border: "2px solid #1DA1F2"
+    },
+    accountInfo: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "2px"
+    },
+    successBox: {
+        backgroundColor: "#e7f7ef",
+        color: "#0a7c42",
+        padding: "15px",
+        borderRadius: "8px",
+        marginBottom: "20px",
+        borderLeft: "4px solid #0a7c42",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        animation: "slideIn 0.3s ease"
+    },
+    errorBox: {
+        backgroundColor: "#ffe6e6",
+        color: "#d32f2f",
+        padding: "15px",
+        borderRadius: "8px",
+        marginBottom: "20px",
+        borderLeft: "4px solid #d32f2f",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        animation: "slideIn 0.3s ease"
+    },
+    closeButton: {
+        background: "none",
+        border: "none",
+        color: "inherit",
+        fontSize: "18px",
+        cursor: "pointer",
+        padding: "0 5px",
+        marginLeft: "10px",
+        transition: "opacity 0.2s",
+        "&:hover": {
+            opacity: 0.7
+        }
+    },
+    publisherContainer: {
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr",
+        gap: "30px"
+    },
+    composerCard: {
+        background: "white",
+        padding: "30px",
+        borderRadius: "12px",
+        boxShadow: "0 3px 15px rgba(0,0,0,0.08)"
+    },
+    postsCard: {
+        background: "white",
+        padding: "30px",
+        borderRadius: "12px",
+        boxShadow: "0 3px 15px rgba(0,0,0,0.08)",
+        display: "flex",
+        flexDirection: "column"
+    },
+    postsHeader: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "20px"
+    },
+    refreshSmallButton: {
+        background: "transparent",
+        border: "1px solid #ddd",
+        borderRadius: "6px",
+        padding: "6px 10px",
+        cursor: "pointer",
         fontSize: "14px",
-        fontStyle: "italic",
+        transition: "all 0.2s",
+        "&:hover": {
+            background: "#f5f6fa"
+        }
+    },
+    sectionTitle: {
+        marginBottom: "0",
+        color: "#333",
+        fontSize: "20px",
+        fontWeight: "600"
+    },
+    aiSection: {
+        marginBottom: "25px",
+        padding: "20px",
+        background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+        borderRadius: "10px",
+        border: "1px solid #e0e0e0"
+    },
+    aiHeader: {
+        marginBottom: "15px"
+    },
+    aiHint: {
+        color: "#666",
+        fontSize: "12px",
+        display: "block",
+        marginTop: "5px"
+    },
+    aiInputGroup: {
+        display: "flex",
+        gap: "10px"
+    },
+    aiInput: {
+        flex: 1,
+        padding: "12px",
+        borderRadius: "6px",
+        border: "1px solid #ddd",
+        fontSize: "14px",
+        transition: "border 0.3s",
+        "&:focus": {
+            outline: "none",
+            borderColor: "#1DA1F2",
+            boxShadow: "0 0 0 3px rgba(29, 161, 242, 0.1)"
+        }
+    },
+    aiButton: {
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        border: "none",
+        padding: "12px 20px",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontSize: "14px",
+        fontWeight: "500",
+        minWidth: "100px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        transition: "transform 0.2s",
+        "&:hover:not(:disabled)": {
+            transform: "translateY(-1px)"
+        },
+        "&:disabled": {
+            opacity: 0.6,
+            cursor: "not-allowed"
+        }
+    },
+    textareaContainer: {
+        marginBottom: "25px"
+    },
+    tweetInput: {
+        width: "100%",
+        padding: "15px",
+        borderRadius: "8px",
+        border: "1px solid #ddd",
+        fontSize: "16px",
+        resize: "vertical",
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        minHeight: "120px",
+        transition: "border 0.3s",
+        "&:focus": {
+            outline: "none",
+            borderColor: "#1DA1F2",
+            boxShadow: "0 0 0 3px rgba(29, 161, 242, 0.1)"
+        }
+    },
+    charCount: {
+        textAlign: "right",
+        color: "#657786",
+        fontSize: "14px",
+        marginTop: "8px",
+        paddingRight: "5px"
+    },
+    charWarning: {
+        color: "#ff4d4f",
+        fontWeight: "500",
+        marginLeft: "5px"
+    },
+    scheduleSection: {
+        marginBottom: "25px"
+    },
+    scheduleToggle: {
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        cursor: "pointer",
+        marginBottom: "15px",
+        padding: "10px",
+        borderRadius: "6px",
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#f8f9fa"
+        }
+    },
+    checkbox: {
+        width: "18px",
+        height: "18px",
+        cursor: "pointer"
+    },
+    scheduleLabel: {
+        fontSize: "14px",
+        fontWeight: "500"
+    },
+    schedulePicker: {
+        padding: "20px",
+        background: "#fff3cd",
+        borderRadius: "6px",
+        border: "1px solid #ffeaa7",
+        animation: "fadeIn 0.3s ease"
+    },
+    datetimeGroup: {
+        marginBottom: "10px"
+    },
+    datetimeLabel: {
+        display: "block",
+        marginBottom: "8px",
+        fontSize: "14px",
+        fontWeight: "500",
+        color: "#856404"
+    },
+    datetimeInput: {
+        width: "100%",
+        padding: "10px",
+        borderRadius: "6px",
+        border: "1px solid #ffeaa7",
+        fontSize: "14px",
+        background: "white"
+    },
+    scheduleHint: {
+        color: "#856404",
+        fontSize: "12px",
+        marginTop: "10px",
+        lineHeight: "1.4"
+    },
+    publishButton: {
+        background: "linear-gradient(135deg, #1DA1F2 0%, #0c8de4 100%)",
+        color: "white",
+        padding: "16px",
+        border: "none",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontSize: "16px",
+        fontWeight: "bold",
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "12px",
+        transition: "all 0.3s",
+        "&:hover:not(:disabled)": {
+            transform: "translateY(-2px)",
+            boxShadow: "0 4px 12px rgba(29, 161, 242, 0.3)"
+        },
+        "&:disabled": {
+            cursor: "not-allowed",
+            opacity: 0.6
+        }
+    },
+    buttonSpinner: {
+        border: "2px solid rgba(255,255,255,0.3)",
+        borderTop: "2px solid white",
+        borderRadius: "50%",
+        width: "16px",
+        height: "16px",
+        animation: "spin 1s linear infinite"
+    },
+    calendarIcon: {
+        fontSize: "18px"
+    },
+    birdIcon: {
+        fontSize: "18px"
+    },
+    emptyPosts: {
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "40px 20px",
+        color: "#666",
+        textAlign: "center"
+    },
+    emptyIcon: {
+        fontSize: "48px",
+        marginBottom: "15px",
+        opacity: 0.5
+    },
+    postsList: {
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: "15px",
+        overflowY: "auto",
+        maxHeight: "400px",
+        paddingRight: "5px"
+    },
+    postItem: {
+        padding: "15px",
+        background: "#f8f9fa",
+        borderRadius: "8px",
+        border: "1px solid #e9ecef",
+        transition: "transform 0.2s",
+        "&:hover": {
+            transform: "translateY(-2px)",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+        }
+    },
+    postHeader: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "10px"
+    },
+    statusBadge: {
+        padding: "4px 10px",
+        borderRadius: "12px",
+        fontSize: "11px",
+        fontWeight: "bold",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px"
+    },
+    scheduledTime: {
+        color: "#856404",
+        fontSize: "11px",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+    },
+    postedTime: {
+        color: "#0a7c42",
+        fontSize: "11px",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+    },
+    postContentContainer: {
+        marginBottom: "10px"
+    },
+    postContent: {
+        margin: "8px 0",
+        fontSize: "13px",
+        lineHeight: "1.5",
+        color: "#333"
+    },
+    postMedia: {
+        display: "inline-block",
+        padding: "4px 8px",
+        background: "#e9ecef",
+        borderRadius: "4px",
+        fontSize: "11px",
+        color: "#666",
+        marginTop: "5px"
+    },
+    postActions: {
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: "8px",
         marginTop: "10px"
+    },
+    deleteButton: {
+        background: "#ff4d4f",
+        color: "white",
+        border: "none",
+        padding: "5px 10px",
+        borderRadius: "4px",
+        cursor: "pointer",
+        fontSize: "12px",
+        fontWeight: "500",
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#e53935"
+        }
+    },
+    viewButton: {
+        background: "#1DA1F2",
+        color: "white",
+        border: "none",
+        padding: "5px 10px",
+        borderRadius: "4px",
+        cursor: "pointer",
+        fontSize: "12px",
+        fontWeight: "500",
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#0c8de4"
+        }
+    },
+    errorButton: {
+        background: "#ff9800",
+        color: "white",
+        border: "none",
+        padding: "5px 10px",
+        borderRadius: "4px",
+        cursor: "pointer",
+        fontSize: "12px",
+        fontWeight: "500",
+        transition: "background 0.2s",
+        "&:hover": {
+            background: "#f57c00"
+        }
+    },
+    postsFooter: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: "20px",
+        paddingTop: "15px",
+        borderTop: "1px solid #e0e0e0"
+    },
+    postsCount: {
+        fontSize: "12px",
+        color: "#666"
+    },
+    viewAllButton: {
+        background: "transparent",
+        border: "1px solid #1DA1F2",
+        color: "#1DA1F2",
+        padding: "6px 12px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        cursor: "pointer",
+        transition: "all 0.2s",
+        "&:hover": {
+            background: "#1DA1F2",
+            color: "white"
+        }
     }
 };
 
@@ -667,5 +1180,25 @@ styleSheet.insertRule(`
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+    }
+`, styleSheet.cssRules.length);
+
+styleSheet.insertRule(`
+    @keyframes slideIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(-10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+`, styleSheet.cssRules.length);
+
+styleSheet.insertRule(`
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 `, styleSheet.cssRules.length);
