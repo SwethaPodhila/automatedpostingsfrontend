@@ -97,7 +97,7 @@ export default function FacebookManualPost() {
       if (scheduleTime) formData.append("scheduleTime", scheduleTime);
 
       const res = await axios.post(
-        "http://localhost:5000/social/publish/facebook",
+        "https://automatedpostingbackend.onrender.com/social/publish/facebook",
         formData
       );
 
