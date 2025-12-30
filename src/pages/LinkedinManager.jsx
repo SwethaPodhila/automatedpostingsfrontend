@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 export default function LinkedInManager() {
     // Local URLs
     const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
-    const FRONTEND_URL = "https://automatedpostingsfrontend.onrender.com";
+    const FRONTEND_URL = "https://automatedpostingfrontend.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [linkedinAccount, setLinkedinAccount] = useState(null);

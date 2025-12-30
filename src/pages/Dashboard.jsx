@@ -11,6 +11,8 @@ import InstagramCard from "./InstagramCard";
 import TwitterCard from "./TwitterCard";
 import LinkedInCard from "./LinkedinCard";
 import YouTubeCard from "./YoutubeCard";
+import PinterestCard from "./PinterestCard";
+import TelegramCard from "./TelegramCard";
 
 const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
 
@@ -21,6 +23,13 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const [linkedinAccount, setLinkedinAccount] = useState(null);
+
+    const [showTelegramModal, setShowTelegramModal] = useState(false);
+    const [telegramAccount, setTelegramAccount] = useState(null);
+    const [chatName, setChatName] = useState("");
+    const [confirmed, setConfirmed] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         if (token) {
@@ -43,7 +52,8 @@ export default function Dashboard() {
                 if (data.success) {
                     const fb = data.accounts.find((a) => a.platform === "facebook");
                     const ig = data.accounts.find((a) => a.platform === "instagram");
-                    setConnected({ facebook: fb || null, instagram: ig || null });
+                    const tg = data.accounts.find((a) => a.platform === "telegram");
+                    setConnected({ facebook: fb || null, instagram: ig || null, telegram: tg || null });
                 }
             })
             .catch((err) => console.error(err));
@@ -125,6 +135,52 @@ export default function Dashboard() {
         }
     };
 
+    // Connect Telegram
+    const connectTelegram = async () => {
+        if (!chatName) {
+            alert("Please enter channel/group name");
+            return;
+        }
+
+        setLoading(true);
+
+        // 🔹 Normalize chat name
+        let finalChatName = chatName.trim();
+        if (!finalChatName.startsWith("@") && !finalChatName.startsWith("-100")) {
+            finalChatName = "@" + finalChatName;
+        }
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/telegram/connect`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId,
+                    chatName: finalChatName,
+                }),
+            });
+
+            const result = await res.json();
+            console.log("Telegram connect response:", result);
+
+            if (!res.ok) {
+                alert(result.error || "Connection failed");
+                return;
+            }
+
+            // ✅ backend sends { success, message, data }
+            setTelegramAccount(result.data);
+            setShowTelegramModal(false);
+            setChatName("");
+
+        } catch (err) {
+            console.error("Telegram connect error:", err);
+            alert("Something went wrong. Try again!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // ==== ADD THIS FUNCTION ====
     const disconnectLinkedIn = async () => {
         if (!window.confirm("Are you sure you want to disconnect your LinkedIn account?")) {
@@ -188,7 +244,80 @@ export default function Dashboard() {
                             />
                         </div>
 
-                        <div style={styles.card}><h3>YouTube</h3><YouTubeCard connect={() => window.location.href = `${BACKEND_URL}/social/youtube/auth?user=${userId}`} /></div>
+                        <div style={styles.card}>
+                            <h3>YouTube</h3>
+                            <YouTubeCard
+                                connect={() =>
+                                    window.location.href = `${BACKEND_URL}/auth/youtube?userId=${userId}`
+                                } />
+                        </div>
+
+                        <div style={styles.card}>
+                            <h3>Telegram</h3>
+                            <TelegramCard
+                                account={connected.telegram} // ✅ ensure connected.telegram object undi
+                                connect={setShowTelegramModal}
+                                disconnect={disconnectAccount}
+                            />
+                        </div>
+
+                        <div style={styles.card}>
+                            <h3>Pinterest</h3>
+                            <PinterestCard
+                                connect={() =>
+                                    window.open(
+                                        `${BACKEND_URL}/pinterest/auth?user=${userId}`,
+                                        "PinterestAuth",
+                                        "width=600,height=700"
+                                    )
+                                }
+                            />
+                        </div>
+
+                        {showTelegramModal && (
+                            <div style={modal.overlay}>
+                                <div style={modal.box}>
+                                    <h5>Connect Telegram Channals/Groups</h5>
+
+                                    <input
+                                        placeholder="@channel_name or -100xxxx"
+                                        value={chatName}
+                                        onChange={(e) => setChatName(e.target.value)}
+                                        style={modal.input}
+                                    />
+
+                                    <label style={modal.checkbox}>
+                                        <input
+                                            type="checkbox"
+                                            checked={confirmed}
+                                            onChange={(e) => setConfirmed(e.target.checked)}
+                                        />
+                                        I confirm I added <b>@wgsindia_bot</b> as admin
+                                    </label>
+
+                                    <div style={{ display: "flex", gap: 10 }}>
+                                        <button
+                                            onClick={connectTelegram}
+                                            disabled={!confirmed || !chatName}
+                                            style={{
+                                                ...modal.primary,
+                                                opacity: confirmed ? 1 : 0.5,
+                                            }}
+                                        >
+                                            Add
+                                        </button>
+
+                                        <button
+                                            onClick={() => setShowTelegramModal(false)}
+                                            style={modal.secondary}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </main>
             </div >
@@ -301,5 +430,50 @@ const styles = {
         fontWeight: 600,
         cursor: "pointer",
     },
+
 };
 
+const modal = {
+    overlay: {
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    box: {
+        background: "#fff",
+        padding: 20,
+        paddingTop: 40,
+        borderRadius: 10,
+        width: 440,
+        height: 260,
+    },
+    input: {
+        width: "100%",
+        padding: 10,
+        marginBottom: 10,
+    },
+    checkbox: {
+        display: "flex",
+        gap: 8,
+        marginBottom: 12,
+        fontSize: 14,
+    },
+    primary: {
+        background: "#229ED9",
+        color: "#fff",
+        border: "none",
+        padding: 10,
+        flex: 1,
+        borderRadius: 6,
+    },
+    secondary: {
+        background: "#e5e7eb",
+        border: "none",
+        padding: 10,
+        flex: 1,
+        borderRadius: 6,
+    },
+};
