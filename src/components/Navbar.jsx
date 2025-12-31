@@ -48,6 +48,12 @@ export default function Navbar() {
             >
               Profile
             </div>
+            <div
+              style={styles.dropdownItem}
+              onClick={() => navigate("/pricing")}
+            >
+              Upgrade Plan
+            </div>
 
             <div
               style={styles.dropdownItem}

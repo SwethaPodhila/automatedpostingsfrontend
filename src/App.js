@@ -21,6 +21,7 @@ import AutomationForm from "./pages/AutomationForm";
 import LinkedInConnect from "./pages/LinkedinConnection";
 import LinkedinManager from "./pages/LinkedinManager";
 import ManualPosting from "./pages/ManualPosting";
+import Pricing from "./pages/Pricing";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
         <Route path="/linkedin-connect" element={<LinkedInConnect />} />
         <Route path="/linkedin-manager" element={<LinkedinManager />} />
         <Route path="/manualPosting" element={<ManualPosting />} />
+        <Route path="/pricing" element={<Pricing />} />
 
         {/*  */}
       </Routes>
