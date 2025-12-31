@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
 export default function YouTubeManager() {
-    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+    const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
     const FRONTEND_URL = "https://automatedpostingfrontend.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);

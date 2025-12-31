@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
 export default function YouTubeConnect() {
-    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+    const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
     const FRONTEND_URL = "https://automatedpostingfrontend.onrender.com";
     
     const [isLoading, setIsLoading] = useState(false);

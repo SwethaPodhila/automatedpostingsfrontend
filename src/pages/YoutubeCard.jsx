@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
 
 const YouTubeCard = ({ connect }) => {
   const [connected, setConnected] = useState(false);

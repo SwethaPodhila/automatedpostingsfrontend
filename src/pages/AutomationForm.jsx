@@ -27,7 +27,7 @@ const AutomationForm = () => {
       try {
         const userId = localStorage.getItem("userId");
         const res = await axios.get(
-          `https://automatedpostingbackend.onrender.com/automation/accounts/${userId}`,
+          `https://automatedpostingbackend-h9dc.onrender.com/automation/accounts/${userId}`,
           { headers: { "Cache-Control": "no-cache" } }
         );
         setAccounts(res.data.data || []);
@@ -94,7 +94,7 @@ const AutomationForm = () => {
 
     setLoading(true);
     try {
-      await axios.post("https://automatedpostingbackend.onrender.com/automation/auto-publish", {
+      await axios.post("https://automatedpostingbackend-h9dc.onrender.com/automation/auto-publish", {
         userId,
         prompt,
         startDate,

@@ -11,7 +11,7 @@ export default function InstagramSuccess() {
         const fetchMetrics = async () => {
             try {
                 const res = await axios.get(
-                    `https://automatedpostingbackend.onrender.com/social/instagram/metrics?username=${username}`,
+                    `https://automatedpostingbackend-h9dc.onrender.com/social/instagram/metrics?username=${username}`,
                     { withCredentials: true }
                 );
                 setMetrics(res.data);

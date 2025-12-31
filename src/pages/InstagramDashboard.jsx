@@ -28,7 +28,7 @@ export default function InstagramDashboard() {
         if (!userId) return;
 
         axios
-            .get(`https://automatedpostingbackend.onrender.com/social/instagram/metrics/${userId}`)
+            .get(`https://automatedpostingbackend-h9dc.onrender.com/social/instagram/metrics/${userId}`)
             .then(res => {
                 setAccount(res.data.account);
                 setMetrics(res.data.metrics);
@@ -60,7 +60,7 @@ export default function InstagramDashboard() {
         try {
             setLoading(true);
             await axios.post(
-                "https://automatedpostingbackend.onrender.com/social/publish/instagram",
+                "https://automatedpostingbackend-h9dc.onrender.com/social/publish/instagram",
                 formData,
                 {
                     headers: {
@@ -90,7 +90,7 @@ export default function InstagramDashboard() {
         try {
             setAiLoading(true);
             const res = await axios.post(
-                "https://automatedpostingbackend.onrender.com/social/ai-generate",
+                "https://automatedpostingbackend-h9dc.onrender.com/social/ai-generate",
                 { prompt: aiPrompt }
             );
 

@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 
-const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
 
 export default function AllPosts() {
     const userId = localStorage.getItem("userId");

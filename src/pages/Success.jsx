@@ -21,7 +21,7 @@ export default function PostToPage() {
     if (!savedUserId) return;
 
     axios
-      .get(`https://automatedpostingbackend.onrender.com/social/pages/${savedUserId}`)
+      .get(`https://automatedpostingbackend-h9dc.onrender.com/social/pages/${savedUserId}`)
       .then((res) => setPages(res.data.pages || []))
       .catch((err) => console.error(err));
   }, []);
@@ -39,7 +39,7 @@ export default function PostToPage() {
     setMetrics(null);
     setMetricsLoading(true);
     try {
-      const res = await axios.get(`https://automatedpostingbackend.onrender.com/social/metrics/${pageId}`);
+      const res = await axios.get(`https://automatedpostingbackend-h9dc.onrender.com/social/metrics/${pageId}`);
       if (res.data.success) setMetrics(res.data.metrics);
     } catch (err) {
       console.error(err);

@@ -73,7 +73,7 @@ const ManualPosting = () => {
                 console.log("Fetching accounts for userId:", userId);
 
                 const res = await axios.get(
-                    `https://automatedpostingbackend.onrender.com/automation/accounts/${userId}`,
+                    `https://automatedpostingbackend-h9dc.onrender.com/automation/accounts/${userId}`,
                     { headers: { "Cache-Control": "no-cache" } }
                 );
 
@@ -133,7 +133,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "https://automatedpostingbackend.onrender.com/automation/publish",
+                        "https://automatedpostingbackend-h9dc.onrender.com/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }

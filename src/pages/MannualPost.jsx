@@ -30,7 +30,7 @@ export default function FacebookManualPost() {
     if (!savedUserId) return;
 
     axios
-      .get(`https://automatedpostingbackend.onrender.com/social/pages/${savedUserId}`)
+      .get(`https://automatedpostingbackend-h9dc.onrender.com/social/pages/${savedUserId}`)
       .then((res) => setPages(res.data.pages || []))
       .catch((err) => console.error(err));
   }, []);

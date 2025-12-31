@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import { jwtDecode } from "jwt-decode";
 
 export default function LinkedInConnect() {
-    const BACKEND_URL = "https://automatedpostingbackend.onrender.com";
+    const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [isConnecting, setIsConnecting] = useState(false);
