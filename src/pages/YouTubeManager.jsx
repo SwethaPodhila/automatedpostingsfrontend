@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 
 export default function YouTubeManager() {
     const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
-    const FRONTEND_URL = "https://automatedpostingfrontend.onrender.com";
+    const FRONTEND_URL = "https://automatedpostingsfrontend-7d5o.onrender.com";
     
     const [sidebarWidth, setSidebarWidth] = useState(50);
     const [youtubeAccount, setYoutubeAccount] = useState(null);

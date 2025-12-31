@@ -5,9 +5,9 @@ import { jwtDecode } from "jwt-decode";
 
 export default function YouTubeConnect() {
     const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
-    const FRONTEND_URL = "https://automatedpostingfrontend.onrender.com";
+    const FRONTEND_URL = "https://automatedpostingsfrontend-7d5o.onrender.com";
     
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [userId, setUserId] = useState("");
