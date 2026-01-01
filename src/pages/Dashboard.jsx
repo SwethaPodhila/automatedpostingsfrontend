@@ -14,7 +14,7 @@ import YouTubeCard from "./YoutubeCard";
 import PinterestCard from "./PinterestCard";
 import TelegramCard from "./TelegramCard";
 
-const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
+const BACKEND_URL = "http://localhost:5000";
 
 export default function Dashboard() {
     const [sidebarWidth, setSidebarWidth] = useState(50);
@@ -53,7 +53,8 @@ export default function Dashboard() {
                     const fb = data.accounts.find((a) => a.platform === "facebook");
                     const ig = data.accounts.find((a) => a.platform === "instagram");
                     const tg = data.accounts.find((a) => a.platform === "telegram");
-                    setConnected({ facebook: fb || null, instagram: ig || null, telegram: tg || null });
+                    const pin = data.accounts.find((a) => a.platform === "pinterest");
+                    setConnected({ facebook: fb || null, instagram: ig || null, telegram: tg || null, pinterest: pin || null });
                 }
             })
             .catch((err) => console.error(err));
@@ -263,7 +264,9 @@ export default function Dashboard() {
 
                         <div style={styles.card}>
                             <h3>Pinterest</h3>
+
                             <PinterestCard
+                                account={connected.pinterest}   // ✅ THIS WAS MISSING
                                 connect={() =>
                                     window.open(
                                         `${BACKEND_URL}/pinterest/auth?user=${userId}`,
@@ -271,6 +274,7 @@ export default function Dashboard() {
                                         "width=600,height=700"
                                     )
                                 }
+                                disconnect={disconnectAccount}  // ✅ SAME AS OTHERS
                             />
                         </div>
 

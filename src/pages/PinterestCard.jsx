@@ -12,7 +12,7 @@ const PinterestCard = ({ account, connect, disconnect }) => {
                     <div style={styles.profileRow}>
                         <img
                             src={
-                                account.meta?.picture ||
+                                account.meta?.profile_image ||
                                 "https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
                             }
                             alt="Pinterest Profile"
@@ -21,10 +21,12 @@ const PinterestCard = ({ account, connect, disconnect }) => {
 
                         <div>
                             <p style={styles.name}>
-                                {account.meta?.name || account.meta?.username || "Pinterest"}
+                                {account.meta?.profile.business_name ||
+                                 account.meta?.profile.username ||
+                                 "Pinterest"}
                             </p>
                             <p style={styles.username}>
-                                @{account.meta?.username}
+                                @{account.meta?.profile.username}
                             </p>
                         </div>
                     </div>
@@ -48,7 +50,6 @@ const PinterestCard = ({ account, connect, disconnect }) => {
                 </>
             ) : (
                 <>
-                    {/* Helper text */}
                     <p style={styles.helperText}>
                         Connect your Pinterest account to schedule pins and auto-publish directly.
                     </p>
@@ -69,39 +70,33 @@ const styles = {
         gap: 12,
         marginBottom: 16,
     },
-
     avatar: {
         width: 48,
         height: 48,
         borderRadius: "50%",
     },
-
     name: {
         fontWeight: 600,
         marginBottom: 2,
     },
-
     username: {
         fontSize: 13,
         color: "#6b7280",
     },
-
     actions: {
         display: "flex",
         gap: 10,
     },
-
     manageBtn: {
         flex: 1,
         padding: 10,
         borderRadius: 8,
         border: "none",
-        background: "#E60023", // Pinterest red
+        background: "#E60023",
         color: "#fff",
         fontWeight: 600,
         cursor: "pointer",
     },
-
     disconnectBtn: {
         flex: 1,
         padding: 10,
@@ -112,14 +107,12 @@ const styles = {
         fontWeight: 600,
         cursor: "pointer",
     },
-
     helperText: {
         fontSize: 14,
         color: "#6b7280",
         marginBottom: 16,
         lineHeight: 1.5,
     },
-
     connectBtn: {
         padding: 12,
         borderRadius: 10,

@@ -133,7 +133,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "https://automatedpostingbackend-h9dc.onrender.com/automation/publish",
+                        "http://localhost:5000/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }
@@ -277,7 +277,7 @@ const ManualPosting = () => {
                                 onChange={() => toggleAccount(acc._id)}
                             />
                             <span>
-                                {acc.platform} — {acc.meta?.name || acc.meta?.username}
+                                {acc.platform} — {acc.meta?.name || acc.meta?.username || acc.meta?.boardName}
                             </span>
                         </div>
                     ))}
