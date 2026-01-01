@@ -12,7 +12,7 @@ const PinterestCard = ({ account, connect, disconnect }) => {
                     <div style={styles.profileRow}>
                         <img
                             src={
-                                account.meta?.profile_image ||
+                                account.meta?.profile.profile_image ||
                                 "https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
                             }
                             alt="Pinterest Profile"
