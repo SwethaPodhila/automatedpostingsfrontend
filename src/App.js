@@ -22,6 +22,7 @@ import LinkedInConnect from "./pages/LinkedinConnection";
 import LinkedinManager from "./pages/LinkedinManager";
 import ManualPosting from "./pages/ManualPosting";
 import Pricing from "./pages/Pricing";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/manual-post" element={<ManualPost />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         <Route path="/twitter-connect" element={<TwitterConnect />} />
         <Route path="/twitter-manager" element={<TwitterManager />} />

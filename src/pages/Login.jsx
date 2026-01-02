@@ -18,7 +18,7 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Basic validation
         if (!form.email || !form.password) {
             setError("Email and password are required");
@@ -34,7 +34,7 @@ export default function Login() {
 
         setLoading(true);
         setError("");
-        
+
         try {
             const res = await axios.post("https://automatedpostingbackend-h9dc.onrender.com/user/login", form);
             if (res.data.success) {
@@ -64,195 +64,195 @@ export default function Login() {
                     <div style={styles.logoContainer}>
                         <div style={styles.logo}>
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="white" stroke="white" strokeWidth="2"/>
-                                <path d="M2 17L12 22L22 17" fill="white" stroke="white" strokeWidth="2"/>
-                                <path d="M2 12L12 17L22 12" fill="white" stroke="white" strokeWidth="2"/>
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="white" stroke="white" strokeWidth="2" />
+                                <path d="M2 17L12 22L22 17" fill="white" stroke="white" strokeWidth="2" />
+                                <path d="M2 12L12 17L22 12" fill="white" stroke="white" strokeWidth="2" />
                             </svg>
                             <span style={styles.logoText}>SyncSocial AI</span>
                         </div>
                     </div>
-                    
+
                     <h1 style={styles.aiTitle}>AI-Powered Social Platform</h1>
                     <p style={styles.aiSubtitle}>Where Artificial Intelligence meets Social Media</p>
-                    
+
                     <div style={styles.aiImageContainer}>
                         <div style={styles.aiImagePlaceholder}>
                             {/* AI Social Network Connection Image */}
                             <svg width="320" height="320" viewBox="0 0 280 280" fill="none">
                                 {/* Central AI Hub */}
-                                <circle cx="140" cy="140" r="90" fill="url(#headGradient)" stroke="url(#borderGradient)" strokeWidth="4"/>
-                                
+                                <circle cx="140" cy="140" r="90" fill="url(#headGradient)" stroke="url(#borderGradient)" strokeWidth="4" />
+
                                 {/* AI Processing Core */}
                                 <circle cx="140" cy="110" r="25" fill="url(#brainGradient)">
-                                    <animate attributeName="r" values="25;28;25" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="r" values="25;28;25" dur="2s" repeatCount="indefinite" />
                                 </circle>
-                                
+
                                 {/* Network Connections */}
                                 <g>
                                     {/* Top Connection */}
-                                    <path d="M140,85 L140,65" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round"/>
+                                    <path d="M140,85 L140,65" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round" />
                                     {/* Left Connections */}
-                                    <path d="M110,110 L85,110" stroke="#EC4899" strokeWidth="3" strokeLinecap="round"/>
-                                    <path d="M125,145 L105,165" stroke="#10B981" strokeWidth="3" strokeLinecap="round"/>
+                                    <path d="M110,110 L85,110" stroke="#EC4899" strokeWidth="3" strokeLinecap="round" />
+                                    <path d="M125,145 L105,165" stroke="#10B981" strokeWidth="3" strokeLinecap="round" />
                                     {/* Right Connections */}
-                                    <path d="M170,110 L195,110" stroke="#3B82F6" strokeWidth="3" strokeLinecap="round"/>
-                                    <path d="M155,145 L175,165" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round"/>
-                                    
+                                    <path d="M170,110 L195,110" stroke="#3B82F6" strokeWidth="3" strokeLinecap="round" />
+                                    <path d="M155,145 L175,165" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" />
+
                                     {/* Diagonal Connections */}
-                                    <path d="M100,80 L70,60" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M180,80 L210,60" stroke="#EC4899" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M100,200 L70,220" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M180,200 L210,220" stroke="#10B981" strokeWidth="2" strokeLinecap="round"/>
+                                    <path d="M100,80 L70,60" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M180,80 L210,60" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M100,200 L70,220" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M180,200 L210,220" stroke="#10B981" strokeWidth="2" strokeLinecap="round" />
                                 </g>
-                                
+
                                 {/* Floating Data Nodes */}
                                 <g>
                                     {/* Top Nodes */}
                                     <circle cx="70" cy="50" r="6" fill="#7C3AED">
-                                        <animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite"/>
+                                        <animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite" />
                                     </circle>
                                     <circle cx="140" cy="40" r="7" fill="#EC4899">
-                                        <animate attributeName="r" values="7;9;7" dur="1.8s" repeatCount="indefinite"/>
+                                        <animate attributeName="r" values="7;9;7" dur="1.8s" repeatCount="indefinite" />
                                     </circle>
                                     <circle cx="210" cy="50" r="5" fill="#3B82F6">
-                                        <animate attributeName="r" values="5;7;5" dur="1.6s" repeatCount="indefinite"/>
+                                        <animate attributeName="r" values="5;7;5" dur="1.6s" repeatCount="indefinite" />
                                     </circle>
-                                    
+
                                     {/* Side Nodes */}
                                     <circle cx="60" cy="110" r="6" fill="#10B981">
-                                        <animate attributeName="cx" values="60;65;60" dur="2s" repeatCount="indefinite"/>
+                                        <animate attributeName="cx" values="60;65;60" dur="2s" repeatCount="indefinite" />
                                     </circle>
                                     <circle cx="220" cy="110" r="5" fill="#F59E0B">
-                                        <animate attributeName="cx" values="220;215;220" dur="1.9s" repeatCount="indefinite"/>
+                                        <animate attributeName="cx" values="220;215;220" dur="1.9s" repeatCount="indefinite" />
                                     </circle>
-                                    
+
                                     {/* Bottom Nodes */}
                                     <circle cx="70" cy="220" r="7" fill="#7C3AED">
-                                        <animate attributeName="cy" values="220;215;220" dur="1.7s" repeatCount="indefinite"/>
+                                        <animate attributeName="cy" values="220;215;220" dur="1.7s" repeatCount="indefinite" />
                                     </circle>
                                     <circle cx="140" cy="230" r="6" fill="#EC4899">
-                                        <animate attributeName="cy" values="230;225;230" dur="1.5s" repeatCount="indefinite"/>
+                                        <animate attributeName="cy" values="230;225;230" dur="1.5s" repeatCount="indefinite" />
                                     </circle>
                                     <circle cx="210" cy="220" r="8" fill="#3B82F6">
-                                        <animate attributeName="cy" values="220;215;220" dur="1.8s" repeatCount="indefinite"/>
+                                        <animate attributeName="cy" values="220;215;220" dur="1.8s" repeatCount="indefinite" />
                                     </circle>
                                 </g>
-                                
+
                                 {/* Data Flow Lines */}
                                 <path d="M60,180 Q140,200 220,180" stroke="url(#lineGradient)" strokeWidth="2" strokeDasharray="5,5">
-                                    <animate attributeName="stroke-dashoffset" values="0;20" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="stroke-dashoffset" values="0;20" dur="2s" repeatCount="indefinite" />
                                 </path>
                                 <path d="M60,100 Q140,80 220,100" stroke="url(#lineGradient2)" strokeWidth="2" strokeDasharray="5,5">
-                                    <animate attributeName="stroke-dashoffset" values="20;0" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="stroke-dashoffset" values="20;0" dur="2s" repeatCount="indefinite" />
                                 </path>
-                                
+
                                 {/* Floating Icons */}
                                 <g>
                                     {/* AI Brain Icon */}
                                     <path d="M65,75 Q70,70 75,75 Q70,80 65,75" fill="#7C3AED" stroke="#7C3AED" strokeWidth="2">
-                                        <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="3s" repeatCount="indefinite"/>
+                                        <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="3s" repeatCount="indefinite" />
                                     </path>
-                                    
+
                                     {/* Network Icon */}
                                     <path d="M205,70 L215,70 L215,80 L205,80 Z" fill="#EC4899" stroke="#EC4899" strokeWidth="2">
-                                        <animateTransform attributeName="transform" type="translate" values="0,0;5,0;0,0" dur="2.5s" repeatCount="indefinite"/>
+                                        <animateTransform attributeName="transform" type="translate" values="0,0;5,0;0,0" dur="2.5s" repeatCount="indefinite" />
                                     </path>
-                                    
+
                                     {/* Data Icon */}
                                     <path d="M50,230 L60,230 L60,240 L50,240 Z" fill="#3B82F6" stroke="#3B82F6" strokeWidth="2">
-                                        <animateTransform attributeName="transform" type="translate" values="0,0;0,5;0,0" dur="3.5s" repeatCount="indefinite"/>
+                                        <animateTransform attributeName="transform" type="translate" values="0,0;0,5;0,0" dur="3.5s" repeatCount="indefinite" />
                                     </path>
-                                    
+
                                     {/* Connection Icon */}
                                     <path d="M215,230 L225,230 L225,240 L215,240 Z" fill="#10B981" stroke="#10B981" strokeWidth="2">
-                                        <animateTransform attributeName="transform" type="translate" values="0,0;-5,0;0,0" dur="2.8s" repeatCount="indefinite"/>
+                                        <animateTransform attributeName="transform" type="translate" values="0,0;-5,0;0,0" dur="2.8s" repeatCount="indefinite" />
                                     </path>
                                 </g>
-                                
+
                                 {/* Pulsing Rings */}
                                 <circle cx="140" cy="110" r="35" stroke="#7C3AED" strokeWidth="1" strokeOpacity="0.3" fill="none">
-                                    <animate attributeName="r" values="35;45;35" dur="3s" repeatCount="indefinite"/>
-                                    <animate attributeName="stroke-opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite"/>
+                                    <animate attributeName="r" values="35;45;35" dur="3s" repeatCount="indefinite" />
+                                    <animate attributeName="stroke-opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite" />
                                 </circle>
                                 <circle cx="140" cy="110" r="50" stroke="#EC4899" strokeWidth="1" strokeOpacity="0.2" fill="none">
-                                    <animate attributeName="r" values="50;60;50" dur="4s" repeatCount="indefinite"/>
-                                    <animate attributeName="stroke-opacity" values="0.2;0;0.2" dur="4s" repeatCount="indefinite"/>
+                                    <animate attributeName="r" values="50;60;50" dur="4s" repeatCount="indefinite" />
+                                    <animate attributeName="stroke-opacity" values="0.2;0;0.2" dur="4s" repeatCount="indefinite" />
                                 </circle>
-                                
+
                                 <defs>
                                     <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#1a1a2e"/>
-                                        <stop offset="100%" stopColor="#16213e"/>
+                                        <stop offset="0%" stopColor="#1a1a2e" />
+                                        <stop offset="100%" stopColor="#16213e" />
                                     </linearGradient>
                                     <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#7C3AED"/>
-                                        <stop offset="50%" stopColor="#EC4899"/>
-                                        <stop offset="100%" stopColor="#3B82F6"/>
+                                        <stop offset="0%" stopColor="#7C3AED" />
+                                        <stop offset="50%" stopColor="#EC4899" />
+                                        <stop offset="100%" stopColor="#3B82F6" />
                                     </linearGradient>
                                     <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.8"/>
-                                        <stop offset="100%" stopColor="#EC4899" stopOpacity="0.8"/>
+                                        <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.8" />
+                                        <stop offset="100%" stopColor="#EC4899" stopOpacity="0.8" />
                                     </linearGradient>
                                     <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#7C3AED" stopOpacity="0"/>
-                                        <stop offset="50%" stopColor="#7C3AED" stopOpacity="1"/>
-                                        <stop offset="100%" stopColor="#7C3AED" stopOpacity="0"/>
+                                        <stop offset="0%" stopColor="#7C3AED" stopOpacity="0" />
+                                        <stop offset="50%" stopColor="#7C3AED" stopOpacity="1" />
+                                        <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
                                     </linearGradient>
                                     <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#EC4899" stopOpacity="0"/>
-                                        <stop offset="50%" stopColor="#EC4899" stopOpacity="1"/>
-                                        <stop offset="100%" stopColor="#EC4899" stopOpacity="0"/>
+                                        <stop offset="0%" stopColor="#EC4899" stopOpacity="0" />
+                                        <stop offset="50%" stopColor="#EC4899" stopOpacity="1" />
+                                        <stop offset="100%" stopColor="#EC4899" stopOpacity="0" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                         </div>
                         <p style={styles.aiImageText}>AI Network Connecting Social Platforms</p>
                     </div>
-                    
+
                     <div style={styles.featuresGrid}>
                         <div style={styles.featureCard}>
                             <div style={styles.featureIcon}>
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#7C3AED" fillOpacity="0.2" stroke="#7C3AED" strokeWidth="2"/>
-                                    <path d="M8 12L11 15L16 9" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#7C3AED" fillOpacity="0.2" stroke="#7C3AED" strokeWidth="2" />
+                                    <path d="M8 12L11 15L16 9" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
                             <h4 style={styles.featureCardTitle}>Secure Authentication</h4>
                             <p style={styles.featureCardDesc}>Military-grade encryption for safe account access</p>
                         </div>
-                        
+
                         <div style={styles.featureCard}>
                             <div style={styles.featureIcon}>
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#EC4899" strokeWidth="2"/>
-                                    <circle cx="9" cy="7" r="4" stroke="#EC4899" strokeWidth="2"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="#EC4899" strokeWidth="2"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#EC4899" strokeWidth="2"/>
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#EC4899" strokeWidth="2" />
+                                    <circle cx="9" cy="7" r="4" stroke="#EC4899" strokeWidth="2" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="#EC4899" strokeWidth="2" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#EC4899" strokeWidth="2" />
                                 </svg>
                             </div>
                             <h4 style={styles.featureCardTitle}>Multi-Device Access</h4>
                             <p style={styles.featureCardDesc}>Login from any device with sync capabilities</p>
                         </div>
-                        
+
                         <div style={styles.featureCard}>
                             <div style={styles.featureIcon}>
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="#3B82F6" fillOpacity="0.2" stroke="#3B82F6" strokeWidth="2"/>
-                                    <path d="M19.4 15C20.2 13.4 20.2 11.6 19.4 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M4.6 15C3.8 13.4 3.8 11.6 4.6 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M16.8 7.2C17.5 8.3 17.5 9.7 16.8 10.8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M7.2 7.2C6.5 8.3 6.5 9.7 7.2 10.8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="#3B82F6" fillOpacity="0.2" stroke="#3B82F6" strokeWidth="2" />
+                                    <path d="M19.4 15C20.2 13.4 20.2 11.6 19.4 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M4.6 15C3.8 13.4 3.8 11.6 4.6 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M16.8 7.2C17.5 8.3 17.5 9.7 16.8 10.8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M7.2 7.2C6.5 8.3 6.5 9.7 7.2 10.8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
                                 </svg>
                             </div>
                             <h4 style={styles.featureCardTitle}>Smart Session Management</h4>
                             <p style={styles.featureCardDesc}>AI-powered session handling for optimal security</p>
                         </div>
-                        
+
                         <div style={styles.featureCard}>
                             <div style={styles.featureIcon}>
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                    <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86" stroke="#10B981" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M22 4L12 14.01L9 11.01" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86" stroke="#10B981" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M22 4L12 14.01L9 11.01" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
                             <h4 style={styles.featureCardTitle}>Real-time Monitoring</h4>
@@ -275,9 +275,9 @@ export default function Login() {
                     {error && (
                         <div style={styles.errorBox}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={styles.errorIcon}>
-                                <circle cx="12" cy="12" r="10" fill="#FEE2E2" stroke="#DC2626"/>
-                                <path d="M12 8V12" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
-                                <circle cx="12" cy="16" r="1" fill="#DC2626"/>
+                                <circle cx="12" cy="12" r="10" fill="#FEE2E2" stroke="#DC2626" />
+                                <path d="M12 8V12" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
+                                <circle cx="12" cy="16" r="1" fill="#DC2626" />
                             </svg>
                             <span style={styles.errorText}>{error}</span>
                         </div>
@@ -315,10 +315,18 @@ export default function Login() {
                                 />
                                 <span style={styles.inputIcon}>🔒</span>
                             </div>
+                            <p style={{ textAlign: "right", marginTop: "8px" }}>
+                                <Link
+                                    to="/forgot-password"
+                                    style={{ color: "#7C3AED", textDecoration: "none" }}
+                                >
+                                    Forgot Password?
+                                </Link>
+                            </p>
                         </div>
 
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={loading}
                             style={loading ? { ...styles.submitBtn, ...styles.disabledBtn } : styles.submitBtn}
                         >
@@ -472,7 +480,7 @@ const styles = {
         lineHeight: "1.4",
     },
     // Right Panel Styles
-   rightPanel: {
+    rightPanel: {
         flex: "0 0 40%",
         backgroundColor: "#ffffff",
         display: "flex",
