@@ -2,9 +2,102 @@ import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const Pricing = () => {
     const [sidebarWidth, setSidebarWidth] = useState(50);
+
+    const getUserFromToken = () => {
+        const token = localStorage.getItem("token");
+        console.log("Token from localStorage:", token); // ✅ check if token exists
+
+        if (!token) return null;
+
+        try {
+            const decoded = jwtDecode(token);
+            console.log("Decoded token:", decoded); // ✅ check decoded payload
+            return decoded;
+        } catch (err) {
+            console.log("Invalid token", err);
+            return null;
+        }
+    };
+
+
+    const handlePayment = async (plan) => {
+        const user = getUserFromToken();
+        if (!user || !user.id) return alert("User not logged in!");
+
+        const amount = plan === "PRO" ? 999 : plan === "ENTERPRISE" ? 1999 : 0;
+        if (!amount) return alert("Free plan");
+
+        try {
+            // 1️⃣ Create order
+            const { data } = await axios.post(
+                "http://localhost:5000/payment/create-order",
+                {
+                    plan,
+                    userId: user.id,
+                    customerName: user.name,
+                    customerEmail: user.email,
+                    customerPhone: "9876543210",
+                }
+            );
+
+            console.log("Cashfree order response:", data);
+
+            if (!data.paymentSessionId) return alert("Payment session missing");
+
+            if (!window.Cashfree) {
+                console.error("❌ Cashfree SDK not loaded");
+                return alert("Payment SDK not loaded. Refresh page.");
+            }
+
+            // 2️⃣ Initialize Cashfree
+            const cashfree = window.Cashfree({ mode: "sandbox" });
+
+            // 3️⃣ Store orderId for verification
+            const orderId = data.orderId;
+
+            // 4️⃣ Checkout
+            cashfree
+                .checkout({
+                    paymentSessionId: data.paymentSessionId,
+                    redirectTarget: "_modal",
+                })
+                .then(async (result) => {
+                    console.log("💳 Payment result:", result);
+
+                    if (result.error) {
+                        alert("Payment failed or cancelled");
+                        return;
+                    }
+
+                    // 5️⃣ MANUAL CALLBACK – verify payment status
+                    console.log("✅ SUCCESS ORDER ID (stored):", orderId);
+
+                    try {
+                        const verify = await axios.post(
+                            "http://localhost:5000/payment/callback",
+                            { orderId }
+                        );
+
+                        if (verify.data.success) {
+                            alert("Payment successful 🎉 Plan activated!");
+                        } else {
+                            alert("Payment verification failed!");
+                        }
+                    } catch (err) {
+                        console.error("Payment verification error:", err.response?.data || err.message);
+                        alert("Payment verification failed!");
+                    }
+                });
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            alert("Payment initiation failed!");
+        }
+    };
 
     return (
         <>
@@ -87,7 +180,10 @@ const Pricing = () => {
 
                                 </ul>
 
-                                <button className="btn btn-brand w-100">
+                                <button
+                                    className="btn btn-brand w-100"
+                                    onClick={() => handlePayment("PRO")}
+                                >
                                     Upgrade to Pro
                                 </button>
                             </div>
@@ -99,8 +195,8 @@ const Pricing = () => {
                                 <span className="plan-label enterprise-text">ENTERPRISE</span>
                                 <h4 className="plan-name">Ultimate</h4>
 
-                                <h2 className="price enterprise-price">
-                                    Custom
+                                <h2 className="price highlight">
+                                    ₹1999 <span>/ month</span>
                                 </h2>
 
                                 <ul className="features">
@@ -116,8 +212,11 @@ const Pricing = () => {
                                     <li>Priority Support</li>
                                 </ul>
 
-                                <button className="btn btn-outline-enterprise w-100">
-                                    Contact Sales
+                                <button
+                                    className="btn btn-outline-enterprise w-100"
+                                    onClick={() => handlePayment("ENTERPRISE")}
+                                >
+                                    Upgrade to Enterprise
                                 </button>
                             </div>
                         </div>

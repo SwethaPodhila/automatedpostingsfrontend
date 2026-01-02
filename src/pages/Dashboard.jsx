@@ -30,7 +30,6 @@ export default function Dashboard() {
     const [confirmed, setConfirmed] = useState(false);
     const [loading, setLoading] = useState(false);
 
-
     useEffect(() => {
         if (token) {
             checkLinkedInConnection();
