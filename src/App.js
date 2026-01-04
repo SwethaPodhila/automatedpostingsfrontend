@@ -23,6 +23,7 @@ import LinkedinManager from "./pages/LinkedinManager";
 import ManualPosting from "./pages/ManualPosting";
 import Pricing from "./pages/Pricing";
 import ForgotPassword from "./pages/ForgotPassword";
+import WeeklyCalendar from "./pages/WeeklyCalendar";
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
         <Route path="/linkedin-manager" element={<LinkedinManager />} />
         <Route path="/manualPosting" element={<ManualPosting />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/weekly-calendar" element={<WeeklyCalendar />} />
 
         {/*  */}
       </Routes>

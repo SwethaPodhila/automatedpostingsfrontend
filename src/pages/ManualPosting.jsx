@@ -19,7 +19,7 @@ const ManualPosting = () => {
             return;
         }
         setTimes([...times, ""]);
-    };
+    }; 
 
     const removeTime = (index) => {
         setTimes(times.filter((_, i) => i !== index));

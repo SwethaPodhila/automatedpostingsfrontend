@@ -95,7 +95,7 @@ export default function Register() {
     setError("");
     
     try {
-      const res = await axios.post("https://automatedpostingbackend-h9dc.onrender.com/user/verify-otp", {
+      const res = await axios.post("http://localhost:5000/user/verify-otp", {
         email: form.email,
         otp: otp.trim(),
       });

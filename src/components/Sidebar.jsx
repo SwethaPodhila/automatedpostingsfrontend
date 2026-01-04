@@ -30,7 +30,7 @@ export default function Sidebar({ onWidthChange }) {
         {expanded && <span style={styles.text}>Dashboard</span>}
       </div>
 
-      <div style={styles.menuItem} onClick={() => navigate("/all-posts")}>
+      <div style={styles.menuItem} onClick={() => navigate("/weekly-calendar")}>
         <i className="bi bi-pencil-square"></i>
         {expanded && <span style={styles.text}>Posts</span>}
       </div>
