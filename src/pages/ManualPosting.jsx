@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const ManualPosting = () => {
     const [prompt, setPrompt] = useState("");
@@ -10,8 +11,51 @@ const ManualPosting = () => {
     const [selectedAccounts, setSelectedAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [mediaFile, setMediaFile] = useState(null);
-
     const [times, setTimes] = useState([""]); // default 1 time input
+
+    const token = localStorage.getItem("token");
+    const decodedToken = token ? jwtDecode(token) : null;
+
+    const isFreeTrialActive = (decoded) => {
+        if (!decoded) return false;
+        if (decoded.plan !== "FREE") return false;
+        if (decoded.subscriptionStatus !== "ACTIVE") return false;
+
+        const issuedAt = decoded.iat * 1000; // sec → ms
+        const now = Date.now();
+        const diffDays = (now - issuedAt) / (1000 * 60 * 60 * 24);
+
+        return diffDays <= 7;
+    };
+
+    const getMaxSelectableAccounts = (decoded) => {
+        if (!decoded) return 0;
+
+        // ENTERPRISE → unlimited
+        if (decoded.plan === "ENTERPRISE") return Infinity;
+
+        // PRO → 3
+        if (decoded.plan === "PRO") return 3;
+
+        // FREE
+        if (decoded.plan === "FREE") {
+            // ❌ subscription inactive → no access
+            if (decoded.subscriptionStatus !== "ACTIVE") {
+                return 0;
+            }
+
+            // ✅ active trial (7 days)
+            if (isFreeTrialActive(decoded)) {
+                return Infinity;
+            }
+
+            // fallback (safety)
+            return 0;
+        }
+
+        return 0;
+    };
+
 
     const addTime = () => {
         if (times.length >= 3) {
@@ -19,7 +63,7 @@ const ManualPosting = () => {
             return;
         }
         setTimes([...times, ""]);
-    }; 
+    };
 
     const removeTime = (index) => {
         setTimes(times.filter((_, i) => i !== index));
@@ -91,10 +135,26 @@ const ManualPosting = () => {
        TOGGLE ACCOUNT
     ======================== */
     const toggleAccount = (id) => {
-        setSelectedAccounts((prev) =>
-            prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
-        );
+        const maxLimit = getMaxSelectableAccounts(decodedToken);
+
+        setSelectedAccounts((prev) => {
+            if (prev.includes(id)) {
+                return prev.filter((a) => a !== id);
+            }
+
+            if (prev.length >= maxLimit) {
+                alert(
+                    maxLimit === Infinity
+                        ? "Upgrade required"
+                        : `Your plan allows only ${maxLimit} accounts`
+                );
+                return prev;
+            }
+
+            return [...prev, id];
+        });
     };
+
 
     /* =======================
        UI
@@ -167,6 +227,49 @@ const ManualPosting = () => {
 
             return acc;
         }, {});
+    };
+
+    const renderPlanMessage = () => {
+        if (!decodedToken) return null;
+
+        // ENTERPRISE → no message
+        if (decodedToken.plan === "ENTERPRISE") return null;
+
+        // FREE
+        if (decodedToken.plan === "FREE") {
+            // ❌ subscription inactive → 0 access
+            if (decodedToken.subscriptionStatus !== "ACTIVE") {
+                return (
+                    <p style={styles.planMsg}>
+                        You don’t have access to select social accounts. Please
+                        <a href="pricing" style={styles.upgradeLink}>
+                            upgrade
+                        </a>
+                        to continue.
+                    </p>
+                );
+            }
+
+            // ✅ free trial active → no message
+            if (isFreeTrialActive(decodedToken)) {
+                return null;
+            }
+        }
+
+        // PRO
+        if (decodedToken.plan === "PRO") {
+            return (
+                <p style={styles.planMsg}>
+                    You have access to select only <b>3 pages</b>.Please 
+                    <a href="/pricing" style={styles.upgradeLink}>
+                         upgrade 
+                    </a>
+                    to access all pages
+                </p>
+            );
+        }
+
+        return null;
     };
 
 
@@ -268,14 +371,20 @@ const ManualPosting = () => {
 
                     {/* ACCOUNTS */}
                     <h4>Select Social Accounts</h4>
+                    {renderPlanMessage()}
                     {accounts.length === 0 && <p>No accounts connected</p>}
                     {accounts.map((acc) => (
                         <div key={acc._id} style={styles.checkboxRow}>
                             <input
                                 type="checkbox"
                                 checked={selectedAccounts.includes(acc._id)}
+                                disabled={
+                                    selectedAccounts.length >= getMaxSelectableAccounts(decodedToken) &&
+                                    !selectedAccounts.includes(acc._id)
+                                }
                                 onChange={() => toggleAccount(acc._id)}
                             />
+
                             <span>
                                 {acc.platform} — {acc.meta?.name || acc.meta?.username || acc.meta?.boardName}
                             </span>
@@ -423,6 +532,13 @@ const styles = {
     disabled: {
         opacity: 0.6,
         cursor: "not-allowed"
+    },
+    upgradeLink: {
+        marginLeft: 6,
+        marginRight: 6,
+        color: "#6366f1",
+        fontWeight: 600,
+        textDecoration: "none"
     }
 };
 
