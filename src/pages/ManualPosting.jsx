@@ -193,7 +193,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "http://localhost:5000/automation/publish",
+                        "https://automatedpostingbackend-h9dc.onrender.com/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }

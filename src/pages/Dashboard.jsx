@@ -14,7 +14,7 @@ import YouTubeCard from "./YoutubeCard";
 import PinterestCard from "./PinterestCard";
 import TelegramCard from "./TelegramCard";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
 
 export default function Dashboard() {
     const [sidebarWidth, setSidebarWidth] = useState(50);

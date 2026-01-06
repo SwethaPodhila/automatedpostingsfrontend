@@ -46,7 +46,7 @@ export default function FacebookManualPost() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://automatedpostingbackend.onrender.com/social/ai-generate",
+        "https://automatedpostingbackend-h9dc.onrender.com/social/ai-generate",
         { prompt: aiPrompt }
       );
 
@@ -97,7 +97,7 @@ export default function FacebookManualPost() {
       if (scheduleTime) formData.append("scheduleTime", scheduleTime);
 
       const res = await axios.post(
-        "https://automatedpostingbackend.onrender.com/social/publish/facebook",
+        "https://automatedpostingbackend-h9dc.onrender.com/social/publish/facebook",
         formData
       );
 

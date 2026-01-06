@@ -26,7 +26,7 @@ export default function WeeklyCalendar() {
         const userId = localStorage.getItem("userId");
 
         const res = await axios.get(
-            `http://localhost:5000/automation/weekly/${userId}?weekStart=${formatDate(weekStart)}`
+            `https://automatedpostingbackend-h9dc.onrender.com/automation/weekly/${userId}?weekStart=${formatDate(weekStart)}`
         );
          console.log("Fetched posts:", res.data);
         setPosts(res.data.data || []);

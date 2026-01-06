@@ -35,7 +35,7 @@ const Pricing = () => {
         try {
             // 1️⃣ Create order
             const { data } = await axios.post(
-                "http://localhost:5000/payment/create-order",
+                "https://automatedpostingbackend-h9dc.onrender.com/payment/create-order",
                 {
                     plan,
                     userId: user.id,
@@ -79,7 +79,7 @@ const Pricing = () => {
 
                     try {
                         const verify = await axios.post(
-                            "http://localhost:5000/payment/callback",
+                            "https://automatedpostingbackend-h9dc.onrender.com/payment/callback",
                             { orderId }
                         );
 
