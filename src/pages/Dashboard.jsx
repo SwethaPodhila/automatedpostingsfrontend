@@ -244,13 +244,13 @@ export default function Dashboard() {
                             />
                         </div>
 
-                        <div style={styles.card}>
+                     {/*   <div style={styles.card}>
                             <h3>YouTube</h3>
                             <YouTubeCard
                                 connect={() =>
                                     window.location.href = `${BACKEND_URL}/auth/youtube?userId=${userId}`
                                 } />
-                        </div>
+                        </div>    */}
 
                         <div style={styles.card}>
                             <h3>Telegram</h3>
