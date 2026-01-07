@@ -177,7 +177,7 @@ const AutomationForm = () => {
             checked={selectedAccounts.includes(acc._id)}
             onChange={() => toggleAccount(acc._id)}
           />
-          <span>{acc.platform} — {acc.meta?.name || acc.meta?.username}</span>
+          <span>{acc.platform} — {acc.meta?.name || acc.meta?.username || acc.meta?.boardName}</span>
         </div>
       ))}
 

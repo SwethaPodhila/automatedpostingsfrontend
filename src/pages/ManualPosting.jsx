@@ -396,7 +396,7 @@ const ManualPosting = () => {
                         disabled={loading}
                         style={styles.button}
                     >
-                        {loading ? "Creating..." : "Create Automation"}
+                        {loading ? "Creating..." : "Create Manual Post"}
                     </button>
                 </div>
             </div>
