@@ -55,7 +55,7 @@ const Pricing = () => {
             }
 
             // 2️⃣ Initialize Cashfree
-            const cashfree = window.Cashfree({ mode: "sandbox" });
+            const cashfree = window.Cashfree({mode: "production",});
 
             // 3️⃣ Store orderId for verification
             const orderId = data.orderId;
