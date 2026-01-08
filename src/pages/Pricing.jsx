@@ -24,7 +24,6 @@ const Pricing = () => {
         }
     };
 
-
     const handlePayment = async (plan) => {
         const user = getUserFromToken();
         if (!user || !user.id) return alert("User not logged in!");
