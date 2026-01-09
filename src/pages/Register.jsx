@@ -131,7 +131,7 @@ export default function Register() {
                                 <path d="M2 17L12 22L22 17" fill="white" stroke="white" strokeWidth="2"/>
                                 <path d="M2 12L12 17L22 12" fill="white" stroke="white" strokeWidth="2"/>
                             </svg>
-                            <span style={styles.logoText}>SyncSocial AI</span>
+                            <span style={styles.logoText}>AiWingsGlobal</span>
                         </div>
                     </div>
                     
@@ -414,7 +414,7 @@ export default function Register() {
 
           <p style={styles.loginLink}>
             Already have an account?{" "}
-            <a href="/login" style={styles.loginText}>
+            <a href="/" style={styles.loginText}>
               Login
             </a>
           </p>

@@ -220,8 +220,66 @@ export default function Dashboard() {
             <Navbar />
             <div style={styles.layout}>
                 <Sidebar onWidthChange={setSidebarWidth} />
-                <main style={{ ...styles.content, marginLeft: sidebarWidth, transition: "0.3s ease", marginTop: 60 }}>
-                    <h2>Connect Your Social Media Accounts</h2>
+                <main
+                    style={{
+                        ...styles.content,
+                        marginLeft: sidebarWidth,
+                        marginTop: 60,
+                        transition: "0.3s ease",
+                        padding: "18px 32px",
+                    }}
+                >
+                    {/* HEADER ROW */}
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "12px",
+                        }}
+                    >
+                        {/* LEFT TEXT */}
+                        <div style={{ maxWidth: "680px" }}>
+                            <h2 style={styles.heading}>
+                                Connect Your Social Media Accounts
+                            </h2>
+
+                            <p style={styles.subText}>
+                                Connect all your social platforms and post smarter—automated, scheduled, or manual.
+                            </p>
+                        </div>
+
+                        {/* RIGHT BUTTONS */}
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: "10px",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            <button
+                                style={{
+                                    ...styles.primaryBtn,
+                                    padding: "10px 18px",
+                                }}
+                                onClick={() => navigate("/auto-post")}
+                            >
+                                ⚡ Automation
+                            </button>
+
+                            <button
+                                style={{
+                                    ...styles.secondaryBtn,
+                                    padding: "10px 18px",
+                                }}
+                                onClick={() => navigate("/manualPosting")}
+                            >
+                                ✍️ Manual Posting
+                            </button>
+                        </div>
+                    </div>
+
                     <div style={styles.cardsContainer}>
                         <div style={styles.card}><h3>Facebook</h3><FacebookCard account={connected.facebook} connect={connectFacebook} disconnect={disconnectAccount} navigate={navigate} /></div>
                         <div style={styles.card}><h3>Instagram</h3><InstagramCard account={connected.instagram} connect={connectInstagram} disconnect={disconnectAccount} /></div>
@@ -244,7 +302,7 @@ export default function Dashboard() {
                             />
                         </div>
 
-                     {/*   <div style={styles.card}>
+                        {/*   <div style={styles.card}>
                             <h3>YouTube</h3>
                             <YouTubeCard
                                 connect={() =>
@@ -433,6 +491,45 @@ const styles = {
         fontWeight: 600,
         cursor: "pointer",
     },
+    heading: {
+        marginBottom: "8px",
+    },
+
+    subText: {
+        color: "#6b7280",
+        fontSize: "14px",
+        maxWidth: "650px",
+        marginBottom: "20px",
+    },
+
+    actionButtons: {
+        display: "flex",
+        gap: "14px",
+        marginBottom: "30px",
+    },
+
+    primaryBtn: {
+        padding: "10px 22px",
+        borderRadius: "8px",
+        border: "none",
+        cursor: "pointer",
+        fontSize: "14px",
+        fontWeight: "600",
+        color: "#fff",
+        background: "linear-gradient(135deg,#7c3aed,#ec4899)",
+    },
+
+    secondaryBtn: {
+        padding: "10px 22px",
+        borderRadius: "8px",
+        border: "1px solid #7c3aed",
+        cursor: "pointer",
+        fontSize: "14px",
+        fontWeight: "600",
+        background: "#fff",
+        color: "#7c3aed",
+    },
+
 
 };
 

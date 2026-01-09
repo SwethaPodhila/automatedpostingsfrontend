@@ -68,7 +68,7 @@ export default function Login() {
                                 <path d="M2 17L12 22L22 17" fill="white" stroke="white" strokeWidth="2" />
                                 <path d="M2 12L12 17L22 12" fill="white" stroke="white" strokeWidth="2" />
                             </svg>
-                            <span style={styles.logoText}>SyncSocial AI</span>
+                            <span style={styles.logoText}>AiWingsGlobal</span>
                         </div>
                     </div>
 
