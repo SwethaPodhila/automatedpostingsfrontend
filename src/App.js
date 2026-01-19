@@ -25,6 +25,7 @@ import Pricing from "./pages/Pricing";
 import ForgotPassword from "./pages/ForgotPassword";
 import WeeklyCalendar from "./pages/WeeklyCalendar";
 import Profile from "./pages/Profile";
+import Support from "./pages/Support";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/facebook-card" element={<FacebookCard />} />
         <Route path="/instagram-card" element={<InstagramCard />} />
         
+
         <Route path="/youtube-card" element={<YouTubeCard />} />
         <Route path="/all-posts" element={<AllPost />} />
         <Route path="/auto-post" element={<AutomationForm />} /> 
@@ -58,6 +60,7 @@ function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/weekly-calendar" element={<WeeklyCalendar />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/support" element={<Support />} />
 
         {/*  */}
       </Routes>

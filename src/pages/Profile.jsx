@@ -5,7 +5,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const userId = localStorage.getItem("userId"); // login appudu store ayyi undali
 
-  useEffect(() => {
+  useEffect(() => { 
     fetchProfile();
   }, []);
 
