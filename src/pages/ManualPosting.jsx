@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
+// 🔹 Import your existing components
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
+
 const ManualPosting = () => {
     const [prompt, setPrompt] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -12,6 +17,7 @@ const ManualPosting = () => {
     const [loading, setLoading] = useState(false);
     const [mediaFile, setMediaFile] = useState(null);
     const [times, setTimes] = useState([""]); // default 1 time input
+    const [sidebarWidth, setSidebarWidth] = useState(50);
 
     const token = localStorage.getItem("token");
     const decodedToken = token ? jwtDecode(token) : null;
@@ -245,7 +251,7 @@ const ManualPosting = () => {
                         <a href="pricing" style={styles.upgradeLink}>
                             upgrade
                         </a>
-                        to continue.
+                         to continue.
                     </p>
                 );
             }
@@ -260,9 +266,9 @@ const ManualPosting = () => {
         if (decodedToken.plan === "PRO") {
             return (
                 <p style={styles.planMsg}>
-                    You have access to select only <b>3 pages</b>.Please 
+                    You have access to select only <b>3 pages</b>. Please
                     <a href="/pricing" style={styles.upgradeLink}>
-                         upgrade 
+                        upgrade
                     </a>
                     to access all pages
                 </p>
@@ -274,133 +280,178 @@ const ManualPosting = () => {
 
 
     return (
-        <div style={styles.container}>
-            <div style={styles.page}>
-                <div style={styles.card}>
-                    <h1 style={styles.title}>Manual Posting</h1>
+        <>
+            <Navbar />
+            <Sidebar onWidthChange={setSidebarWidth} />
+            <main
+                style={{
+                    ...styles.content,
+                    marginLeft: sidebarWidth,
+                    marginTop: 60,
+                    transition: "0.3s ease",
+                    padding: "18px 32px",
+                }}
+            >
+                <div style={styles.manualcontainer}>
+                    <div style={styles.page}>
+                        <div style={styles.card}>
+                            <h1 style={styles.title}>Manual Posting</h1>
 
-                    {/* PROMPT */}
-                    <textarea
-                        placeholder="Enter your content idea..."
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        style={styles.textarea}
-                    />
+                            {/* MAIN FLEX LAYOUT */}
+                            <div style={styles.mainLayout}>
 
-                    {/* IMAGE / VIDEO (OPTIONAL) */}
-                    <label>Image / Video (optional)</label>
-                    <input
-                        type="file"
-                        accept="image/*,video/*"
-                        onChange={handleFileChange}
-                        style={styles.input}
-                    />
+                                {/* LEFT SIDE – 60% */}
+                                <div style={styles.left}>
 
-                    {mediaFile && (
-                        <p style={{ fontSize: 13 }}>
-                            Selected: {mediaFile.name}
-                        </p>
-                    )}
+                                    {/* PROMPT */}
+                                    <div style={styles.section}>
+                                        <label style={styles.label}>Post Caption</label>
+                                        <textarea
+                                            placeholder="Enter your caption here..."
+                                            value={prompt}
+                                            onChange={(e) => setPrompt(e.target.value)}
+                                            style={styles.textarea}
+                                        />
+                                    </div>
 
-                    {/* START DATE */}
-                    <label>Start Date</label>
-                    <input
-                        type="date"
-                        value={startDate}
-                        min={formatDate(today)}
-                        onChange={(e) => {
-                            setStartDate(e.target.value);
-                            setEndDate(""); // 🔥 reset end date
-                        }}
-                        style={styles.input}
-                    />
+                                    {/* IMAGE / VIDEO */}
+                                    <div style={styles.uploadBox}>
+                                        <input
+                                            type="file"
+                                            accept="image/*,video/*"
+                                            onChange={handleFileChange}
+                                            style={styles.hiddenFile}
+                                            id="mediaUpload"
+                                        />
+                                        <label htmlFor="mediaUpload" style={styles.uploadLabel}>
+                                            📤 Click to upload image / video
+                                        </label>
 
-                    {/* END DATE */}
-                    <label>End Date</label>
-                    <input
-                        type="date"
-                        value={endDate}
-                        min={startDate}
-                        max={getMaxEndDate()}
-                        disabled={!startDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        style={styles.input}
-                    />
+                                        {mediaFile && (
+                                            <p style={styles.fileName}>
+                                                Selected: {mediaFile.name}
+                                            </p>
+                                        )}
+                                    </div>
 
-                    <label>Post Times (max 3)</label>
+                                    {/* DATES */}
+                                    <div style={styles.row}>
+                                        <div style={{ flex: 1 }}>
+                                            <label style={styles.label}>Start Date</label>
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                min={formatDate(today)}
+                                                onChange={(e) => {
+                                                    setStartDate(e.target.value);
+                                                    setEndDate("");
+                                                }}
+                                                style={styles.input}
+                                            />
+                                        </div>
 
-                    {times.map((t, index) => (
-                        <div key={index} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
-                            <input
-                                type="time"
-                                value={t}
-                                onChange={(e) => {
-                                    const updated = [...times];
-                                    updated[index] = e.target.value;
-                                    setTimes(updated);
-                                }}
-                                style={{ ...styles.input, flex: 1 }}
-                            />
+                                        <div style={{ flex: 1 }}>
+                                            <label style={styles.label}>End Date</label>
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                min={startDate}
+                                                max={getMaxEndDate()}
+                                                disabled={!startDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                    </div>
 
-                            {times.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => removeTime(index)}
-                                    style={{ background: "#ff4d4d", color: "#fff" }}
-                                >
-                                    ✖
-                                </button>
-                            )}
+                                    {/* POST TIMES */}
+                                    <div style={styles.section}>
+                                        <label style={styles.label}>Post Times (max 3)</label>
+
+                                        {times.map((t, index) => (
+                                            <div key={index} style={styles.timeRow}>
+                                                <input
+                                                    type="time"
+                                                    value={t}
+                                                    onChange={(e) => {
+                                                        const updated = [...times];
+                                                        updated[index] = e.target.value;
+                                                        setTimes(updated);
+                                                    }}
+                                                    style={{ ...styles.input, flex: 1 }}
+                                                />
+
+                                                {times.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeTime(index)}
+                                                        style={styles.removeBtn}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        {times.length < 3 && (
+                                            <button
+                                                type="button"
+                                                onClick={addTime}
+                                                style={styles.addTimeBtn}
+                                            >
+                                                + Add Time
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* RIGHT SIDE – 40% */}
+                                <div style={styles.right}>
+                                    <h3 style={styles.sideTitle}>Social Accounts</h3>
+
+                                    {renderPlanMessage()}
+
+                                    {accounts.length === 0 && (
+                                        <p style={styles.empty}>No accounts connected</p>
+                                    )}
+
+                                    {accounts.map((acc) => (
+                                        <div key={acc._id} style={styles.accountRow}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedAccounts.includes(acc._id)}
+                                                disabled={
+                                                    selectedAccounts.length >=
+                                                    getMaxSelectableAccounts(decodedToken) &&
+                                                    !selectedAccounts.includes(acc._id)
+                                                }
+                                                onChange={() => toggleAccount(acc._id)}
+                                            />
+                                            <span>
+                                                {acc.platform} —{" "}
+                                                {acc.meta?.name ||
+                                                    acc.meta?.username ||
+                                                    acc.meta?.boardName}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* SUBMIT */}
+                            <button
+                                onClick={submitAutomation}
+                                disabled={loading}
+                                style={styles.submitBtn}
+                            >
+                                {loading ? "Creating..." : "Create Manual Post"}
+                            </button>
                         </div>
-                    ))}
-
-                    {times.length < 3 && (
-                        <button
-                            type="button"
-                            onClick={addTime}
-                            style={{
-                                background: "#4caf50",
-                                color: "#fff",
-                                padding: "6px 10px",
-                                marginBottom: 10
-                            }}
-                        >
-                            ➕ Add Time
-                        </button>
-                    )}
-
-                    {/* ACCOUNTS */}
-                    <h4>Select Social Accounts</h4>
-                    {renderPlanMessage()}
-                    {accounts.length === 0 && <p>No accounts connected</p>}
-                    {accounts.map((acc) => (
-                        <div key={acc._id} style={styles.checkboxRow}>
-                            <input
-                                type="checkbox"
-                                checked={selectedAccounts.includes(acc._id)}
-                                disabled={
-                                    selectedAccounts.length >= getMaxSelectableAccounts(decodedToken) &&
-                                    !selectedAccounts.includes(acc._id)
-                                }
-                                onChange={() => toggleAccount(acc._id)}
-                            />
-
-                            <span>
-                                {acc.platform} — {acc.meta?.name || acc.meta?.username || acc.meta?.boardName}
-                            </span>
-                        </div>
-                    ))}
-
-                    <button
-                        onClick={submitAutomation}
-                        disabled={loading}
-                        style={styles.button}
-                    >
-                        {loading ? "Creating..." : "Create Manual Post"}
-                    </button>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </main>
+            <Footer />
+        </>
     );
 };
 
@@ -408,35 +459,64 @@ const ManualPosting = () => {
    STYLES
 ======================== */
 const styles = {
-    page: {
+    /* ===== PAGE ROOT ===== */
+    manualcontainer: {
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #7c3aed, #ec4899)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "30px"
+        background: "#f5f7fb",
+        padding: "20px 24px"
     },
 
+    page: {
+        width: "100%"
+    },
+
+    /* ===== REMOVE CARD FEEL COMPLETELY ===== */
     card: {
         width: "100%",
-        maxWidth: 900,
-        background: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        borderRadius: 20,
-        padding: "30px 28px",
-        boxShadow: "0 30px 60px rgba(0,0,0,0.25)"
+        background: "transparent",
+        padding: 0,
+        borderRadius: 0
     },
 
     title: {
-        textAlign: "center",
-        fontSize: 24,
-        fontWeight: 800,
-        marginBottom: 25,
-        color: "#111827"
+        fontSize: 26,
+        fontWeight: 700,
+        marginBottom: 24,
+        color: "#7c3aed"
+    },
+
+    /* ===== MAIN LAYOUT ===== */
+    mainLayout: {
+        display: "flex",
+        gap: 32,
+        alignItems: "flex-start"
+    },
+
+    left: {
+        paddingLeft: 6,
+        flex: 0.8
+    },
+    right: {
+        flex: 0.4,
+        paddingLeft: 12,
+        borderLeft: "1px solid #e5e7eb",
+        maxHeight: "calc(100vh - 160px)",
+        overflowY: "auto"
+    },
+
+    /* ===== FORM SECTIONS ===== */
+    section: {
+        marginBottom: 24
+    },
+
+    row: {
+        display: "flex",
+        gap: 25,
+        marginBottom: 24
     },
 
     label: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: 600,
         marginBottom: 6,
         display: "block",
@@ -445,100 +525,132 @@ const styles = {
 
     textarea: {
         width: "100%",
-        minHeight: 120,
-        padding: 14,
-        borderRadius: 12,
+        minHeight: 130,
+        padding: "14px 16px",
+        borderRadius: 10,
         border: "1px solid #d1d5db",
         fontSize: 14,
         outline: "none",
-        marginBottom: 18
+        background: "#fff"
     },
 
     input: {
         width: "100%",
-        padding: 12,
-        borderRadius: 12,
+        padding: "12px 14px",
+        borderRadius: 10,
         border: "1px solid #d1d5db",
         fontSize: 14,
         outline: "none",
-        marginBottom: 16
+        background: "#fff"
     },
 
-    fileInfo: {
-        fontSize: 13,
-        color: "#6b7280",
-        marginBottom: 16
+    /* ===== IMAGE UPLOAD (MODERN) ===== */
+    uploadBox: {
+        border: "2px dashed #c7d2fe",
+        borderRadius: 12,
+        padding: 22,
+        textAlign: "center",
+        background: "#eef2ff",
+        cursor: "pointer",
+        marginBottom: 24
     },
 
+    hiddenFile: {
+        display: "none"
+    },
+
+    uploadLabel: {
+        fontSize: 14,
+        fontWeight: 600,
+        color: "#4f46e5",
+        cursor: "pointer"
+    },
+
+    fileName: {
+        fontSize: 12,
+        marginTop: 8,
+        color: "#6b7280"
+    },
+
+    /* ===== POST TIMES ===== */
     timeRow: {
         display: "flex",
-        gap: 10,
+        gap: 12,
         marginBottom: 10
     },
 
     removeBtn: {
         background: "#ef4444",
-        border: "none",
-        borderRadius: 10,
         color: "#fff",
+        border: "none",
+        borderRadius: 8,
         padding: "0 14px",
-        cursor: "pointer",
-        fontSize: 16
+        cursor: "pointer"
     },
 
-    addBtn: {
-        background: "#10b981",
+    addTimeBtn: {
+        background: "#7c3aed",
+        color: "#fff",
         border: "none",
         borderRadius: 10,
-        color: "#fff",
         padding: "8px 14px",
-        cursor: "pointer",
         fontSize: 13,
-        marginBottom: 18
-    },
-
-    section: {
-        fontSize: 15,
-        fontWeight: 700,
-        margin: "20px 0 12px",
-        color: "#111827"
-    },
-
-    account: {
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "12px 14px",
-        borderRadius: 12,
-        border: "1px solid #e5e7eb",
-        marginBottom: 10,
-        background: "#f9fafb"
-    },
-
-    button: {
-        width: "100%",
-        padding: 15,
-        borderRadius: 14,
-        border: "none",
-        background: "linear-gradient(135deg,#7c3aed,#ec4899)",
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: 700,
-        cursor: "pointer",
-        boxShadow: "0 15px 30px rgba(124,58,237,0.45)",
-        marginTop: 20
-    },
-
-    disabled: {
-        opacity: 0.6,
-        cursor: "not-allowed"
+        cursor: "pointer"
     },
     upgradeLink: {
         marginLeft: 6,
         marginRight: 6,
-        color: "#6366f1",
+        color: "#7c3aed",
         fontWeight: 600,
         textDecoration: "none"
+    },
+
+    /* ===== RIGHT SIDE ===== */
+    sideTitle: {
+        fontSize: 18,
+        fontWeight: 700,
+        marginBottom: 10,
+        color: "#111827"
+    },
+
+    accountRow: {
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px 14px",
+        marginBottom: 8,
+        borderRadius: 10,
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        fontSize: 14,
+        cursor: "pointer",
+        transition: "all 0.2s ease"
+    },
+
+    empty: {
+        padding: "18px",
+        textAlign: "center",
+        fontSize: 14,
+        color: "#6b7280",
+        background: "linear-gradient(135deg, #7c3aed0d, #ec48990d)",
+        border: "1px dashed #c7d2fe",
+        borderRadius: 12,
+        marginTop: 10,
+        fontWeight: 500
+    },
+
+    /* ===== SUBMIT ===== */
+    submitBtn: {
+        marginTop: 6,
+        width: "100%",
+        padding: 12,
+        borderRadius: 12,
+        border: "none",
+        fontSize: 16,
+        fontWeight: 700,
+        cursor: "pointer",
+        background: "linear-gradient(90deg, #7c3aed, #ec4899)",
+        color: "#fff"
     }
 };
 
