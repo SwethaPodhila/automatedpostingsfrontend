@@ -24,7 +24,7 @@ const Support = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const res = await fetch("http://localhost:5000/user/support", {
+        const res = await fetch("https://automatedpostingbackend-h9dc.onrender.com/user/support", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
