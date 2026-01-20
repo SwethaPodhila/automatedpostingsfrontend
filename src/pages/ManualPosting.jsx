@@ -251,7 +251,7 @@ const ManualPosting = () => {
                         <a href="pricing" style={styles.upgradeLink}>
                             upgrade
                         </a>
-                         to continue.
+                        to continue.
                     </p>
                 );
             }
@@ -277,7 +277,6 @@ const ManualPosting = () => {
 
         return null;
     };
-
 
     return (
         <>
@@ -501,7 +500,7 @@ const styles = {
         paddingLeft: 12,
         borderLeft: "1px solid #e5e7eb",
         maxHeight: "calc(100vh - 160px)",
-        overflowY: "auto"
+        overflowY: "auto",
     },
 
     /* ===== FORM SECTIONS ===== */
@@ -516,9 +515,9 @@ const styles = {
     },
 
     label: {
-        fontSize: 13,
-        fontWeight: 600,
-        marginBottom: 6,
+        fontSize: 10,
+        fontWeight: 400,
+        marginBottom: 2,
         display: "block",
         color: "#374151"
     },
@@ -529,7 +528,7 @@ const styles = {
         padding: "14px 16px",
         borderRadius: 10,
         border: "1px solid #d1d5db",
-        fontSize: 14,
+        fontSize: 12,
         outline: "none",
         background: "#fff"
     },

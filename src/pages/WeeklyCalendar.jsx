@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaTelegramPlane,
+  FaPinterestP,
+} from "react-icons/fa";
 
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 12); // 12PM–11PM
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // ✅ 0–23 FULL DAY
 
 export default function SocialCalendar() {
   const [view, setView] = useState("MONTH");
@@ -12,26 +20,60 @@ export default function SocialCalendar() {
   const [selectedPost, setSelectedPost] = useState(null);
 
   const userId = localStorage.getItem("userId");
-  const formatDate = d => d.toISOString().split("T")[0];
+  //const formatDate = d => d.toISOString().split("T")[0];
+  const formatDate = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   /* ================= FETCH ================= */
   useEffect(() => {
     fetchData();
-  }, [currentDate]);
+  }, [currentDate, view, source]); // ✅ source add cheyyi
 
   const fetchData = async () => {
     try {
-      const monday = getMonday(currentDate);
+      let dateParam;
+
+      if (view === "MONTH") {
+        dateParam = formatDate(
+          new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        );
+      } else {
+        dateParam = formatDate(getMonday(currentDate));
+      }
+
       const res = await axios.get(
-        `https://automatedpostingbackend-h9dc.onrender.com/automation/weekly/${userId}?date=${formatDate(monday)}`
+        `https://automatedpostingbackend-h9dc.onrender.com/automation/weekly/${userId}`,
+        {
+          params: {
+            date: dateParam,
+            view: view === "MONTH" ? "monthly" : "weekly",
+          },
+        }
       );
+
       setPosts(res.data.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch calendar error:", err);
     }
   };
 
+
   /* ================= HELPERS ================= */
+
+  const groupPosts = (posts) => {
+    const map = {};
+    posts.forEach(p => {
+      const key = `${p.date}_${p.time}_${p.message}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(p);
+    });
+    return Object.values(map);
+  };
+
   const getMonday = d => {
     const date = new Date(d);
     const day = date.getDay() || 7;
@@ -49,40 +91,95 @@ export default function SocialCalendar() {
   };
 
   const monthDays = () => {
-    const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    return Array.from({ length: end.getDate() }, (_, i) =>
-      new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1)
-    );
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const days = [];
+
+    // ✅ JS getDay(): Sunday=0, Monday=1 ...
+    // We want Monday = 0, Sunday = 6
+    let startDay = firstDay.getDay();
+
+    // convert Sunday(0) → 6, Monday(1) → 0, ...
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    // 🔹 padding (previous month empty cells)
+    for (let i = 0; i < startDay; i++) {
+      days.push(null);
+    }
+
+    // 🔹 actual month days
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      days.push(new Date(year, month, d));
+    }
+
+    return days;
   };
 
+  /* ✅ TIME PARSER (VERY IMPORTANT) */
+  const getHour = (time) => {
+    if (!time) return null;
+    const [t, mer] = time.split(" ");
+    let [h] = t.split(":").map(Number);
+
+    if (mer === "PM" && h !== 12) h += 12;
+    if (mer === "AM" && h === 12) h = 0;
+
+    return h;
+  };
+
+  /* ✅ WEEK VIEW POSITION FIX */
   const timeToTop = time => {
     if (!time) return 0;
     const [t, mer] = time.split(" ");
     let [h, m] = t.split(":").map(Number);
+
     if (mer === "PM" && h !== 12) h += 12;
     if (mer === "AM" && h === 12) h = 0;
-    return ((h * 60 + m - 720) / 60) * 60;
+
+    return h * 60 + m; // ✅ full day positioning
   };
 
-  const icon = p =>
-    p === "facebook" ? "📘" :
-    p === "instagram" ? "📸" :
-    p === "linkedin" ? "💼" : "🌐";
+  const icon = (p) =>
+    p === "facebook" ? <FaFacebook color="#1877F2" /> :
+      p === "instagram" ? <FaInstagram color="#E4405F" /> :
+        p === "linkedin" ? <FaLinkedin color="#0A66C2" /> :
+          p === "telegram" ? <FaTelegramPlane color="#0088cc" /> :
+            p === "pinterest" ? <FaPinterestP color="#E60023" /> :
+              null;
 
-  const filtered = posts.filter(p => p.source === source);
+  const filtered = posts.filter(
+    p => p.source?.toLowerCase() === source
+  );
+  //const filtered = posts.filter(p => p.source === source);
 
   /* ================= NAV ================= */
-  const changeDate = dir => {
+  const changeDate = (dir) => {
     const d = new Date(currentDate);
-    if (view === "MONTH") d.setMonth(d.getMonth() + dir);
-    if (view === "WEEK") d.setDate(d.getDate() + dir * 7);
-    if (view === "DAY") d.setDate(d.getDate() + dir);
+
+    if (view === "MONTH") {
+      // 🔥 Always reset to 1st day of month
+      d.setDate(1);
+      d.setMonth(d.getMonth() + dir);
+    }
+
+    if (view === "WEEK") {
+      d.setDate(d.getDate() + dir * 7);
+    }
+
+    if (view === "DAY") {
+      d.setDate(d.getDate() + dir);
+    }
+
     setCurrentDate(d);
   };
 
   return (
     <div style={styles.wrapper}>
+
       {/* HEADER */}
       <div style={styles.header}>
         <h2>Content Calendar</h2>
@@ -104,6 +201,7 @@ export default function SocialCalendar() {
           >
             Manual
           </button>
+
           <button
             style={source === "automation" ? styles.active : styles.tab}
             onClick={() => setSource("automation")}
@@ -113,78 +211,138 @@ export default function SocialCalendar() {
         </div>
       </div>
 
-      {/* MONTH */}
+      {/* ============ MONTH VIEW ============ */}
       {view === "MONTH" && (
         <div style={styles.monthGrid}>
-          {DAYS.map(d => <div key={d} style={styles.weekHead}>{d}</div>)}
-          {monthDays().map((d,i) => (
-            <div key={i} style={styles.dayCell}>
-              <b>{d.getDate()}</b>
-              {filtered
-                .filter(p => p.date === formatDate(d))
-                .map((p,i) => (
-                  <div key={i} style={styles.pill}>{icon(p.platform)} {p.time}</div>
-                ))}
-            </div>
+          {DAYS.map(d => (
+            <div key={d} style={styles.weekHead}>{d}</div>
           ))}
+
+          {monthDays().map((d, i) => {
+            if (!d) {
+              return <div key={i} style={styles.dayCell} />; // empty cell
+            }
+
+            const dayPosts = filtered.filter(
+              p => p.date === formatDate(d)
+            );
+            const grouped = groupPosts(dayPosts);
+
+            return (
+              <div key={i} style={styles.dayCell}>
+                <div style={styles.dayDate}>{d.getDate()}</div>
+
+                <div style={styles.dayPosts}>
+                  {grouped.map((group, idx) => (
+                    <div key={idx} style={styles.pill}>
+                      <div style={styles.pillIcons}>
+                        {group.map((p, i) => (
+                          <span key={i} style={styles.pillIcon}>
+                            {icon(p.platform)}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div style={styles.pillText}>
+                        <span style={styles.pillCaption}>{group[0].message}</span>
+                        <span style={styles.pillTime}>{group[0].time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
         </div>
       )}
 
-      {/* WEEK (Metricool Style) */}
+      {/* ============ WEEK VIEW ============ */}
       {view === "WEEK" && (
         <div style={styles.weekWrap}>
+          {/* HOURS COLUMN */}
           <div style={styles.timeCol}>
-            {HOURS.map(h => <div key={h} style={styles.time}>{h}:00</div>)}
+            {HOURS.map(h => (
+              <div key={h} style={{ ...styles.time, height: 60 }}>{h}:00</div>
+            ))}
           </div>
 
+          {/* DAYS COLUMN */}
           <div style={styles.weekGrid}>
-            {weekDays().map((d,i) => (
-              <div key={i} style={styles.dayCol}>
-                <div style={styles.dayHead}>
-                  {DAYS[d.getDay()]} <br /> {d.getDate()}
-                </div>
+            {weekDays().map((d, i) => {
+              const dayPosts = filtered.filter(p => p.date === formatDate(d));
+              const grouped = groupPosts(dayPosts);
 
-                <div style={styles.dayBody}>
-                  {filtered
-                    .filter(p => p.date === formatDate(d))
-                    .map((p,i) => (
-                      <div
-                        key={i}
-                        style={{ ...styles.post, top: timeToTop(p.time) }}
-                        onClick={() => setSelectedPost(p)}
-                      >
-                        <div style={styles.postHead}>
-                          {icon(p.platform)} <span>{p.time}</span>
+              return (
+                <div key={i} style={styles.dayCol}>
+                  <div style={styles.dayHead}>
+                    {DAYS[d.getDay()]}  {d.getDate()}<br />
+                  </div>
+
+                  <div style={{ ...styles.dayBody }}>
+                    {grouped.map((group, idx) => {
+                      const top = timeToTop(group[0].time) + 30; // 30px header offset
+                      return (
+                        <div key={idx} style={{ ...styles.post, top, position: "absolute" }}>
+                          <div style={styles.pillIcons}>
+                            {group.map((p, i) => (
+                              <span key={i} style={styles.pillIcon}>
+                                {icon(p.platform)}
+                              </span>
+                            ))}
+                          </div>
+                          <div style={styles.pillText}>
+                            <span style={styles.pillCaption}>{group[0].message}</span>
+                            <span style={styles.pillTime}>{group[0].time}</span>
+                          </div>
                         </div>
-                        {p.image && <img src={p.image} style={styles.img} />}
-                        <div>{p.message}</div>
-                      </div>
-                    ))}
+                      );
+                    })}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ============ DAY VIEW ============ */}
+      {view === "DAY" && (
+        <div style={{ display: "flex" }}>
+          {/* HOURS column */}
+          <div style={{ marginTop: 60, width: 50, borderRight: "1px solid #ccc" }}>
+            {HOURS.map(h => (
+              <div key={h} style={{ ...styles.time, height: 60 }}>
+                {h}:00
               </div>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* DAY */}
-      {view === "DAY" && (
-        <div style={styles.dayView}>
-          {HOURS.map(h => (
-            <div key={h} style={styles.hourRow}>
-              <span>{h}:00</span>
-              {filtered
-                .filter(p =>
-                  p.date === formatDate(currentDate) &&
-                  p.time?.startsWith(h.toString())
-                )
-                .map((p,i) => (
-                  <div key={i} style={styles.dayPost}>
-                    {icon(p.platform)} {p.message}
-                  </div>
-                ))}
+          {/* Single day column */}
+          <div style={{ flex: 1, position: "relative" }}>
+            <div style={{ ...styles.dayHead, textAlign: "center" }}>
+              {DAYS[currentDate.getDay()]} {currentDate.getDate()}
             </div>
-          ))}
+
+            <div style={{ ...styles.dayBody, position: "relative", height: 24 * 60 + 30 }}>
+              {filtered
+                .filter(p => p.date === formatDate(currentDate))
+                .map((p, idx) => {
+                  const top = timeToTop(p.time) + 30;
+                  return (
+                    <div key={idx} style={{ ...styles.post, top, position: "absolute", maxWidth: "12%"  }} onClick={() => setSelectedPost(p)}>
+                      <div style={styles.pillIcons}>
+                        <span style={styles.pillIcon}>{icon(p.platform)}</span>
+                      </div>
+                      <div style={styles.pillText}>
+                        <span style={styles.pillCaption}>{p.message}</span>
+                        <span style={styles.pillTime}>{p.time}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
         </div>
       )}
 
@@ -205,39 +363,127 @@ export default function SocialCalendar() {
 
 /* ================= STYLES ================= */
 const styles = {
-  wrapper:{ padding:20, background:"#f4f6fb", minHeight:"100vh"},
-  header:{ display:"flex", justifyContent:"space-between", marginBottom:10},
-  actions:{ display:"flex", gap:8, alignItems:"center"},
-  select:{ padding:6, borderRadius:6},
+  wrapper: { padding: 20, background: "#f4f6fb", minHeight: "100vh" },
+  header: { display: "flex", justifyContent: "space-between", marginBottom: 10 },
+  actions: { display: "flex", gap: 8, alignItems: "center" },
+  select: { padding: 6, borderRadius: 6 },
 
-  tab:{ padding:"6px 12px", borderRadius:20, border:"1px solid #ccc"},
-  active:{ padding:"6px 12px", borderRadius:20, background:"#6366f1", color:"#fff"},
+  tab: { padding: "6px 12px", borderRadius: 20, border: "1px solid #ccc" },
+  active: { padding: "6px 12px", borderRadius: 20, background: "#6366f1", color: "#fff" },
 
-  monthGrid:{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:6},
-  weekHead:{ fontWeight:600, textAlign:"center"},
-  dayCell:{ background:"#fff", minHeight:80, padding:6, borderRadius:8},
-  pill:{ fontSize:11, marginTop:4, background:"#eef2ff", padding:4, borderRadius:6},
-
-  weekWrap:{ display:"flex"},
-  timeCol:{ width:60},
-  time:{ height:60, fontSize:12},
-  weekGrid:{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", flex:1},
-
-  dayCol:{ borderLeft:"1px solid #ddd"},
-  dayHead:{ textAlign:"center", fontWeight:600, borderBottom:"1px solid #ddd"},
-  dayBody:{ position:"relative", height:HOURS.length*60},
-
-  post:{
-    position:"absolute", left:6, right:6, background:"#eef2ff",
-    borderRadius:8, padding:6, fontSize:11
+  /* ===== MONTH VIEW styles ===== */
+  monthGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: 6,
   },
-  postHead:{ fontWeight:600, marginBottom:4},
-  img:{ width:"100%", borderRadius:6, marginBottom:4},
 
-  dayView:{ background:"#fff", padding:10, borderRadius:10},
-  hourRow:{ display:"flex", gap:10, borderBottom:"1px solid #eee", height:50},
-  dayPost:{ background:"#c7d2fe", padding:6, borderRadius:6},
+  weekHead: {
+    fontWeight: 600,
+    textAlign: "center",
+    fontSize: 13,
+  },
 
-  overlay:{ position:"fixed", inset:0, background:"rgba(0,0,0,.4)", display:"flex", alignItems:"center", justifyContent:"center"},
-  modal:{ background:"#fff", padding:20, borderRadius:10, width:350}
+  dayCell: {
+    background: "#fff",
+    minHeight: 110,
+    padding: 6,
+    borderRadius: 8,
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  },
+
+  dayDate: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#555",
+  },
+
+  /* ===== POST PILL ===== */
+  pill: {
+    background: "#eef2ff",
+    borderRadius: 6,
+    padding: "4px 6px",
+
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+
+    height: 44,
+    maxWidth: "100%",
+    overflow: "hidden",
+  },
+
+  pillIcons: {
+    display: "flex",
+    gap: 4,
+    flexShrink: 0,     // icons shrink avvakunda
+  },
+
+  pillIcon: {
+    fontSize: 14,
+  },
+
+  pillText: {
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    flex: 1,
+  },
+
+  pillTime: {
+    fontSize: 10,
+    fontWeight: 600,
+    lineHeight: "12px",
+  },
+
+  pillCaption: {
+    fontSize: 12,
+    color: "#444",
+    whiteSpace: "nowrap",   // 🔒 single line
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: 120,          // 🔥 width control
+  },
+  dayCell: {
+    background: "#fff",
+    height: 130,              // 🔒 fixed height (same for all days)
+    padding: 6,
+    borderRadius: 8,
+
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+
+    overflow: "hidden",       // 🔒 outer overflow block
+  },
+
+  dayPosts: {
+    flex: 1,
+    overflowY: "auto",
+    paddingRight: 2,
+    scrollbarWidth: "thin",          // Firefox
+  },
+
+  //weekly styles
+  weekWrap: { display: "flex" },
+  timeCol: { marginTop: 60, width: 50, borderRight: "1px solid #ccc" },
+  weekGrid: { display: "flex", flex: 1 },
+  dayCol: { flex: 1, borderLeft: "1px solid #ccc", borderRight: "1px solid #ccc", position: "relative" },
+  dayHead: { height: 30, textAlign: "center", borderBottom: "1px solid #ccc", fontWeight: "bold" },
+  dayBody: { position: "relative", height: 24 * 60 + 30, borderBottom: "1px solid #ccc", paddingTop: 0 },
+  time: { height: 60, borderBottom: "1px solid #eee", textAlign: "right", paddingRight: 5 },
+  //post: { background: "#d9f0ff", padding: "2px 4px", borderRadius: 4, fontSize: 12 },
+  post: {
+    position: "absolute",
+    background: "#eef2ff",
+    borderRadius: 6,
+    padding: "4px 6px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    width: "90%", // don’t overflow
+    wordBreak: "break-word", // long messages wrap
+    zIndex: 1,
+  },
+
 };
