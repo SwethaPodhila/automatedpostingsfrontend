@@ -7,6 +7,9 @@ import {
   FaTelegramPlane,
   FaPinterestP,
 } from "react-icons/fa";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -18,6 +21,7 @@ export default function SocialCalendar() {
   const [posts, setPosts] = useState([]);
   const [source, setSource] = useState("manual");
   const [selectedPost, setSelectedPost] = useState(null);
+  const [sidebarWidth, setSidebarWidth] = useState(50);
 
   const userId = localStorage.getItem("userId");
   //const formatDate = d => d.toISOString().split("T")[0];
@@ -60,7 +64,6 @@ export default function SocialCalendar() {
       console.error("Fetch calendar error:", err);
     }
   };
-
 
   /* ================= HELPERS ================= */
 
@@ -178,112 +181,75 @@ export default function SocialCalendar() {
   };
 
   return (
-    <div style={styles.wrapper}>
+    <>
+      <Navbar />
+      <div style={styles.wrapper}>
+        <Sidebar onWidthChange={setSidebarWidth} />
+        <main
+          style={{
+            ...styles.content,
+            marginLeft: sidebarWidth,
+            marginTop: 60,
+            transition: "0.3s ease",
+            padding: "18px 32px",
+          }}
+        >
 
-      {/* HEADER */}
-      <div style={styles.header}>
-        <h2>Content Calendar</h2>
+          {/* HEADER */}
+          <div style={styles.header}>
+            <h2>Content Calendar</h2>
 
-        <div style={styles.actions}>
-          <select value={view} onChange={e => setView(e.target.value)} style={styles.select}>
-            <option value="MONTH">Month</option>
-            <option value="WEEK">Week</option>
-            <option value="DAY">Day</option>
-          </select>
+            <div style={styles.actions}>
+              <select value={view} onChange={e => setView(e.target.value)} style={styles.select}>
+                <option value="MONTH">Month</option>
+                <option value="WEEK">Week</option>
+                <option value="DAY">Day</option>
+              </select>
 
-          <button onClick={() => changeDate(-1)}>◀</button>
-          <span>{currentDate.toDateString()}</span>
-          <button onClick={() => changeDate(1)}>▶</button>
+              <button onClick={() => changeDate(-1)}>◀</button>
+              <span>{currentDate.toDateString()}</span>
+              <button onClick={() => changeDate(1)}>▶</button>
 
-          <button
-            style={source === "manual" ? styles.active : styles.tab}
-            onClick={() => setSource("manual")}
-          >
-            Manual
-          </button>
+              <button
+                style={source === "manual" ? styles.active : styles.tab}
+                onClick={() => setSource("manual")}
+              >
+                Manual
+              </button>
 
-          <button
-            style={source === "automation" ? styles.active : styles.tab}
-            onClick={() => setSource("automation")}
-          >
-            Automation
-          </button>
-        </div>
-      </div>
-
-      {/* ============ MONTH VIEW ============ */}
-      {view === "MONTH" && (
-        <div style={styles.monthGrid}>
-          {DAYS.map(d => (
-            <div key={d} style={styles.weekHead}>{d}</div>
-          ))}
-
-          {monthDays().map((d, i) => {
-            if (!d) {
-              return <div key={i} style={styles.dayCell} />; // empty cell
-            }
-
-            const dayPosts = filtered.filter(
-              p => p.date === formatDate(d)
-            );
-            const grouped = groupPosts(dayPosts);
-
-            return (
-              <div key={i} style={styles.dayCell}>
-                <div style={styles.dayDate}>{d.getDate()}</div>
-
-                <div style={styles.dayPosts}>
-                  {grouped.map((group, idx) => (
-                    <div key={idx} style={styles.pill}>
-                      <div style={styles.pillIcons}>
-                        {group.map((p, i) => (
-                          <span key={i} style={styles.pillIcon}>
-                            {icon(p.platform)}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div style={styles.pillText}>
-                        <span style={styles.pillCaption}>{group[0].message}</span>
-                        <span style={styles.pillTime}>{group[0].time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-        </div>
-      )}
-
-      {/* ============ WEEK VIEW ============ */}
-      {view === "WEEK" && (
-        <div style={styles.weekWrap}>
-          {/* HOURS COLUMN */}
-          <div style={styles.timeCol}>
-            {HOURS.map(h => (
-              <div key={h} style={{ ...styles.time, height: 60 }}>{h}:00</div>
-            ))}
+              <button
+                style={source === "automation" ? styles.active : styles.tab}
+                onClick={() => setSource("automation")}
+              >
+                Automation
+              </button>
+            </div>
           </div>
 
-          {/* DAYS COLUMN */}
-          <div style={styles.weekGrid}>
-            {weekDays().map((d, i) => {
-              const dayPosts = filtered.filter(p => p.date === formatDate(d));
-              const grouped = groupPosts(dayPosts);
+          {/* ============ MONTH VIEW ============ */}
+          {view === "MONTH" && (
+            <div style={styles.monthGrid}>
+              {DAYS.map(d => (
+                <div key={d} style={styles.weekHead}>{d}</div>
+              ))}
 
-              return (
-                <div key={i} style={styles.dayCol}>
-                  <div style={styles.dayHead}>
-                    {DAYS[d.getDay()]}  {d.getDate()}<br />
-                  </div>
+              {monthDays().map((d, i) => {
+                if (!d) {
+                  return <div key={i} style={styles.dayCell} />; // empty cell
+                }
 
-                  <div style={{ ...styles.dayBody }}>
-                    {grouped.map((group, idx) => {
-                      const top = timeToTop(group[0].time) + 30; // 30px header offset
-                      return (
-                        <div key={idx} style={{ ...styles.post, top, position: "absolute" }}>
+                const dayPosts = filtered.filter(
+                  p => p.date === formatDate(d)
+                );
+                const grouped = groupPosts(dayPosts);
+
+                return (
+                  <div key={i} style={styles.dayCell}>
+                    <div style={styles.dayDate}>{d.getDate()}</div>
+
+                    <div style={styles.dayPosts}>
+                      {grouped.map((group, idx) => (
+                        <div key={idx} style={styles.pill}>
                           <div style={styles.pillIcons}>
                             {group.map((p, i) => (
                               <span key={i} style={styles.pillIcon}>
@@ -291,85 +257,177 @@ export default function SocialCalendar() {
                               </span>
                             ))}
                           </div>
+
                           <div style={styles.pillText}>
                             <span style={styles.pillCaption}>{group[0].message}</span>
                             <span style={styles.pillTime}>{group[0].time}</span>
                           </div>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+                );
+              })}
 
-      {/* ============ DAY VIEW ============ */}
-      {view === "DAY" && (
-        <div style={{ display: "flex" }}>
-          {/* HOURS column */}
-          <div style={{ marginTop: 60, width: 50, borderRight: "1px solid #ccc" }}>
-            {HOURS.map(h => (
-              <div key={h} style={{ ...styles.time, height: 60 }}>
-                {h}:00
-              </div>
-            ))}
-          </div>
-
-          {/* Single day column */}
-          <div style={{ flex: 1, position: "relative" }}>
-            <div style={{ ...styles.dayHead, textAlign: "center" }}>
-              {DAYS[currentDate.getDay()]} {currentDate.getDate()}
             </div>
+          )}
 
-            <div style={{ ...styles.dayBody, position: "relative", height: 24 * 60 + 30 }}>
-              {filtered
-                .filter(p => p.date === formatDate(currentDate))
-                .map((p, idx) => {
-                  const top = timeToTop(p.time) + 30;
+          {/* ============ WEEK VIEW ============ */}
+          {view === "WEEK" && (
+            <div style={styles.weekWrap}>
+              {/* HOURS COLUMN */}
+              <div style={styles.timeCol}>
+                {HOURS.map(h => (
+                  <div key={h} style={{ ...styles.time, height: 60 }}>{h}:00</div>
+                ))}
+              </div>
+
+              {/* DAYS COLUMN */}
+              <div style={styles.weekGrid}>
+                {weekDays().map((d, i) => {
+                  const dayPosts = filtered.filter(p => p.date === formatDate(d));
+                  const grouped = groupPosts(dayPosts);
+
                   return (
-                    <div key={idx} style={{ ...styles.post, top, position: "absolute", maxWidth: "12%"  }} onClick={() => setSelectedPost(p)}>
-                      <div style={styles.pillIcons}>
-                        <span style={styles.pillIcon}>{icon(p.platform)}</span>
+                    <div key={i} style={styles.dayCol}>
+                      <div style={styles.dayHead}>
+                        {DAYS[d.getDay()]}  {d.getDate()}<br />
                       </div>
-                      <div style={styles.pillText}>
-                        <span style={styles.pillCaption}>{p.message}</span>
-                        <span style={styles.pillTime}>{p.time}</span>
+
+                      <div style={{ ...styles.dayBody }}>
+                        {grouped.map((group, idx) => {
+                          const top = timeToTop(group[0].time) + 30; // 30px header offset
+                          return (
+                            <div key={idx} style={{ ...styles.post, top, position: "absolute" }}>
+                              <div style={styles.pillIcons}>
+                                {group.map((p, i) => (
+                                  <span key={i} style={styles.pillIcon}>
+                                    {icon(p.platform)}
+                                  </span>
+                                ))}
+                              </div>
+                              <div style={styles.pillText}>
+                                <span style={styles.pillCaption}>{group[0].message}</span>
+                                <span style={styles.pillTime}>{group[0].time}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
                 })}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* MODAL */}
-      {selectedPost && (
-        <div style={styles.overlay} onClick={() => setSelectedPost(null)}>
-          <div style={styles.modal} onClick={e => e.stopPropagation()}>
-            <h3>{selectedPost.platform}</h3>
-            <p>{selectedPost.date} • {selectedPost.time}</p>
-            <p>{selectedPost.message}</p>
-            <button onClick={() => setSelectedPost(null)}>Close</button>
-          </div>
-        </div>
-      )}
-    </div>
+          {/* ============ DAY VIEW ============ */}
+          {view === "DAY" && (
+            <div style={{ display: "flex" }}>
+              {/* HOURS column */}
+              <div style={{ marginTop: 60, width: 50, borderRight: "1px solid #ccc" }}>
+                {HOURS.map(h => (
+                  <div key={h} style={{ ...styles.time, height: 60 }}>
+                    {h}:00
+                  </div>
+                ))}
+              </div>
+
+              {/* Single day column */}
+              <div style={{ flex: 1, position: "relative" }}>
+                <div style={{ ...styles.dayHead, textAlign: "center" }}>
+                  {DAYS[currentDate.getDay()]} {currentDate.getDate()}
+                </div>
+
+                <div style={{ ...styles.dayBody, position: "relative", height: 24 * 60 + 30 }}>
+                  {filtered
+                    .filter(p => p.date === formatDate(currentDate))
+                    .map((p, idx) => {
+                      const top = timeToTop(p.time) + 30;
+                      return (
+                        <div key={idx} style={{ ...styles.post, top, position: "absolute", maxWidth: "12%" }} onClick={() => setSelectedPost(p)}>
+                          <div style={styles.pillIcons}>
+                            <span style={styles.pillIcon}>{icon(p.platform)}</span>
+                          </div>
+                          <div style={styles.pillText}>
+                            <span style={styles.pillCaption}>{p.message}</span>
+                            <span style={styles.pillTime}>{p.time}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL */}
+          {selectedPost && (
+            <div style={styles.overlay} onClick={() => setSelectedPost(null)}>
+              <div style={styles.modal} onClick={e => e.stopPropagation()}>
+                <h3>{selectedPost.platform}</h3>
+                <p>{selectedPost.date} • {selectedPost.time}</p>
+                <p>{selectedPost.message}</p>
+                <button onClick={() => setSelectedPost(null)}>Close</button>
+              </div>
+            </div>
+          )}
+        </main >
+      </div>
+      <Footer />
+
+    </>
   );
 }
 
 /* ================= STYLES ================= */
 const styles = {
-  wrapper: { padding: 20, background: "#f4f6fb", minHeight: "100vh" },
-  header: { display: "flex", justifyContent: "space-between", marginBottom: 10 },
-  actions: { display: "flex", gap: 8, alignItems: "center" },
-  select: { padding: 6, borderRadius: 6 },
+  wrapper: {
+    padding: 20,
+    background: "#f4f6fb",
+    minHeight: "100vh",
+  },
 
-  tab: { padding: "6px 12px", borderRadius: 20, border: "1px solid #ccc" },
-  active: { padding: "6px 12px", borderRadius: 20, background: "#6366f1", color: "#fff" },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  actions: {
+    display: "flex",
+    gap: 6,
+    alignItems: "center",
+  },
+
+  select: {
+    padding: "5px 8px",
+    borderRadius: 6,
+    border: "1px solid #cfd4dc",
+    fontSize: 13,
+    background: "#fff",
+  },
+
+  tab: {
+    padding: "5px 12px",
+    borderRadius: 6,
+    border: "1px solid #cfd4dc",
+    background: "#fff",
+    fontSize: 13,
+    cursor: "pointer",
+  },
+
+  active: {
+    padding: "5px 12px",
+    borderRadius: 6,
+    border: "1px solid #6366f1",
+    background: "#eef2ff",
+    color: "#3730a3",
+    fontSize: 13,
+    cursor: "pointer",
+  },
+
 
   /* ===== MONTH VIEW styles ===== */
   monthGrid: {

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import Sidebar from "../components/Sidebar";
+
 const Profile = () => {
   const [user, setUser] = useState(null);
   const userId = localStorage.getItem("userId"); // login appudu store ayyi undali
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchProfile();
   }, []);
 
@@ -32,9 +36,13 @@ const Profile = () => {
           <div style={styles.avatar}>
             {user.name.charAt(0).toUpperCase()}
           </div>
-          <h2 style={styles.name}>{user.name}</h2>
-          <p style={styles.email}>{user.email}</p>
+
+          <div>
+            <h2 style={styles.name}>{user.name}</h2>
+            <p style={styles.email}>{user.email}</p>
+          </div>
         </div>
+
 
         {/* Body */}
         <div>
@@ -69,69 +77,87 @@ const Row = ({ label, value }) => (
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    background: "#f4f6fb",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    fontFamily: "Segoe UI, sans-serif",
+    fontFamily: "Inter, Segoe UI, sans-serif",
   },
+
   card: {
-    width: "380px",
+    width: 420,
     background: "#fff",
-    borderRadius: "16px",
-    padding: "25px",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
   },
+
   header: {
-    textAlign: "center",
-    marginBottom: "20px",
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 20,
+    borderBottom: "1px solid #eee",
+    paddingBottom: 16,
   },
+
   avatar: {
-    width: "70px",
-    height: "70px",
+    width: 56,
+    height: 56,
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    background: "#6366f1",
     color: "#fff",
-    fontSize: "28px",
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: 600,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: "0 auto 10px",
+    flexShrink: 0,
   },
+
   name: {
-    margin: "5px 0",
-    color: "#333",
+    margin: 0,
+    fontSize: 18,
+    fontWeight: 600,
+    color: "#111",
   },
+
   email: {
-    fontSize: "14px",
-    color: "#777",
+    margin: "4px 0 0",
+    fontSize: 13,
+    color: "#666",
   },
+
   row: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     padding: "10px 0",
-    borderBottom: "1px solid #eee",
-    fontSize: "14px",
+    fontSize: 14,
+    borderBottom: "1px solid #f1f1f1",
   },
+
   label: {
-    color: "#555",
+    color: "#666",
   },
+
   button: {
     width: "100%",
-    marginTop: "20px",
-    padding: "12px",
-    border: "none",
-    borderRadius: "10px",
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    marginTop: 20,
+    padding: "10px 14px",
+    borderRadius: 8,
+    border: "1px solid #6366f1",
+    background: "#6366f1",
     color: "#fff",
-    fontSize: "15px",
+    fontSize: 14,
     cursor: "pointer",
   },
+
   loading: {
     textAlign: "center",
-    marginTop: "100px",
-    fontSize: "18px",
+    marginTop: 100,
+    fontSize: 16,
+    color: "#555",
   },
 };
 
