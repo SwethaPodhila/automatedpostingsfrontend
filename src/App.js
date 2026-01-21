@@ -26,6 +26,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import WeeklyCalendar from "./pages/WeeklyCalendar";
 import Profile from "./pages/Profile";
 import Support from "./pages/Support";
+import Home from "./components/Home"
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
         <Route path="/weekly-calendar" element={<WeeklyCalendar />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/home" element={<Home />} />
 
         {/*  */}
       </Routes>
