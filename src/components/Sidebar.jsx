@@ -54,9 +54,8 @@ export default function Sidebar({ onWidthChange }) {
       <MenuItem icon="bi-pencil-square" label="Manual Posting" path="/manualPosting" />
       <MenuItem icon="bi-robot" label="Automation" path="/auto-post" />
       <MenuItem icon="bi-graph-up" label="Analytics" path="/analytics" />
-      <MenuItem icon="bi-headset" label="Support" path="/support" />
       <MenuItem icon="bi-person" label="Profile" path="/profile" />
-      <MenuItem icon="bi-journal-text" label="Docs" path="/help" />
+      <MenuItem icon="bi-headset" label="Support" path="/support" />
     </div>
   );
 }
