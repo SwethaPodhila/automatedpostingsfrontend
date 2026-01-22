@@ -10,7 +10,6 @@ import FacebookCard from "./FacebookCard";
 import InstagramCard from "./InstagramCard";
 import TwitterCard from "./TwitterCard";
 import LinkedInCard from "./LinkedinCard";
-import YouTubeCard from "./YoutubeCard";
 import PinterestCard from "./PinterestCard";
 import TelegramCard from "./TelegramCard";
 
@@ -34,7 +33,7 @@ export default function Dashboard() {
         if (token) {
             checkLinkedInConnection();
         }
-    }, [token]);
+    }, [token, checkLinkedInConnection]);
 
     const getUserId = () => {
         if (!token) return null;
@@ -97,14 +96,23 @@ export default function Dashboard() {
     useEffect(() => {
         (async () => {
             if (!token) return;
+
             const id = jwtDecode(token).id;
+
             try {
-                const res = await fetch(`${BACKEND_URL}/api/twitter/check?userId=${id}`);
+                const res = await fetch(
+                    `${BACKEND_URL}/api/twitter/check?userId=${id}`
+                );
                 const data = await res.json();
-                if (data.success && data.connected) setTwitterAccount(data.account);
-            } catch (err) { console.error(err); }
+
+                if (data.success && data.connected) {
+                    setTwitterAccount(data.account);
+                }
+            } catch (err) {
+                console.error(err);
+            }
         })();
-    }, []);
+    }, [token]);
 
     const checkLinkedInConnection = async () => {
         if (!token) return;

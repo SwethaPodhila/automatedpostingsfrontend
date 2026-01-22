@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
@@ -21,8 +20,6 @@ export default function FacebookManualPost() {
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiGeneratedText, setAiGeneratedText] = useState("");
 
-
-  const navigate = useNavigate();
 
   // Fetch pages
   useEffect(() => {

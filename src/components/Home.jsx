@@ -145,7 +145,7 @@ const Index = () => {
             {/* ========== HEADER ========== */}
             <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
                 <div className="container">
-                    <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="#">
+                    <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="/home">
                         <div className="logo-icon"><img src={AIWingsLogo} alt="Logo" className="logo-icon-img" /></div>
                         <span className="gradient-text">AiWingsGlobal</span>
                     </a>
@@ -915,7 +915,6 @@ const Index = () => {
             </section>
 
             {/* ========== FOOTER ========== */}
-            {/* ========== FOOTER ========== */}
             <footer className="footer-section">
                 <div className="container">
                     <div className="row align-items-center gy-4">
@@ -944,19 +943,19 @@ const Index = () => {
                             </div>
 
                             <div className="footer-social">
-                                <a href="#" className="footer-social-link" aria-label="Facebook">
+                                <a href="/facebook" className="footer-social-link" aria-label="Facebook">
                                     <i className="bi bi-facebook"></i>
                                 </a>
-                                <a href="#" className="footer-social-link" aria-label="Twitter">
+                                <a href="/twitter" className="footer-social-link" aria-label="Twitter">
                                     <i className="bi bi-twitter-x"></i>
                                 </a>
-                                <a href="#" className="footer-social-link" aria-label="Instagram">
+                                <a href="/instagram" className="footer-social-link" aria-label="Instagram">
                                     <i className="bi bi-instagram"></i>
                                 </a>
-                                <a href="#" className="footer-social-link" aria-label="LinkedIn">
+                                <a href="/linkedin" className="footer-social-link" aria-label="LinkedIn">
                                     <i className="bi bi-linkedin"></i>
                                 </a>
-                                <a href="#" className="footer-social-link" aria-label="Youtube">
+                                <a href="/youtube" className="footer-social-link" aria-label="Youtube">
                                     <i className="bi bi-youtube"></i>
                                 </a>
                             </div>

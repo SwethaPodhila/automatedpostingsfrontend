@@ -11,8 +11,7 @@ const ManualPosting = () => {
     const [prompt, setPrompt] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [time, setTime] = useState("");
-    const [accounts, setAccounts] = useState([]);
+     const [accounts, setAccounts] = useState([]);
     const [selectedAccounts, setSelectedAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [mediaFile, setMediaFile] = useState(null);

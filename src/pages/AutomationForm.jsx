@@ -427,19 +427,14 @@ const styles = {
   addBtn: {
     marginTop: 8,
     marginBottom: 16,
-    background: "#f0f4ff",
     border: "none",
-    padding: "8px 12px",
-    borderRadius: 8,
     cursor: "pointer",
     fontWeight: 500,
     background: "#7c3aed",
     color: "#fff",
-    border: "none",
     borderRadius: 10,
     padding: "8px 14px",
     fontSize: 13,
-    cursor: "pointer"
   },
 
   empty: {

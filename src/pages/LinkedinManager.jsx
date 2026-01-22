@@ -330,45 +330,10 @@ export default function LinkedInManager() {
         }
     };
 
-    const disconnectLinkedIn = async () => {
-        if (!window.confirm("Are you sure you want to disconnect your LinkedIn account?")) return;
-
-        try {
-            const decoded = jwtDecode(token);
-            const userId = decoded.id;
-
-            localStorage.removeItem("linkedin_account");
-
-            const response = await fetch(`${BACKEND_URL}/api/linkedin/disconnect`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId })
-            });
-            const data = await response.json();
-
-            if (data.success) {
-                setMessage("✅ LinkedIn account disconnected successfully");
-                setLinkedinAccount(null);
-                setTimeout(() => {
-                    window.location.href = `${FRONTEND_URL}/linkedin-connect?force=true&userId=${userId}`;
-                }, 1500);
-            } else {
-                setError(data.error || "Failed to disconnect");
-            }
-        } catch (err) {
-            console.error(err);
-            setError("Failed to disconnect LinkedIn account");
-        }
-    };
-
     const reconnectLinkedIn = () => {
         const decoded = jwtDecode(token);
         const userId = decoded.id;
         window.location.href = `${BACKEND_URL}/auth/linkedin?userId=${encodeURIComponent(userId)}`;
-    };
-
-    const viewPostOnLinkedIn = (postUrl) => {
-        if (postUrl) window.open(postUrl, "_blank", "noopener,noreferrer");
     };
 
     const formatDateTimeLocal = (date) => {

@@ -20,8 +20,7 @@ export default function InstagramDashboard() {
     const [aiLoading, setAiLoading] = useState(false);
 
     const [loading, setLoading] = useState(false);
-    const nowPlus10 = new Date(Date.now() + 10 * 60000);
-
+   
     const userId = localStorage.getItem("userId");
 
     useEffect(() => {
@@ -419,12 +418,6 @@ const textarea = {
     outline: "none",
     fontSize: 14,
     marginBottom: 14,
-};
-
-const postActions = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
 };
 
 const autoWhiteBtn = {

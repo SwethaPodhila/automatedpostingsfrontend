@@ -122,17 +122,6 @@ export default function SocialCalendar() {
     return days;
   };
 
-  /* ✅ TIME PARSER (VERY IMPORTANT) */
-  const getHour = (time) => {
-    if (!time) return null;
-    const [t, mer] = time.split(" ");
-    let [h] = t.split(":").map(Number);
-
-    if (mer === "PM" && h !== 12) h += 12;
-    if (mer === "AM" && h === 12) h = 0;
-
-    return h;
-  };
 
   /* ✅ WEEK VIEW POSITION FIX */
   const timeToTop = time => {
@@ -440,16 +429,6 @@ const styles = {
     fontWeight: 600,
     textAlign: "center",
     fontSize: 13,
-  },
-
-  dayCell: {
-    background: "#fff",
-    minHeight: 110,
-    padding: 6,
-    borderRadius: 8,
-    display: "flex",
-    flexDirection: "column",
-    gap: 4,
   },
 
   dayDate: {
