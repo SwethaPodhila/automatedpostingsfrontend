@@ -161,7 +161,7 @@ export default function Dashboard() {
             });
 
             const result = await res.json();
-            console.log("Telegram connect response:", result);
+            //console.log("Telegram connect response:", result);
 
             if (!res.ok) {
                 alert(result.error || "Connection failed");

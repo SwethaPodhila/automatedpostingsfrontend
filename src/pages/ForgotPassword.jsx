@@ -43,7 +43,7 @@ export default function ForgotPassword() {
     };
 
     const verifyOtp = async () => {
-        console.log("VERIFY OTP DATA 👉", { email, otp });
+       // console.log("VERIFY OTP DATA 👉", { email, otp });
 
         if (!otp) return setError("OTP required");
 

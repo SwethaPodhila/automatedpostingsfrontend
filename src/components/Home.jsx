@@ -3,10 +3,52 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./Home.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import AIWingsLogo from "./AIWingsLogo.png";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import About1 from "./AIWings.png";
+import About2 from "./AIWings2.png";
+import About3 from "./AIWings3.png";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+    const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [sidebarWidth, setSidebarWidth] = useState(50);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: ""
+    });
+    const [responseMsg, setResponseMsg] = useState("");
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const res = await fetch("https://automatedpostingbackend-h9dc.onrender.com/user/support", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+        setResponseMsg(data.msg);
+
+        if (data.success) {
+            setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                subject: "",
+                message: ""
+            });
+        }
+    };
 
     const getUserFromToken = () => {
         const token = localStorage.getItem("token");
@@ -104,7 +146,7 @@ const Index = () => {
             <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
                 <div className="container">
                     <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="#">
-                        <div className="logo-icon">S</div>
+                        <div className="logo-icon"><img src={AIWingsLogo} alt="Logo" className="logo-icon-img" /></div>
                         <span className="gradient-text">AiWingsGlobal</span>
                     </a>
 
@@ -130,10 +172,23 @@ const Index = () => {
                             <li className="nav-item">
                                 <a className="nav-link nav-link-custom" href="#about">About</a>
                             </li>
+                            <li className="nav-item">
+                                <a className="nav-link nav-link-custom" href="#contact">Contact</a>
+                            </li>
                         </ul>
                         <div className="d-flex gap-2">
-                            <button className="btn btn-link text-decoration-none nav-link-custom">Login</button>
-                            <button className="btn btn-gradient">Get Started</button>
+                            <button
+                                className="loginBtn btn btn-link text-decoration-none nav-link-custom"
+                                onClick={() => navigate("/")}
+                            >
+                                Login
+                            </button>
+                            <button
+                                className="btn btn-gradient"
+                                onClick={() => navigate("/register")}
+                            >
+                                Get Started
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -156,7 +211,7 @@ const Index = () => {
                                 Create once. Schedule everywhere. <strong>AI handles the rest.</strong>
                             </p>
                             <div className="hero-cta">
-                                <button className="btn btn-gradient btn-gradient-lg">Start Free Trial</button>
+                                <button className="btn btn-gradient btn-gradient-lg" onClick={() => navigate("/register")}>Start Free Trial</button>
                                 <button className="btn btn-outline-custom">▶ Watch Demo</button>
                             </div>
                             <p className="hero-note">✓ No credit card required &nbsp; ✓ 7-day free trial</p>
@@ -237,53 +292,50 @@ const Index = () => {
             </section>
 
             {/* ========== STATS SECTION ========== */}
-            {/* ========== STATS SECTION ========== */}
-            <section className="stats-section py-5">
+            <section className="stats-section">
                 <div className="container">
                     <div className="row g-4">
-                        {/* Posts Scheduled */}
+
                         <div className="col-6 col-lg-3">
-                            <div className="stat-card text-center p-4 rounded-3 shadow-sm">
-                                <div className="stat-icon blue mb-3">
-                                    <i className="bi bi-calendar-event fs-3"></i>
+                            <div className="stat-glass">
+                                <div className="icon-glow blue">
+                                    <i className="bi bi-calendar-event"></i>
                                 </div>
-                                <div className="stat-value h4 fw-bold">10M+</div>
-                                <div className="stat-label text-muted">Posts Scheduled</div>
+                                <h3 className="stat-number gradient-blue">10M+</h3>
+                                <p className="stat-text">Posts Scheduled</p>
                             </div>
                         </div>
 
-                        {/* Platforms Supported */}
                         <div className="col-6 col-lg-3">
-                            <div className="stat-card text-center p-4 rounded-3 shadow-sm">
-                                <div className="stat-icon purple mb-3">
-                                    <i className="bi bi-globe2 fs-3"></i>
+                            <div className="stat-glass">
+                                <div className="icon-glow purple">
+                                    <i className="bi bi-globe2"></i>
                                 </div>
-                                <div className="stat-value h4 fw-bold">6+</div>
-                                <div className="stat-label text-muted">Platforms Supported</div>
+                                <h3 className="stat-number gradient-purple">6+</h3>
+                                <p className="stat-text">Platforms Supported</p>
                             </div>
                         </div>
 
-                        {/* AI Automation */}
                         <div className="col-6 col-lg-3">
-                            <div className="stat-card text-center p-4 rounded-3 shadow-sm">
-                                <div className="stat-icon violet mb-3">
-                                    <i className="bi bi-robot fs-3"></i>
+                            <div className="stat-glass">
+                                <div className="icon-glow violet">
+                                    <i className="bi bi-robot"></i>
                                 </div>
-                                <div className="stat-value h4 fw-bold">100%</div>
-                                <div className="stat-label text-muted">AI Automation</div>
+                                <h3 className="stat-number gradient-violet">100%</h3>
+                                <p className="stat-text">AI Automation</p>
                             </div>
                         </div>
 
-                        {/* Engagement Growth */}
                         <div className="col-6 col-lg-3">
-                            <div className="stat-card text-center p-4 rounded-3 shadow-sm">
-                                <div className="stat-icon pink mb-3">
-                                    <i className="bi bi-graph-up fs-3"></i>
+                            <div className="stat-glass">
+                                <div className="icon-glow pink">
+                                    <i className="bi bi-graph-up"></i>
                                 </div>
-                                <div className="stat-value h4 fw-bold">340%</div>
-                                <div className="stat-label text-muted">Engagement Growth</div>
+                                <h3 className="stat-number gradient-pink">340%</h3>
+                                <p className="stat-text">Engagement Growth</p>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </section>
@@ -517,7 +569,7 @@ const Index = () => {
                     >
                         {/* HEADER */}
                         <div className="text-center mb-5 pricing-header">
-                            <h3 className="fw-bold">Grow Faster with SocialSync AI</h3>
+                            <h3 className="section-title">Grow Faster with <span className="gradient-text">AiWingsGlobal</span></h3>
                             <p className="text-muted">
                                 Automate posting, scheduling, insights & lead generation in one platform
                             </p>
@@ -654,44 +706,70 @@ const Index = () => {
 
                         {/* RIGHT IMAGE SLIDER */}
                         <div className="col-lg-6">
-                            <div className="about-carousel-wrapper">
-                                <div
-                                    id="aboutCarousel"
-                                    className="carousel slide"
-                                    data-bs-ride="carousel"
-                                    data-bs-interval="3000"
-                                >
+                            <div
+                                id="aboutCarousel"
+                                className="carousel slide"
+                                data-bs-ride="carousel"
+                                data-bs-interval="3000"
+                            >
 
-                                    {/* DOTS */}
-                                    <div className="carousel-indicators">
-                                        <button data-bs-target="#aboutCarousel" data-bs-slide-to="0" className="active"></button>
-                                        <button data-bs-target="#aboutCarousel" data-bs-slide-to="1"></button>
-                                        <button data-bs-target="#aboutCarousel" data-bs-slide-to="2"></button>
-                                    </div>
+                                {/* DOTS */}
+                                <div className="carousel-indicators">
+                                    <button
+                                        type="button"
+                                        data-bs-target="#aboutCarousel"
+                                        data-bs-slide-to="0"
+                                        className="active"
+                                        aria-current="true"
+                                    ></button>
 
-                                    {/* SLIDES */}
-                                    <div className="carousel-inner">
-                                        <div className="carousel-item active">
-                                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71" />
-                                        </div>
-                                        <div className="carousel-item">
-                                            <img src="https://images.unsplash.com/photo-1556155092-8707de31f9c4" />
-                                        </div>
-                                        <div className="carousel-item">
-                                            <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698" />
-                                        </div>
-                                    </div>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#aboutCarousel"
+                                        data-bs-slide-to="1"
+                                    ></button>
 
-                                    {/* ARROWS OUTSIDE */}
-                                    <button className="carousel-control-prev" data-bs-target="#aboutCarousel" data-bs-slide="prev">
-                                        <span className="carousel-control-prev-icon"></span>
-                                    </button>
-
-                                    <button className="carousel-control-next" data-bs-target="#aboutCarousel" data-bs-slide="next">
-                                        <span className="carousel-control-next-icon"></span>
-                                    </button>
-
+                                    <button
+                                        type="button"
+                                        data-bs-target="#aboutCarousel"
+                                        data-bs-slide-to="2"
+                                    ></button>
                                 </div>
+
+                                {/* SLIDES */}
+                                <div className="carousel-inner">
+                                    <div className="carousel-item active">
+                                        <img src={About1} className="d-block w-100" alt="About 1" />
+                                    </div>
+
+                                    <div className="carousel-item">
+                                        <img src={About2} className="d-block w-100" alt="About 2" />
+                                    </div>
+
+                                    <div className="carousel-item">
+                                        <img src={About3} className="d-block w-100" alt="About 3" />
+                                    </div>
+                                </div>
+
+                                {/* ARROWS */}
+                                <button
+                                    className="carousel-control-prev"
+                                    type="button"
+                                    data-bs-target="#aboutCarousel"
+                                    data-bs-slide="prev"
+                                >
+                                    <span className="carousel-control-prev-icon"></span>
+                                </button>
+
+                                <button
+                                    className="carousel-control-next"
+                                    type="button"
+                                    data-bs-target="#aboutCarousel"
+                                    data-bs-slide="next"
+                                >
+                                    <span className="carousel-control-next-icon"></span>
+                                </button>
+
                             </div>
                         </div>
                     </div>
@@ -718,87 +796,180 @@ const Index = () => {
                 </div>
             </section>
 
+            {/* ========== CTA + SUPPORT SECTION ========== */}
+            <section className="cta-support-section" id="contact">
+                <div className="container">
+                    <div className="row align-items-center" >
 
-            {/* ========== CTA SECTION ========== */}
-            <section className="cta-section section-padding">
-                <div className="container position-relative" style={{ zIndex: 1 }}>
-                    <div className="row justify-content-center">
-                        <div className="col-lg-8 text-center">
-                            <h2 className="cta-title">Start Automating Your Social Media Today</h2>
-                            <p className="cta-desc">Join thousands of creators and businesses saving hours every week with AI-powered automation.</p>
+                        {/* LEFT CONTENT */}
+                        <div className="col-lg-6 mb-5 mb-lg-0">
+
+                            <h2 className="cta-title">
+                                Start Automating Your Social Media Today
+                            </h2>
+
+                            <p className="cta-desc">
+                                Stop wasting hours on manual posting. AiWings helps creators and businesses
+                                schedule posts across multiple platforms, generate AI-powered captions and
+                                hashtags, publish content at the best time for engagement, and save 10+ hours
+                                every week — all from one smart dashboard.
+                            </p>
+
                             <div className="cta-buttons">
-                                <button className="btn btn-dark-custom">Start Free Trial →</button>
-                                <button className="btn btn-cta-outline">Talk to Sales</button>
+                                <button className="btn btn-dark-custom" onClick={() => navigate("/register")}>
+                                    Start Free Trial →
+                                </button>
                             </div>
-                            <p className="cta-note">No credit card required • 14-day free trial • Cancel anytime</p>
+
+                            <p className="cta-note">
+                                No credit card required • 7-day free trial • Cancel anytime
+                            </p>
                         </div>
+
+                        {/* RIGHT FORM */}
+                        <div className="col-lg-6">
+                            <div className="glass-card">
+                                <h4 className="text-center">Contact Support</h4>
+                                <p className="text-center text-muted mb-4">
+                                    Facing an issue? Our team will help you.
+                                </p>
+
+                                <form onSubmit={handleSubmit}>
+                                    <div className="row">
+                                        <div className="col-md-6 mb-3">
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                className="form-control"
+                                                placeholder="Your Name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="col-md-6 mb-3">
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                className="form-control"
+                                                placeholder="Your Email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <input
+                                            type="text"
+                                            name="phone"
+                                            className="form-control"
+                                            placeholder="Phone Number"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <select
+                                            name="subject"
+                                            className="form-select"
+                                            value={formData.subject}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="">Select Issue</option>
+                                            <option>Connection Problem</option>
+                                            <option>Account Problems</option>
+                                            <option>Postings Problem</option>
+                                            <option>Plans</option>
+                                            <option>Features</option>
+                                            <option>Registration or Login</option>
+                                            <option>Others</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <textarea
+                                            name="message"
+                                            rows="4"
+                                            className="form-control"
+                                            placeholder="Describe your issue"
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <button type="submit" className="submit-btn w-100">
+                                        Submit Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>
 
             {/* ========== FOOTER ========== */}
+            {/* ========== FOOTER ========== */}
             <footer className="footer-section">
                 <div className="container">
-                    <div className="row g-4">
-                        <div className="col-lg-4">
+                    <div className="row align-items-center gy-4">
+
+                        {/* BRAND */}
+                        <div className="col-lg-6">
                             <div className="footer-brand">
                                 <div className="footer-logo">S</div>
                                 <span className="footer-brand-text">AiWingsGlobal</span>
                             </div>
-                            <p className="footer-desc">AI-powered social media automation for creators, businesses, and agencies.</p>
+
+                            <p className="footer-desc">
+                                AI-powered social media automation platform helping creators and
+                                businesses save time and grow faster.
+                            </p>
+                        </div>
+
+                        {/* LINKS + SOCIAL */}
+                        <div className="col-lg-6 text-lg-end">
+                            <div className="footer-main-links">
+                                <a href="#features">Features</a>
+                                <a href="#pricing">Pricing</a>
+                                <a href="#contact">Contact</a>
+                                <a href="" onClick={() => navigate("/privacy-policy")}>Privacy Policy</a>
+                                <a href="" onClick={() => navigate("/terms")}>Terms</a>
+                            </div>
+
                             <div className="footer-social">
-                                <a href="#" className="footer-social-link">📘</a>
-                                <a href="#" className="footer-social-link">🐦</a>
-                                <a href="#" className="footer-social-link">📷</a>
-                                <a href="#" className="footer-social-link">💼</a>
-                                <a href="#" className="footer-social-link">▶️</a>
+                                <a href="#" className="footer-social-link" aria-label="Facebook">
+                                    <i className="bi bi-facebook"></i>
+                                </a>
+                                <a href="#" className="footer-social-link" aria-label="Twitter">
+                                    <i className="bi bi-twitter-x"></i>
+                                </a>
+                                <a href="#" className="footer-social-link" aria-label="Instagram">
+                                    <i className="bi bi-instagram"></i>
+                                </a>
+                                <a href="#" className="footer-social-link" aria-label="LinkedIn">
+                                    <i className="bi bi-linkedin"></i>
+                                </a>
+                                <a href="#" className="footer-social-link" aria-label="Youtube">
+                                    <i className="bi bi-youtube"></i>
+                                </a>
                             </div>
                         </div>
 
-                        <div className="col-6 col-lg-2">
-                            <h4 className="footer-title">Product</h4>
-                            <ul className="footer-links">
-                                <li><a href="#">Features</a></li>
-                                <li><a href="#">Pricing</a></li>
-                                <li><a href="#">AI Automation</a></li>
-                                <li><a href="#">Integrations</a></li>
-                                <li><a href="#">API</a></li>
-                            </ul>
-                        </div>
-
-                        <div className="col-6 col-lg-2">
-                            <h4 className="footer-title">Company</h4>
-                            <ul className="footer-links">
-                                <li><a href="#">About Us</a></li>
-                                <li><a href="#">Careers</a></li>
-                                <li><a href="#">Blog</a></li>
-                                <li><a href="#">Press Kit</a></li>
-                                <li><a href="#">Partners</a></li>
-                            </ul>
-                        </div>
-
-                        <div className="col-6 col-lg-2">
-                            <h4 className="footer-title">Support</h4>
-                            <ul className="footer-links">
-                                <li><a href="#">Help Center</a></li>
-                                <li><a href="#">Documentation</a></li>
-                                <li><a href="#">Status</a></li>
-                                <li><a href="#">Contact Us</a></li>
-                                <li><a href="#">Feedback</a></li>
-                            </ul>
-                        </div>
                     </div>
 
                     <div className="footer-bottom">
-                        <p className="footer-copyright">© 2024 AiWingsGlobal (AiWings Global). All rights reserved.</p>
-                        <div className="footer-legal">
-                            <a href="#">Privacy Policy</a>
-                            <a href="#">Terms of Service</a>
-                            <a href="#">Cookies</a>
-                        </div>
+                        <p>© 2024 AiWingsGlobal. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
+
         </div>
     );
 };

@@ -40,7 +40,7 @@ export default function LinkedInConnect() {
 
     const connectLinkedIn = async () => {
         console.clear();
-        console.log("🔍 LinkedIn Connect Button Clicked");
+       // console.log("🔍 LinkedIn Connect Button Clicked");
         
         if (!token) {
             alert("Please login first!");
@@ -53,19 +53,19 @@ export default function LinkedInConnect() {
         try {
             // Decode JWT token
             decoded = jwtDecode(token);
-            console.log("🔍 Decoded JWT Token:", decoded);
+           // console.log("🔍 Decoded JWT Token:", decoded);
             
             // Try different possible user ID fields
             userId = decoded.id || decoded.userId || decoded.sub || decoded.user_id || decoded._id;
             
-            console.log("🔍 User ID Search Results:", {
+          /*  console.log("🔍 User ID Search Results:", {
                 id: decoded.id,
                 userId: decoded.userId,
                 sub: decoded.sub,
                 user_id: decoded.user_id,
                 _id: decoded._id,
                 selectedUserId: userId
-            });
+            });*/
             
             if (!userId) {
                 const errorMsg = "User ID not found in token. Available fields: " + JSON.stringify(decoded, null, 2);
@@ -74,9 +74,9 @@ export default function LinkedInConnect() {
                 alert("User ID not found in token. Check console for details.");
                 return;
             }
-            
-            console.log("✅ Using User ID:", userId);
-            
+
+            // console.log("✅ Using User ID:", userId);
+
         } catch (error) {
             console.error("❌ JWT Decode Error:", error);
             alert("Invalid token. Please login again.");
@@ -91,8 +91,8 @@ export default function LinkedInConnect() {
             // Build the LinkedIn OAuth URL
             const linkedinAuthUrl = `${BACKEND_URL}/auth/linkedin?userId=${encodeURIComponent(userId)}`;
             
-            console.log("🔄 Redirecting to LinkedIn OAuth...");
-            console.log("🔗 URL:", linkedinAuthUrl);
+         //   console.log("🔄 Redirecting to LinkedIn OAuth...");
+          //  console.log("🔗 URL:", linkedinAuthUrl);
             
             setDebugInfo(`Redirecting to:\n${linkedinAuthUrl}`);
             
@@ -114,7 +114,7 @@ export default function LinkedInConnect() {
         const testUserId = "test_real_user_" + Date.now();
         const testUrl = `${BACKEND_URL}/auth/linkedin?userId=${testUserId}`;
         
-        console.log("🔗 Test URL:", testUrl);
+       // console.log("🔗 Test URL:", testUrl);
         setDebugInfo(`Test URL:\n${testUrl}\n\nClick this link to test directly.`);
         
         // Copy to clipboard

@@ -164,7 +164,7 @@ export default function TwitterPublisher() {
                 scheduleTime: showSchedule && scheduleTime ? scheduleTime : null
             };
 
-            console.log("📤 Sending tweet data:", postData);
+           // console.log("📤 Sending tweet data:", postData);
 
             const response = await fetch(`${BACKEND_URL}/api/twitter/publish`, {
                 method: "POST",
@@ -175,7 +175,7 @@ export default function TwitterPublisher() {
             });
             
             const data = await response.json();
-            console.log("📤 API Response:", data);
+           // console.log("📤 API Response:", data);
 
             if (data.success) {
                 if (data.type === "scheduled") {
@@ -256,7 +256,7 @@ export default function TwitterPublisher() {
         try {
             const response = await fetch(`${BACKEND_URL}/health`);
             const data = await response.json();
-            console.log("🔗 Backend health check:", data);
+            // console.log("🔗 Backend health check:", data);
             return data.status === "OK";
         } catch (err) {
             console.error("❌ Backend connection failed:", err);

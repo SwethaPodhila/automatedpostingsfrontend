@@ -120,7 +120,7 @@ const ManualPosting = () => {
                     return;
                 }
 
-                console.log("Fetching accounts for userId:", userId);
+                // console.log("Fetching accounts for userId:", userId);
 
                 const res = await axios.get(
                     `https://automatedpostingbackend-h9dc.onrender.com/automation/accounts/${userId}`,

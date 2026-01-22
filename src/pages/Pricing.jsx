@@ -10,16 +10,16 @@ const Pricing = () => {
 
     const getUserFromToken = () => {
         const token = localStorage.getItem("token");
-        console.log("Token from localStorage:", token); // ✅ check if token exists
+       // console.log("Token from localStorage:", token); // ✅ check if token exists
 
         if (!token) return null;
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded token:", decoded); // ✅ check decoded payload
+            //console.log("Decoded token:", decoded); // ✅ check decoded payload
             return decoded;
         } catch (err) {
-            console.log("Invalid token", err);
+         //   console.log("Invalid token", err);
             return null;
         }
     };
@@ -44,7 +44,7 @@ const Pricing = () => {
                 }
             );
 
-            console.log("Cashfree order response:", data);
+           // console.log("Cashfree order response:", data);
 
             if (!data.paymentSessionId) return alert("Payment session missing");
 
@@ -66,7 +66,7 @@ const Pricing = () => {
                     redirectTarget: "_modal",
                 })
                 .then(async (result) => {
-                    console.log("💳 Payment result:", result);
+                    // console.log("💳 Payment result:", result);
 
                     if (result.error) {
                         alert("Payment failed or cancelled");
@@ -74,7 +74,7 @@ const Pricing = () => {
                     }
 
                     // 5️⃣ MANUAL CALLBACK – verify payment status
-                    console.log("✅ SUCCESS ORDER ID (stored):", orderId);
+                   // console.log("✅ SUCCESS ORDER ID (stored):", orderId);
 
                     try {
                         const verify = await axios.post(

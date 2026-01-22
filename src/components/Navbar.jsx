@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "./AiWings.jfif"; // 🔹 make sure to have your logo in this path
+import logo from "./AIWingsLogo.png"; // 🔹 make sure to have your logo in this path
 
 export default function Navbar() {
   const navigate = useNavigate();

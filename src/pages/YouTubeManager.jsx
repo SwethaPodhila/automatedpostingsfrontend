@@ -305,7 +305,7 @@ export default function YouTubeManager() {
                 formData.append("scheduleTime", scheduleTime);
             }
 
-            console.log("🚀 Uploading video to YouTube...");
+            // console.log("🚀 Uploading video to YouTube...");
 
             const response = await fetch(`${BACKEND_URL}/api/youtube/upload`, {
                 method: "POST",
@@ -319,7 +319,7 @@ export default function YouTubeManager() {
             setUploadProgress(100);
             
             const data = await response.json();
-            console.log("📤 API Response:", data);
+            // console.log("📤 API Response:", data);
 
             if (data.success) {
                 const successMsg = data.scheduled 

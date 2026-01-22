@@ -251,7 +251,7 @@ export default function LinkedInManager() {
             
             if (mediaFile) {
                 formData.append("media", mediaFile);
-                console.log("📤 Uploading media file:", mediaFile.name, mediaFile.type);
+               // console.log("📤 Uploading media file:", mediaFile.name, mediaFile.type);
             }
             
             if (showSchedule && scheduleTime) {
@@ -267,7 +267,7 @@ export default function LinkedInManager() {
             setUploadProgress(100);
             
             const data = await response.json();
-            console.log("📤 API Response:", data);
+           // console.log("📤 API Response:", data);
 
             if (data.success) {
                 if (data.type === "scheduled") {

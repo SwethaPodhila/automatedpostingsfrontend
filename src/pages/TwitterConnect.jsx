@@ -74,19 +74,19 @@ export default function TwitterConnect() {
         setError("");
 
         try {
-            console.log("🔄 Starting Twitter OAuth for user:", userId);
+           // console.log("🔄 Starting Twitter OAuth for user:", userId);
             
             // Detect Android
             const isAndroid = /Android/i.test(navigator.userAgent);
             const platform = isAndroid ? "android" : "web";
             
-            console.log("📱 Platform detected:", platform);
+            //console.log("📱 Platform detected:", platform);
             
             // ✅ FIXED: Direct redirect to backend OAuth endpoint
             // Don't fetch - just redirect directly
             const authUrl = `${BACKEND_URL}/auth/twitter?userId=${encodeURIComponent(userId)}&platform=${platform}`;
             
-            console.log("✅ Redirecting to:", authUrl);
+           // console.log("✅ Redirecting to:", authUrl);
             
             // Direct redirect (no fetch needed)
             window.location.href = authUrl;

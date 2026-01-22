@@ -27,6 +27,7 @@ import WeeklyCalendar from "./pages/WeeklyCalendar";
 import Profile from "./pages/Profile";
 import Support from "./pages/Support";
 import Home from "./components/Home"
+import TermsAndConditions from "./pages/Terms";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/support" element={<Support />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
 
         {/*  */}
       </Routes>

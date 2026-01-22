@@ -148,12 +148,12 @@ const AutomationForm = () => {
     // 🔥 SEND providerIds NOT _id
     const pageIds = selectedAccs.map(acc => acc.providerId);
 
-    console.log("🚀 Sending Automation Payload:", {
+   /* console.log("🚀 Sending Automation Payload:", {
       userId,
       platform,
       pageIds,
       times
-    });
+    });*/
 
     setLoading(true);
     try {
