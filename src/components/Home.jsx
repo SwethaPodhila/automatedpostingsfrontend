@@ -179,7 +179,7 @@ const Index = () => {
                         <div className="d-flex gap-2">
                             <button
                                 className="loginBtn btn btn-link text-decoration-none nav-link-custom"
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/login")}
                             >
                                 Login
                             </button>
