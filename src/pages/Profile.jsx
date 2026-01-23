@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
