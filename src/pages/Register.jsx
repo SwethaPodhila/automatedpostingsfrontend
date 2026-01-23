@@ -414,7 +414,7 @@ export default function Register() {
 
           <p style={styles.loginLink}>
             Already have an account?{" "}
-            <a href="/" style={styles.loginText}>
+            <a href="/login" style={styles.loginText}>
               Login
             </a>
           </p>
