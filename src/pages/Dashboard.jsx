@@ -33,7 +33,7 @@ export default function Dashboard() {
         if (token) {
             checkLinkedInConnection();
         }
-    }, [token, checkLinkedInConnection]);
+    }, [token]);
 
     const getUserId = () => {
         if (!token) return null;
