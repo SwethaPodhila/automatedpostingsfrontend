@@ -33,7 +33,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/success" element={<Success />} />
@@ -63,7 +63,7 @@ function App() {
         <Route path="/weekly-calendar" element={<WeeklyCalendar />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/support" element={<Support />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/terms" element={<TermsAndConditions />} />
 
         {/*  */}
