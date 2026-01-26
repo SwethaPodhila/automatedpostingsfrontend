@@ -12,6 +12,7 @@ import TwitterCard from "./TwitterCard";
 import LinkedInCard from "./LinkedinCard";
 import PinterestCard from "./PinterestCard";
 import TelegramCard from "./TelegramCard";
+import BlueSkyCard from "./BlueSkyCard";
 
 const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
 
@@ -52,7 +53,8 @@ export default function Dashboard() {
                     const ig = data.accounts.find((a) => a.platform === "instagram");
                     const tg = data.accounts.find((a) => a.platform === "telegram");
                     const pin = data.accounts.find((a) => a.platform === "pinterest");
-                    setConnected({ facebook: fb || null, instagram: ig || null, telegram: tg || null, pinterest: pin || null });
+                    const bluesky = data.accounts.find((a) => a.platform === "bluesky");
+                    setConnected({ facebook: fb || null, instagram: ig || null, telegram: tg || null, pinterest: pin || null || null, bluesky: bluesky || null });
                 }
             })
             .catch((err) => console.error(err));
@@ -291,7 +293,6 @@ export default function Dashboard() {
                     <div style={styles.cardsContainer}>
                         <div style={styles.card}><h3>Facebook</h3><FacebookCard account={connected.facebook} connect={connectFacebook} disconnect={disconnectAccount} navigate={navigate} /></div>
                         <div style={styles.card}><h3>Instagram</h3><InstagramCard account={connected.instagram} connect={connectInstagram} disconnect={disconnectAccount} /></div>
-                        <div style={styles.card}><h3>Twitter</h3><TwitterCard account={twitterAccount} connect={connectTwitter} disconnect={disconnectTwitter} /></div>
 
                         <div style={{ ...styles.card, justifyContent: "flex-start" }}>
                             <h3 style={{ marginBottom: "8px" }}>LinkedIn</h3>
@@ -309,6 +310,10 @@ export default function Dashboard() {
                                 disconnectLinkedIn={disconnectLinkedIn}
                             />
                         </div>
+                        
+                        <div style={styles.card}><h3>Twitter</h3><TwitterCard account={twitterAccount} connect={connectTwitter} disconnect={disconnectTwitter} /></div>
+
+
 
                         {/*   <div style={styles.card}>
                             <h3>YouTube</h3>
@@ -323,6 +328,14 @@ export default function Dashboard() {
                             <TelegramCard
                                 account={connected.telegram} // ✅ ensure connected.telegram object undi
                                 connect={setShowTelegramModal}
+                                disconnect={disconnectAccount}
+                            />
+                        </div>
+
+                        <div style={styles.card}>
+                            <h3>Blue Sky</h3>
+                            <BlueSkyCard
+                                account={connected.bluesky}
                                 disconnect={disconnectAccount}
                             />
                         </div>

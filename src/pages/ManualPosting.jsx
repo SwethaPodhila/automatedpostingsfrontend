@@ -160,11 +160,9 @@ const ManualPosting = () => {
         });
     };
 
-
     /* =======================
        UI
     ======================== */
-
     const submitAutomation = async () => {
         if (!prompt || selectedAccounts.length === 0) {
             alert("Please fill all required fields");
@@ -198,7 +196,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "https://automatedpostingbackend-h9dc.onrender.com/automation/publish",
+                        "http://localhost:5000/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }
