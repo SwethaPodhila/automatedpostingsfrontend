@@ -157,7 +157,7 @@ const AutomationForm = () => {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/automation/auto-publish", {
+      await axios.post("https://automatedpostingbackend-h9dc.onrender.com/automation/auto-publish", {
         userId,
         prompt,
         startDate,
