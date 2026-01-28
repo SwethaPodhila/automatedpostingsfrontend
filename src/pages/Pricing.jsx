@@ -40,7 +40,7 @@ const Pricing = () => {
                     userId: user.id,
                     customerName: user.name,
                     customerEmail: user.email,
-                    customerPhone: "9876543210",
+                    customerPhone: user.phone || "9999999999",
                 }
             );
 
