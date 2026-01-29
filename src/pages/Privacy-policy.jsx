@@ -1,4 +1,7 @@
 import React from "react";
+import AIWingsLogo from "../components/AIWingsLogo.png";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 export default function PrivacyPolicy({
   companyName = "AiWingsGlobal",
@@ -12,6 +15,24 @@ export default function PrivacyPolicy({
       month: "long",
       day: "numeric",
     });
+  };
+
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const handleNavClick = (sectionId) => {
+    if (location.pathname === "/") {
+      // same page scroll
+      document
+        .getElementById(sectionId)
+        ?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // other page → go home → scroll
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+
+    setMenuOpen(false); // mobile menu close (optional)
   };
 
   return (
@@ -64,7 +85,7 @@ export default function PrivacyPolicy({
         .privacy-content {
           max-width: 1100px;
           margin: auto;
-          padding: 40px 20px 80px;
+          padding: 0px 20px 80px;
           line-height: 1.9;
         }
 
@@ -117,6 +138,87 @@ export default function PrivacyPolicy({
       `}</style>
 
       <div className="privacy-wrapper">
+        {/* ========== HEADER ========== */}
+        <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
+          <div className="container">
+            <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="/home">
+              <div className="logo-icon"><img src={AIWingsLogo} alt="Logo" className="logo-icon-img" /></div>
+              <span className="gradient-text">AiWingsGlobal</span>
+            </a>
+
+            <button
+              className="navbar-toggler border-0"
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+
+            <div className={`collapse navbar-collapse ${menuOpen ? 'show' : ''}`}>
+              <ul className="navbar-nav mx-auto">
+                <li className="nav-item">
+                  <a
+                    className="nav-link nav-link-custom"
+                    onClick={() => handleNavClick("features")}
+                  >
+                    Features
+                  </a>
+                </li>
+
+                <li className="nav-item">
+                  <a
+                    className="nav-link nav-link-custom"
+                    onClick={() => handleNavClick("pricing")}
+                  >
+                    Pricing
+                  </a>
+                </li>
+
+                <li className="nav-item">
+                  <a
+                    className="nav-link nav-link-custom"
+                    onClick={() => handleNavClick("ai")}
+                  >
+                    AI
+                  </a>
+                </li>
+
+                <li className="nav-item">
+                  <a
+                    className="nav-link nav-link-custom"
+                    onClick={() => handleNavClick("about")}
+                  >
+                    About
+                  </a>
+                </li>
+
+                <li className="nav-item">
+                  <a
+                    className="nav-link nav-link-custom"
+                    onClick={() => handleNavClick("contact")}
+                  >
+                    Contact
+                  </a>
+                </li>
+              </ul>
+              <div className="d-flex gap-2">
+                <button
+                  className="loginBtn btn btn-link text-decoration-none nav-link-custom"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </button>
+                <button
+                  className="btn btn-gradient"
+                  onClick={() => navigate("/register")}
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
         {/* HEADER */}
         <header className="privacy-header">
           <h1>Privacy Policy</h1>
@@ -227,9 +329,75 @@ export default function PrivacyPolicy({
           </p>
         </main>
 
-        {/* FOOTER */}
-        <footer className="privacy-footer">
-          © {new Date().getFullYear()} {companyName}. All rights reserved.
+        {/* ========== FOOTER ========== */}
+        <footer className="footer-section">
+          <div className="container">
+            <div className="row align-items-center gy-4">
+
+              {/* BRAND */}
+              <div className="col-lg-6">
+                <div className="footer-brand">
+                  <div className="footer-logo">S</div>
+                  <span className="footer-brand-text">AiWingsGlobal</span>
+                </div>
+
+                <p className="footer-desc">
+                  AI-powered social media automation platform helping creators and
+                  businesses save time and grow faster.
+                </p>
+              </div>
+
+              {/* LINKS + SOCIAL */}
+              <div className="col-lg-6 text-lg-end">
+                <div className="footer-main-links">
+                  <a
+                    className=""
+                    onClick={() => handleNavClick("features")}
+                  >
+                    Features
+                  </a>
+                  <a
+                    className=""
+                    onClick={() => handleNavClick("pricing")}
+                  >
+                    Pricing
+                  </a>
+                  <a
+                    className=""
+                    onClick={() => handleNavClick("contact")}
+                  >
+                    Contact
+                  </a>
+                  <a href="" onClick={() => navigate("/privacy-policy")}>Privacy Policy</a>
+                  <a href="" onClick={() => navigate("/terms")}>Terms</a>
+                </div>
+
+                <div className="footer-social">
+                  <a href="/facebook" className="footer-social-link" aria-label="Facebook">
+                    <i className="bi bi-facebook"></i>
+                  </a>
+                  <a href="/twitter" className="footer-social-link" aria-label="Twitter">
+                    <i className="bi bi-twitter-x"></i>
+                  </a>
+                  <a href="/instagram" className="footer-social-link" aria-label="Instagram">
+                    <i className="bi bi-instagram"></i>
+                  </a>
+                  <a href="/linkedin" className="footer-social-link" aria-label="LinkedIn">
+                    <i className="bi bi-linkedin"></i>
+                  </a>
+                  <a href="/youtube" className="footer-social-link" aria-label="Youtube">
+                    <i className="bi bi-youtube"></i>
+                  </a>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="footer-bottom">
+              <p>© 2024 AiWingsGlobal. All rights reserved.</p>
+            </div>
+          </div>
         </footer>
       </div>
     </>

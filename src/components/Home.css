@@ -177,18 +177,6 @@ body {
     filter: blur(80px);
 }
 
-.hero-section::after {
-    content: '';
-    position: absolute;
-    bottom: -100px;
-    left: -200px;
-    width: 400px;
-    height: 400px;
-    background: rgba(236, 72, 153, 0.08);
-    border-radius: 50%;
-    filter: blur(80px);
-}
-
 .hero-badge {
     display: inline-flex;
     align-items: center;

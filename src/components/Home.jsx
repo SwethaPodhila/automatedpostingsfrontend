@@ -9,11 +9,25 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import About1 from "./AIWings.png";
 import About2 from "./AIWings2.png";
 import About3 from "./AIWings3.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const Index = () => {
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.scrollTo) {
+            const el = document.getElementById(location.state.scrollTo);
+            if (el) {
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+            }
+        }
+    }, [location]);
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -211,8 +225,22 @@ const Index = () => {
                                 Create once. Schedule everywhere. <strong>AI handles the rest.</strong>
                             </p>
                             <div className="hero-cta">
-                                <button className="btn btn-gradient btn-gradient-lg" onClick={() => navigate("/register")}>Start Free Trial</button>
-                                <button className="btn btn-outline-custom">▶ Watch Demo</button>
+                                <button
+                                    className="btn btn-gradient"
+                                    onClick={() => navigate("/register")}
+                                >
+                                    Start Free Trial
+                                </button>
+
+                                <a
+                                    href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <button className="btn btn-outline-custom">
+                                        ▶ Watch Demo
+                                    </button>
+                                </a>
                             </div>
                             <p className="hero-note">✓ No credit card required &nbsp; ✓ 7-day free trial</p>
                         </div>
@@ -960,7 +988,6 @@ const Index = () => {
                                 </a>
                             </div>
                         </div>
-
                     </div>
 
                     <div className="footer-bottom">
@@ -968,7 +995,6 @@ const Index = () => {
                     </div>
                 </div>
             </footer>
-
         </div>
     );
 };
