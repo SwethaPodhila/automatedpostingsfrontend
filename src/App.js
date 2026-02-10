@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 //import Dashboard from "./pages/Dashboard";
 import "bootstrap/dist/css/bootstrap.min.css";
+
 import Dashboard from "./pages/Dashboard";
 import Success from "./pages/Success";
 import PrivacyPolicy from "./pages/Privacy-policy";
