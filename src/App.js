@@ -28,6 +28,7 @@ import Profile from "./pages/Profile";
 import Support from "./pages/Support";
 import Home from "./components/Home"
 import TermsAndConditions from "./pages/Terms";
+import Analytics from "./pages/Analytics";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
         <Route path="/support" element={<Support />} />
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/analytics" element={<Analytics />} />
 
         {/*  */}
       </Routes>
