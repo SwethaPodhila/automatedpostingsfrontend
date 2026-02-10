@@ -1,0 +1,20 @@
+.metric-card {
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+.metric-card:hover {
+  transform: translateY(-5px);
+  border-color: #3b82f6;
+}
+.active-card {
+  border-width: 2px !important;
+  border-color: #3b82f6 !important;
+}
+.metric-icon {
+  font-size: 2rem;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
