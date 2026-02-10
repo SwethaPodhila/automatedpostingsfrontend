@@ -263,7 +263,7 @@ const AutomationForm = () => {
                     setEndDate("");
                   }}
                   style={styles.input}
-                />
+                /> 
               </div>
 
               <div style={{ flex: 1 }}>

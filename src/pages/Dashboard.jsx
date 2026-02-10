@@ -14,7 +14,7 @@ import PinterestCard from "./PinterestCard";
 import TelegramCard from "./TelegramCard";
 import BlueSkyCard from "./BlueSkyCard";
 
-const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com";
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com"; // Update with your backend URL
 
 export default function Dashboard() {
     const [sidebarWidth, setSidebarWidth] = useState(50);
