@@ -196,7 +196,7 @@ const ManualPosting = () => {
                     }
 
                     return axios.post(
-                        "http://localhost:5000/automation/publish",
+                        "https://automatedpostingbackend-h9dc.onrender.com/automation/publish",
                         formData,
                         {
                             headers: { "Content-Type": "multipart/form-data" }
@@ -427,6 +427,7 @@ const ManualPosting = () => {
                                                 {acc.platform} —{" "}
                                                 {acc.meta?.name ||
                                                     acc.meta?.username ||
+                                                    acc.meta?.handle ||
                                                     acc.meta?.boardName}
                                             </span>
                                         </div>
