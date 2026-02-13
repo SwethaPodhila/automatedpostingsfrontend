@@ -101,7 +101,7 @@ function Analytics() {
           >
             {accounts.map((acc) => (
               <option key={acc.providerId} value={acc.providerId}>
-                {acc.meta?.name || acc.meta?.username || acc.providerId}
+                {acc.meta?.name || acc.meta?.username || acc.meta?.handle || acc.providerId}
               </option>
             ))}
           </select>
