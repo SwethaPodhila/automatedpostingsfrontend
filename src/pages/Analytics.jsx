@@ -46,7 +46,7 @@ function Analytics() {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:5000/analytics/page/${selectedAccount}`,
+          `https://automatedpostingbackend-h9dc.onrender.com/analytics/page/${selectedAccount}`,
           { headers: { "Cache-Control": "no-cache" } }
         );
 
