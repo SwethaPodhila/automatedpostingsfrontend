@@ -29,7 +29,9 @@ import Profile from "./pages/Profile";
 import Support from "./pages/Support";
 import Home from "./components/Home"
 import TermsAndConditions from "./pages/Terms";
-import Analytics from "./pages/Analytics";
+import Analytics from "./pages/AnalyticsLayout";
+import BlueskyAnalytics from "./pages/BlueskyAnalytics";
+import TelegramAnalytics from "./pages/TelegramAnalytics";
 
 function App() {
   return (
@@ -49,7 +51,9 @@ function App() {
         <Route path="/twitter-card" element={<TwitterCard />} />
         <Route path="/facebook-card" element={<FacebookCard />} />
         <Route path="/instagram-card" element={<InstagramCard />} />
-        
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/bluesky-analytics" element={<BlueskyAnalytics />} />
+        <Route path="/telegram-analytics" element={<TelegramAnalytics />} />
 
         <Route path="/youtube-card" element={<YouTubeCard />} />
         <Route path="/all-posts" element={<AllPost />} />
