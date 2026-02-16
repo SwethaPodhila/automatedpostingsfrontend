@@ -50,7 +50,7 @@ export default function SocialCalendar() {
       }
 
       const res = await axios.get(
-        `https://automatedpostingbackend-h9dc.onrender.com/automation/weekly/${userId}`,
+        `http://localhost:5000/automation/weekly/${userId}`,
         {
           params: {
             date: dateParam,
@@ -62,6 +62,37 @@ export default function SocialCalendar() {
       setPosts(res.data.data || []);
     } catch (err) {
       console.error("Fetch calendar error:", err);
+    }
+  };
+
+
+  const handlePause = async () => {
+    if (!selectedPost) return;
+
+    const confirmPause = window.confirm(
+      `Do you want to stop posting from 
+    ${new Date(selectedPost.date).toLocaleDateString()} 
+    to 
+    ${new Date(selectedPost.endDate).toLocaleDateString()}?`
+    );
+
+    if (!confirmPause) return;
+
+    try {
+      await axios.put(
+        `http://localhost:5000/automation/pause/${selectedPost.source}/${selectedPost._id}`,
+        {
+          pauseFrom: selectedPost.date,   // ✅ CLICKED DATE SEND
+        }
+      );
+
+      alert("Posting paused successfully");
+
+      setSelectedPost(null);
+      fetchData(); // 🔄 refresh calendar
+    } catch (error) {
+      console.error(error);
+      alert("Failed to pause schedule");
     }
   };
 
@@ -238,7 +269,13 @@ export default function SocialCalendar() {
 
                     <div style={styles.dayPosts}>
                       {grouped.map((group, idx) => (
-                        <div key={idx} style={styles.pill}>
+                        //<div key={idx} style={styles.pill}>
+                        <div
+                          key={idx}
+                          style={styles.pill}
+                          onClick={() => setSelectedPost(group[0])}
+                        >
+
                           <div style={styles.pillIcons}>
                             {group.map((p, i) => (
                               <span key={i} style={styles.pillIcon}>
@@ -287,7 +324,13 @@ export default function SocialCalendar() {
                         {grouped.map((group, idx) => {
                           const top = timeToTop(group[0].time) + 30; // 30px header offset
                           return (
-                            <div key={idx} style={{ ...styles.post, top, position: "absolute" }}>
+                            // <div key={idx} style={{ ...styles.post, top, position: "absolute" }}>
+                            <div
+                              key={idx}
+                              style={{ ...styles.post, top, position: "absolute" }}
+                              onClick={() => setSelectedPost(group[0])}
+                            >
+
                               <div style={styles.pillIcons}>
                                 {group.map((p, i) => (
                                   <span key={i} style={styles.pillIcon}>
@@ -354,13 +397,72 @@ export default function SocialCalendar() {
           {selectedPost && (
             <div style={styles.overlay} onClick={() => setSelectedPost(null)}>
               <div style={styles.modal} onClick={e => e.stopPropagation()}>
-                <h3>{selectedPost.platform}</h3>
-                <p>{selectedPost.date} • {selectedPost.time}</p>
-                <p>{selectedPost.message}</p>
-                <button onClick={() => setSelectedPost(null)}>Close</button>
+
+                <h2 style={styles.title}>
+                  {selectedPost.platform?.toUpperCase()} POST
+                </h2>
+
+                {/* Image */}
+                {selectedPost.mediaUrl && (
+                  <img
+                    src={selectedPost.mediaUrl}
+                    alt="Post"
+                    style={styles.image}
+                  />
+                )}
+
+                {/* Content Box */}
+                <div style={styles.contentBox}>
+                  <p>
+                    <strong>Caption:</strong><br />
+                    {(() => {
+                      const text = selectedPost.caption || selectedPost.message || "";
+                      return text.length > 100
+                        ? text.slice(0, 100) + "..."
+                        : text;
+                    })()}
+                  </p>
+
+                  <p><strong>Start Date:</strong>{" "}
+                    {selectedPost.startDate
+                      ? new Date(selectedPost.startDate).toLocaleDateString()
+                      : selectedPost.date}
+                  </p>
+
+                  <p><strong>End Date:</strong>{" "}
+                    {selectedPost.endDate
+                      ? new Date(selectedPost.endDate).toLocaleDateString()
+                      : "—"}
+                  </p>
+
+                  <p><strong>Preferred Time:</strong>{" "}
+                    {selectedPost.preferredTime || selectedPost.time}
+                  </p>
+
+                  <p><strong>Platform:</strong> {selectedPost.platform}</p>
+                </div>
+
+                {/* Buttons */}
+                <div style={styles.buttonContainer}>
+                  <button
+                    onClick={handlePause}
+                    style={styles.pauseButton}
+                  >
+                    ⏸ Pause
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPost(null)}
+                    style={styles.closeButton}
+                  >
+                    Close
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
+
         </main >
       </div>
       <Footer />
@@ -511,7 +613,7 @@ const styles = {
   dayHead: { height: 30, textAlign: "center", borderBottom: "1px solid #ccc", fontWeight: "bold" },
   dayBody: { position: "relative", height: 24 * 60 + 30, borderBottom: "1px solid #ccc", paddingTop: 0 },
   time: { height: 60, borderBottom: "1px solid #eee", textAlign: "right", paddingRight: 5 },
-  //post: { background: "#d9f0ff", padding: "2px 4px", borderRadius: 4, fontSize: 12 },
+
   post: {
     position: "absolute",
     background: "#eef2ff",
@@ -523,4 +625,96 @@ const styles = {
     zIndex: 1,
   },
 
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.6)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999
+  },
+
+  modal: {
+    background: "#fff",
+    padding: 25,
+    width: 400,
+    borderRadius: 12,
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+  },
+
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000
+  },
+
+  modal: {
+    background: "#fff",
+    padding: 25,
+    width: 420,
+    borderRadius: 12,
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+    animation: "fadeIn 0.2s ease-in-out"
+  },
+
+  title: {
+    textAlign: "center",
+    marginBottom: 15,
+    color: "#2d3436"
+  },
+
+  image: {
+    width: "100%",
+    maxHeight: 250,
+    objectFit: "cover",
+    borderRadius: 10,
+    marginBottom: 15
+  },
+
+  contentBox: {
+    background: "#f8f9fa",
+    padding: 15,
+    borderRadius: 8,
+    fontSize: 14,
+    marginBottom: 20,
+    lineHeight: 1.6
+  },
+
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 10
+  },
+
+  pauseButton: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: 8,
+    border: "none",
+    background: "#e74c3c",
+    color: "#fff",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "0.2s"
+  },
+
+  closeButton: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: 8,
+    border: "none",
+    background: "#6c5ce7",
+    color: "#fff",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "0.2s"
+  }
 };
