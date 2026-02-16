@@ -11,7 +11,7 @@ import InstagramCard from "./InstagramCard";
 import TwitterCard from "./TwitterCard";
 import LinkedInCard from "./LinkedinCard";
 import PinterestCard from "./PinterestCard";
-import TelegramCard from "./TelegramCard";
+import TelegramCard from "./TelegramCard"; 
 import BlueSkyCard from "./BlueSkyCard";
 
 const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com"; // Update with your backend URL

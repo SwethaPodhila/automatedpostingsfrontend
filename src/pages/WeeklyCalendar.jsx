@@ -65,7 +65,6 @@ export default function SocialCalendar() {
     }
   };
 
-
   const handlePause = async () => {
     if (!selectedPost) return;
 

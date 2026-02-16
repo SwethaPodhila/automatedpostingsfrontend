@@ -65,19 +65,14 @@ function BlueskyAnalytics() {
 
         setAccount(bluesky);
 
-        // ✅ PAGE LEVEL ANALYTICS
-        const pageRes = await axios.get(
+        const analyticsRes = await axios.get(
           `https://automatedpostingbackend-h9dc.onrender.com/analytics/page/${bluesky.providerId}`
         );
 
-        setPageAnalytics(pageRes.data.pageAnalytics || {});
+        setPageAnalytics(analyticsRes.data.pageAnalytics || {});
+        console.log("Posts analytics:", analyticsRes.data.posts);
+        setPosts(analyticsRes.data.posts || []);
 
-        // ✅ POST LEVEL ANALYTICS
-        const postRes = await axios.get(
-          `https://automatedpostingbackend-h9dc.onrender.com/analytics/posts/${bluesky.providerId}`
-        );
-
-        setPosts(postRes.data.posts || []);
 
       } catch (err) {
         console.error(err);

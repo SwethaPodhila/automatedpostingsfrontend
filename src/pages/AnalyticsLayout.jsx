@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
+
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
+
 import FbInstaAnalytics from "./FbInstaAnalytics";
 import TelegramAnalytics from "./TelegramAnalytics";
 import LinkedinAnalytics from "./LinkedinAnalytics";
@@ -10,6 +15,7 @@ function AnalyticsLayout() {
     const [accounts, setAccounts] = useState([]);
     const [selectedPlatform, setSelectedPlatform] = useState("");
     const [loading, setLoading] = useState(true);
+    const [sidebarWidth, setSidebarWidth] = useState(50); // ✅ added
 
     useEffect(() => {
         const fetchAccounts = async () => {
@@ -22,7 +28,6 @@ function AnalyticsLayout() {
                 const accs = res.data.data || [];
                 setAccounts(accs);
 
-                // ✅ Default first connected platform
                 if (accs.length > 0) {
                     setSelectedPlatform(accs[0].platform);
                 }
@@ -37,57 +42,93 @@ function AnalyticsLayout() {
         fetchAccounts();
     }, []);
 
-    if (loading)
+    if (loading) {
         return (
             <div className="text-center mt-5">
                 <Spinner animation="border" />
             </div>
         );
+    }
 
-    // Get unique platforms
     const connectedPlatforms = [...new Set(accounts.map(a => a.platform))];
 
     return (
-        <Container fluid className="p-4" style={{ background: "#f8f9fc", minHeight: "100vh" }}>
-            <h2 className="mb-4 fw-bold text-primary">📊 AIWings Analytics</h2>
+        <div style={styles.page}>
+            <Navbar />
 
-            {/* Dropdown */}
-            <Row className="mb-4">
-                <Col md={4}>
-                    <select
-                        className="form-select shadow-sm"
-                        value={selectedPlatform}
-                        onChange={(e) => setSelectedPlatform(e.target.value)}
-                    >
-                        {connectedPlatforms.map((platform, index) => (
-                            <option key={index} value={platform}>
-                                {platform.toUpperCase()}
-                            </option>
-                        ))}
-                    </select>
-                </Col>
-            </Row>
+            <div style={styles.layout}>
+                <Sidebar onWidthChange={setSidebarWidth} />
 
-            {/* If No Accounts Connected */}
-            {accounts.length === 0 && (
-                <Alert variant="warning">
-                    ⚠ No accounts connected yet.
-                    <br />
-                    Please connect a social media account to view analytics.
-                </Alert>
-            )}
+                <main
+                    style={{
+                        ...styles.content,
+                        marginLeft: sidebarWidth,
+                        marginTop: 60,
+                        transition: "0.3s ease",
+                    }}
+                >
+                    <Container fluid>
+                        <h2 className="mb-4 fw-bold text-primary">
+                            📊 AIWings Analytics
+                        </h2>
 
-            {/* Conditional Rendering */}
-            {selectedPlatform === "facebook" ||
-                selectedPlatform === "instagram" ? (
-                <FbInstaAnalytics />
-            ) : null}
+                        <Row className="mb-4">
+                            <Col md={4}>
+                                <select
+                                    className="form-select shadow-sm"
+                                    value={selectedPlatform}
+                                    onChange={(e) =>
+                                        setSelectedPlatform(e.target.value)
+                                    }
+                                >
+                                    {connectedPlatforms.map((platform, index) => (
+                                        <option key={index} value={platform}>
+                                            {platform.toUpperCase()}
+                                        </option>
+                                    ))}
+                                </select>
+                            </Col>
+                        </Row>
 
-            {selectedPlatform === "telegram" && <TelegramAnalytics />}
-            {selectedPlatform === "linkedin" && <LinkedinAnalytics />}
-            {selectedPlatform === "bluesky" && <BlueskyAnalytics />}
-        </Container>
+                        {accounts.length === 0 && (
+                            <Alert variant="warning">
+                                ⚠ No accounts connected yet.
+                            </Alert>
+                        )}
+
+                        {(selectedPlatform === "facebook" ||
+                            selectedPlatform === "instagram") && (
+                                <FbInstaAnalytics />
+                            )}
+
+                        {selectedPlatform === "telegram" && <TelegramAnalytics />}
+                        {selectedPlatform === "linkedin" && <LinkedinAnalytics />}
+                        {selectedPlatform === "bluesky" && <BlueskyAnalytics />}
+
+
+                    </Container>
+                </main>
+            </div>
+            <Footer />
+        </div>
     );
 }
+
+const styles = {   // ✅ must use const
+    page: {
+        width: "100%",
+        minHeight: "100vh",
+        background: "#f5f7fb"
+    },
+    layout: {
+        display: "flex"
+    },
+    content: {
+        width: "100%",
+        minHeight: "calc(100vh - 60px)",
+        background: "#f8f9fc",
+        padding: "18px 32px"
+    }
+};
 
 export default AnalyticsLayout;
