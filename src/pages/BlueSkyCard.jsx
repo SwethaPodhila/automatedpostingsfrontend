@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const BACKEND_URL = "https://automated-postings-backend.onrender.com"; // Update with your backend URL
+const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com"; // Update with your backend URL
 
 const BlueSkyCard = ({ account, disconnect }) => {
     const navigate = useNavigate();
