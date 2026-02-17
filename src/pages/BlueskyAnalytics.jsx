@@ -73,7 +73,6 @@ function BlueskyAnalytics() {
         console.log("Posts analytics:", analyticsRes.data.posts);
         setPosts(analyticsRes.data.posts || []);
 
-
       } catch (err) {
         console.error(err);
       }

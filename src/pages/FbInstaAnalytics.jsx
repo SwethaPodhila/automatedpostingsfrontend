@@ -81,7 +81,6 @@ function FbInstaDashboard() {
     // ================= FETCH ANALYTICS =================
     useEffect(() => {
         if (!selectedAccount) return;
-
         const fetchAnalytics = async () => {
             setLoading(true);
             try {
@@ -348,7 +347,7 @@ function FbInstaDashboard() {
 
             {/* HEADER */}
             <div className="d-flex justify-content-between mb-4">
-                <h2>📊 Facebook & Instagram Dashboard</h2>
+                <h2>Facebook & Instagram Dashboard</h2>
 
                 <select
                     className="form-select w-auto"
@@ -388,7 +387,6 @@ function FbInstaDashboard() {
             </Row>
 
             {/* WEEKLY PAGE GRAPH */}
-            {/* WEEKLY PAGE GRAPH */}
             <Row className="mb-3 justify-content-center">
                 <Col md={12}>   {/* Reduced width from 12 to 8 */}
                     <Card className="p-3 shadow-sm">
@@ -409,8 +407,6 @@ function FbInstaDashboard() {
                 </Col>
             </Row>
 
-
-            {/* PIE + WEEKLY ENGAGEMENT SIDE BY SIDE */}
             <Row className="mb-4">
                 {/* PIE CHART */}
                 <Col md={4}>
