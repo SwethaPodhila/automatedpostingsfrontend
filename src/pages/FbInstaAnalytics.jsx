@@ -175,27 +175,6 @@ function FbInstaDashboard() {
 
     // ================= WEEKLY TOTAL VIEWS GRAPH =================
 
-    const weeklyPageData = {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [
-            {
-                label: "Weekly Total Views",
-                data: [
-                    weeklyData.mon,
-                    weeklyData.tue,
-                    weeklyData.wed,
-                    weeklyData.thu,
-                    weeklyData.fri,
-                    weeklyData.sat,
-                    weeklyData.sun,
-                ],
-                backgroundColor: "#4e73df",
-                borderRadius: 8,
-            },
-        ],
-    };
-
-
     // ================= PIE CHART =================
     const safeLikes = totalLikes || 0;
     const safeComments = totalComments || 0;
@@ -341,7 +320,6 @@ function FbInstaDashboard() {
         ],
     };
 
-
     return (
         <Container fluid className="p-4 bg-light min-vh-100">
 
@@ -382,27 +360,6 @@ function FbInstaDashboard() {
                     <Card className="p-3 text-white bg-dark">
                         <h6>Total Posts</h6>
                         <h3>{posts.length}</h3>
-                    </Card>
-                </Col>
-            </Row>
-
-            {/* WEEKLY PAGE GRAPH */}
-            <Row className="mb-3 justify-content-center">
-                <Col md={12}>   {/* Reduced width from 12 to 8 */}
-                    <Card className="p-3 shadow-sm">
-                        <h6 className="text-center mb-3">
-                            Weekly Page Performance (Mon - Sun)
-                        </h6>
-
-                        <div style={{ height: "360px" }}>  {/* Control height here */}
-                            <Bar
-                                data={weeklyPageData}
-                                options={{
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                }}
-                            />
-                        </div>
                     </Card>
                 </Col>
             </Row>

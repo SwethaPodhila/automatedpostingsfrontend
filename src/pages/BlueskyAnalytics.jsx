@@ -136,46 +136,41 @@ function BlueskyAnalytics() {
 
       {/* ================= PAGE LEVEL CARDS ================= */}
       <Row className="mb-4">
-        <Col md={3}>
+        <Col md={4}>
           <Card className="shadow text-center p-3 bg-primary text-white">
             <h6>Followers</h6>
             <h3>{pageAnalytics.follower_count || 0}</h3>
           </Card>
         </Col>
 
-        <Col md={3}>
+        <Col md={4}>
           <Card className="shadow text-center p-3 bg-success text-white">
             <h6>Following</h6>
             <h3>{pageAnalytics.following_count || 0}</h3>
           </Card>
         </Col>
 
-        <Col md={3}>
+        <Col md={4}>
           <Card className="shadow text-center p-3 bg-dark text-white">
             <h6>Total Posts</h6>
-            <h3>{pageAnalytics.posts_count || 0}</h3>
+            <h3>{posts.length}</h3>
           </Card>
         </Col>
 
-        <Col md={3}>
-          <Card className="shadow text-center p-3 bg-warning text-white">
-            <h6>Total Likes</h6>
-            <h3>{pageAnalytics.likes || 0}</h3>
-          </Card>
-        </Col>
+      
       </Row>
 
       {/* ================= CHART SECTION ================= */}
       <Row className="mb-4">
         <Col md={6}>
-          <Card className="shadow p-3">
+          <Card className="p-3">
             <h5>Total Interactions</h5>
             <Doughnut data={interactionData} />
           </Card>
         </Col>
 
         <Col md={6}>
-          <Card className="shadow p-3">
+          <Card className="p-3">
             <h5>Weekly Engagement</h5>
             <Line data={weeklyData} />
           </Card>
@@ -183,14 +178,14 @@ function BlueskyAnalytics() {
       </Row>
 
       {/* ================= POST TABLE ================= */}
-      <Card className="shadow p-3">
+      <Card className="p-3">
         <h5 className="mb-3">All Posts Analytics</h5>
 
         <Table bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
-              <th>Post ID</th>
+              <th>Caption</th>
               <th>Likes</th>
               <th>Replies</th>
               <th>Reposts</th>
@@ -200,10 +195,10 @@ function BlueskyAnalytics() {
             {posts.map((post, index) => (
               <tr key={post._id}>
                 <td>{index + 1}</td>
-                <td>{post.postId}</td>
-                <td>{post.likes}</td>
-                <td>{post.comments}</td>
-                <td>{post.shares}</td>
+                <td>{post.caption}</td>
+                <td>{post.analytics?.likes || 0}</td>
+                <td>{post.analytics?.comments || 0}</td>
+                <td>{post.analytics?.shares || 0}</td>
               </tr>
             ))}
           </tbody>
