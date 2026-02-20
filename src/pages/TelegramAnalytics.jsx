@@ -22,6 +22,7 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  Colors,
 } from "chart.js";
 
 ChartJS.register(
@@ -60,19 +61,13 @@ function TelegramAnalytics() {
 
         setAccount(telegram);
 
-        // ✅ PAGE LEVEL
-        const pageRes = await axios.get(
+        // 🔥 Single API Call
+        const analyticsRes = await axios.get(
           `https://automatedpostingbackend-h9dc.onrender.com/analytics/page/${telegram.providerId}`
         );
 
-        setPageAnalytics(pageRes.data.pageAnalytics || {});
-
-        // ✅ POST LEVEL
-        const postRes = await axios.get(
-          `https://automatedpostingbackend-h9dc.onrender.com/analytics/posts/${telegram.providerId}`
-        );
-
-        setPosts(postRes.data.posts || []);
+        setPageAnalytics(analyticsRes.data.pageAnalytics || {});
+        setPosts(analyticsRes.data.posts || []);
 
       } catch (err) {
         console.error(err);
@@ -92,39 +87,74 @@ function TelegramAnalytics() {
      📊 CHART DATA
   ============================ */
 
+  const totalLikes = posts.reduce(
+    (sum, post) => sum + (post.analytics?.likes || 0),
+    0
+  );
+
+  const totalReplies = posts.reduce(
+    (sum, post) => sum + (post.analytics?.comments || 0),
+    0
+  );
+
+  const totalForwards = posts.reduce(
+    (sum, post) => sum + (post.analytics?.shares || 0),
+    0
+  );
+  const totalReactions = totalLikes + totalReplies + totalForwards;
+
   const interactionData = {
     labels: ["Likes", "Replies", "Forwards"],
     datasets: [
       {
-        data: [
-          pageAnalytics.likes || 0,
-          pageAnalytics.comments || 0,
-          pageAnalytics.shares || 0,
+        data: [totalLikes, totalReplies, totalForwards],
+        backgroundColor: [
+          "#7c3aed",  // Likes - Violet
+          "#ec4899",  // Replies - Pink
+          "#06b6d4",  // Forwards - Cyan
         ],
-        backgroundColor: ["#0088cc", "#ef4444", "#10b981"],
+        borderWidth: 0,
       },
     ],
   };
 
+  const likesPerDay = Array(7).fill(0);
+  const repliesPerDay = Array(7).fill(0);
+  const forwardsPerDay = Array(7).fill(0);
+
+  posts.forEach((post) => {
+    const dateField = post.publishedAt || post.createdAt;
+    if (!dateField) return;
+
+    const day = new Date(dateField).getDay(); // 0 = Sunday
+
+    likesPerDay[day] += post.analytics?.likes || 0;
+    repliesPerDay[day] += post.analytics?.comments || 0;
+    forwardsPerDay[day] += post.analytics?.shares || 0;
+  });
+
   const weeklyData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     datasets: [
       {
         label: "Likes",
-        data: [1, 3, 0, 2, 0, 0, 0],
-        borderColor: "#0088cc",
+        data: likesPerDay,
+        borderColor: "#7c3aed",
+        color: "white",
         tension: 0.4,
       },
       {
         label: "Replies",
-        data: [0, 2, 0, 1, 0, 0, 0],
-        borderColor: "#ef4444",
+        data: repliesPerDay,
+        borderColor: "#ec4899",
+        color: "white",
         tension: 0.4,
       },
       {
         label: "Forwards",
-        data: [1, 1, 0, 1, 0, 0, 0],
-        borderColor: "#10b981",
+        data: forwardsPerDay,
+        borderColor: "#06b6d4",
+        color: "white",
         tension: 0.4,
       },
     ],
@@ -132,65 +162,71 @@ function TelegramAnalytics() {
 
   return (
     <Container fluid className="p-4">
-      <h2 className="mb-4 text-info">📢 Telegram Dashboard</h2>
+      <h2 className="mb-4">Telegram Dashboard</h2>
 
       {/* ================= PAGE LEVEL CARDS ================= */}
       <Row className="mb-4">
-        <Col md={3}>
-          <Card className="shadow text-center p-3 bg-info text-white">
+        <Col md={4}>
+          <Card className="text-center p-3 bg-info text-white">
             <h6>Followers</h6>
             <h3>{pageAnalytics.follower_count || 0}</h3>
           </Card>
         </Col>
 
-        <Col md={3}>
-          <Card className="shadow text-center p-3 bg-dark text-white">
-            <h6>Total Views</h6>
-            <h3>{pageAnalytics.views || 0}</h3>
-          </Card>
-        </Col>
-
-        <Col md={3}>
-          <Card className="shadow text-center p-3 bg-success text-white">
-            <h6>Total Posts</h6>
-            <h3>{pageAnalytics.posts_count || 0}</h3>
-          </Card>
-        </Col>
-
-        <Col md={3}>
-          <Card className="shadow text-center p-3 bg-warning text-white">
+        <Col md={4}>
+          <Card className="text-center p-3 bg-dark text-white">
             <h6>Total Reactions</h6>
-            <h3>{pageAnalytics.likes || 0}</h3>
+            <h3>{totalReactions || 0}</h3>
           </Card>
         </Col>
+
+        <Col md={4}>
+          <Card className="text-center p-3 bg-success text-white">
+            <h6>Total Posts</h6>
+            <h3>{posts.length || 0}</h3>
+          </Card>
+        </Col>
+
       </Row>
 
       {/* ================= CHART SECTION ================= */}
       <Row className="mb-4">
-        <Col md={6}>
-          <Card className="shadow p-3">
+        <Col md={4}>
+          <Card className="p-3 h-100">
             <h5>Total Interactions</h5>
-            <Doughnut data={interactionData} />
+            <div style={{ height: "320px" }}>
+              <div style={{ height: "350px" }}>
+                <Doughnut
+                  data={interactionData}
+                  options={{ maintainAspectRatio: false }}
+                />
+              </div>
+            </div>
           </Card>
         </Col>
 
-        <Col md={6}>
-          <Card className="shadow p-3">
+        <Col md={8}>
+          <Card className="p-3 h-100">
             <h5>Weekly Engagement</h5>
-            <Line data={weeklyData} />
+            <div style={{ height: "320px" }}>
+              <Line
+                data={weeklyData}
+                options={{ maintainAspectRatio: false }}
+              />
+            </div>
           </Card>
         </Col>
       </Row>
 
       {/* ================= POST TABLE ================= */}
-      <Card className="shadow p-3">
+      <Card className="p-3">
         <h5 className="mb-3">All Posts Analytics</h5>
 
         <Table bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
-              <th>Message ID</th>
+              <th>Caption</th>
               <th>Likes</th>
               <th>Replies</th>
               <th>Forwards</th>
@@ -200,7 +236,7 @@ function TelegramAnalytics() {
             {posts.map((post, index) => (
               <tr key={post._id}>
                 <td>{index + 1}</td>
-                <td>{post.postId}</td>
+                <td>{post.caption || "N/A"}</td>
                 <td>{post.analytics?.likes || 0}</td>
                 <td>{post.analytics?.comments || 0}</td>
                 <td>{post.analytics?.shares || 0}</td>
