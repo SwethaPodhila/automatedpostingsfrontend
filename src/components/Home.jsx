@@ -159,7 +159,7 @@ const Index = () => {
             {/* ========== HEADER ========== */}
             <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
                 <div className="container">
-                    <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="/home">
+                    <a className="navbar-brand navbar-brand-custom d-flex align-items-center" href="/">
                         <div className="logo-icon"><img src={AIWingsLogo} alt="Logo" className="logo-icon-img" /></div>
                         <span className="gradient-text">AiWingsGlobal</span>
                     </a>
