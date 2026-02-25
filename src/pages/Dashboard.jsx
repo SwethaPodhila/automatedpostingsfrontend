@@ -340,7 +340,7 @@ export default function Dashboard() {
                             />
                         </div>
 
-                        <div style={styles.card}>
+                       {/* <div style={styles.card}>
                             <h3>Pinterest</h3>
 
                             <PinterestCard
@@ -354,7 +354,7 @@ export default function Dashboard() {
                                 }
                                 disconnect={disconnectAccount}  // ✅ SAME AS OTHERS
                             />
-                        </div>
+                        </div> */}
 
                         {showTelegramModal && (
                             <div style={modal.overlay}>

@@ -71,7 +71,7 @@ function TelegramAnalytics() {
 
       } catch (err) {
         console.error(err);
-      }
+      } 
 
       setLoading(false);
     };
