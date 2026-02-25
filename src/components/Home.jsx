@@ -212,18 +212,24 @@ const Index = () => {
             <section className="hero-section">
                 <div className="container">
                     <div className="row align-items-center">
-                        <div className="col-lg-6">
+                        <div className="col-lg-7">
                             <div className="hero-badge">
                                 <span className="hero-badge-dot"></span>
-                                AI-Powered Automation
+                                AI-Powered Social Media Automation
                             </div>
                             <h1 className="hero-title">
                                 AI-Powered <span className="gradient-text">Social Media</span> Automation
                             </h1>
-                            <p className="hero-subtitle">
+                            <p className="hero-subtitle" style={{ marginBottom: "1px"}}>
                                 Connect Facebook, Instagram, LinkedIn, Telegram, YouTube & Pinterest.
                                 Create once. Schedule everywhere. <strong>AI handles the rest.</strong>
                             </p>
+                            <p className="hero-subtitle" style={{marginBottom: "10px"}}>Automate Your Social Media — Save Time & Increase Engagement with AI</p>
+                            <ul className="hero-features">
+                                <li>Post consistently across all platforms</li>
+                                <li>Grow audience automatically</li>
+                                <li>Save time 10+ hours/week</li>
+                            </ul>
                             <div className="hero-cta">
                                 <button
                                     className="btn btn-gradient"
@@ -245,7 +251,7 @@ const Index = () => {
                             <p className="hero-note">✓ No credit card required &nbsp; ✓ 7-day free trial</p>
                         </div>
 
-                        <div className="col-lg-6">
+                        <div className="col-lg-5">
                             <div className="dashboard-mockup">
                                 <div className="mockup-header">
                                     <div className="d-flex align-items-center gap-2">
@@ -608,7 +614,7 @@ const Index = () => {
                             {/* FREE */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="pricing-card h-100">
-                                    <span className="plan-label">FREE</span>
+                                    <span className="plan-label">FREE Tier</span>
                                     <h4 className="plan-name">Starter</h4>
 
                                     <h2 className="price">
