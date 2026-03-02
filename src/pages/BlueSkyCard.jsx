@@ -65,7 +65,7 @@ const BlueSkyCard = ({ account, disconnect }) => {
                     <div style={styles.actions}>
                         <button
                             style={styles.manageBtn}
-                            onClick={() => navigate("/bluesky-dashboard")}
+                            onClick={() => navigate("/manualPosting")}
                         >
                             Manage
                         </button>

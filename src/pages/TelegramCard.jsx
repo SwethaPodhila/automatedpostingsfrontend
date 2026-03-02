@@ -30,7 +30,7 @@ const TelegramCard = ({ account, connect, disconnect }) => {
                     <div style={styles.actions}>
                         <button
                             style={styles.manageBtn}
-                            onClick={() => navigate("/telegram-dashboard")}
+                            onClick={() => navigate("/manualPosting")}
                         >
                             Manage
                         </button>

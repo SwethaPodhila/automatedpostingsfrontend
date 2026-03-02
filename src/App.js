@@ -32,6 +32,7 @@ import TermsAndConditions from "./pages/Terms";
 import Analytics from "./pages/AnalyticsLayout";
 import BlueskyAnalytics from "./pages/BlueskyAnalytics";
 import TelegramAnalytics from "./pages/TelegramAnalytics";
+import LinkedinAnalytics from "./pages/LinkedinAnalytics";
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/linkedin-analytics" element={<LinkedinAnalytics />} />
 
         {/*  */}
       </Routes>

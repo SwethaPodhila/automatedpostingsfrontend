@@ -7,6 +7,7 @@ import {
   FaTelegramPlane,
   FaPinterestP,
 } from "react-icons/fa";
+import { FaBluesky } from "react-icons/fa6";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
@@ -50,7 +51,7 @@ export default function SocialCalendar() {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/automation/weekly/${userId}`,
+        `https://automatedpostingbackend-h9dc.onrender.com/automation/weekly/${userId}`,
         {
           params: {
             date: dateParam,
@@ -152,7 +153,6 @@ export default function SocialCalendar() {
     return days;
   };
 
-
   /* ✅ WEEK VIEW POSITION FIX */
   const timeToTop = time => {
     if (!time) return 0;
@@ -171,7 +171,8 @@ export default function SocialCalendar() {
         p === "linkedin" ? <FaLinkedin color="#0A66C2" /> :
           p === "telegram" ? <FaTelegramPlane color="#0088cc" /> :
             p === "pinterest" ? <FaPinterestP color="#E60023" /> :
-              null;
+              p === "bluesky" ? <FaBluesky color="#1DA1F2" /> :
+                null;
 
   const filtered = posts.filter(
     p => p.source?.toLowerCase() === source

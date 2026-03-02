@@ -337,7 +337,7 @@ export default function PrivacyPolicy({
               {/* BRAND */}
               <div className="col-lg-6">
                 <div className="footer-brand">
-                  <div className="footer-logo">S</div>
+                  <div className="logo-icon"><img src={AIWingsLogo} alt="AIWings Logo" className="logo-icon-img" /></div>
                   <span className="footer-brand-text">AiWingsGlobal</span>
                 </div>
 

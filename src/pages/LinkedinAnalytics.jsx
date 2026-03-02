@@ -1,45 +1,85 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Container, Card, Alert, Spinner } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 function LinkedinAnalytics() {
-  const [account, setAccount] = useState(null);
-  const [analytics, setAnalytics] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const userId = localStorage.getItem("userId");
-      const res = await axios.get(`YOUR_BACKEND/automation/accounts/${userId}`);
-      const linkedin = res.data.data.find(acc => acc.platform === "linkedin");
-      if (!linkedin) {
-        setLoading(false);
-        return;
-      }
-
-      setAccount(linkedin);
-      const analyticsRes = await axios.get(`YOUR_BACKEND/analytics/page/${linkedin.providerId}`);
-      setAnalytics(analyticsRes.data.pageAnalytics || {});
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
-
-  if (loading) return <Spinner className="m-5" />;
-  if (!account) return <Alert className="m-5">Please connect LinkedIn account.</Alert>;
-
   return (
-    <Container className="p-4">
-      <h3 className="text-dark mb-4">LinkedIn Analytics</h3>
+    <div style={styles.wrapper}>
+      <Container fluid className="d-flex justify-content-center align-items-center">
+        <div style={styles.card}>
+          
+          <div style={styles.icon}>🚧</div>
 
-      <Card className="shadow p-4">
-        <h5>Impressions: {analytics?.impressions || 0}</h5>
-        <h5>Clicks: {analytics?.clicks || 0}</h5>
-        <h5>Reactions: {analytics?.reactions || 0}</h5>
-        <h5>Shares: {analytics?.shares || 0}</h5>
-      </Card>
-    </Container>
+          <h1 style={styles.title}>LinkedIn Analytics</h1>
+
+          <p style={styles.subtitle}>
+            This feature is currently under development.
+          </p>
+
+          <p style={styles.description}>
+            We’re building advanced analytics tools to help you track 
+            impressions, clicks, reactions, shares, and more — all in one place.
+          </p>
+
+          <div style={styles.badge}>
+            🚀 Launching Soon
+          </div>
+
+        </div>
+      </Container>
+    </div>
   );
 }
 
 export default LinkedinAnalytics;
+
+const styles = {
+  wrapper: {
+    minHeight: "100vh",
+    width: "100%",
+    background: "linear-gradient(135deg, #eef2ff, #f8fafc)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "20px 20px",
+  },
+  card: {
+    background: "#ffffff",
+    width: "100%",
+    maxWidth: "900px",
+    padding: "40px 30px",
+    borderRadius: "20px",
+    textAlign: "center",
+    boxShadow: "0 15px 40px rgba(0,0,0,0.08)",
+  },
+  icon: {
+    fontSize: "70px",
+    marginBottom: "20px",
+  },
+  title: {
+    fontSize: "36px",
+    fontWeight: "700",
+    marginBottom: "15px",
+    color: "#0A66C2",
+  },
+  subtitle: {
+    fontSize: "18px",
+    color: "#555",
+    marginBottom: "15px",
+  },
+  description: {
+    fontSize: "16px",
+    color: "#777",
+    maxWidth: "600px",
+    margin: "0 auto 30px",
+    lineHeight: "1.6",
+  },
+  badge: {
+    display: "inline-block",
+    padding: "10px 25px",
+    background: "#0A66C2",
+    color: "white",
+    borderRadius: "50px",
+    fontWeight: "600",
+    fontSize: "14px",
+    letterSpacing: "1px",
+  },
+};

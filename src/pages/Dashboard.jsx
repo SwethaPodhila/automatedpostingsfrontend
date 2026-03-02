@@ -11,7 +11,7 @@ import InstagramCard from "./InstagramCard";
 import TwitterCard from "./TwitterCard";
 import LinkedInCard from "./LinkedinCard";
 import PinterestCard from "./PinterestCard";
-import TelegramCard from "./TelegramCard"; 
+import TelegramCard from "./TelegramCard";
 import BlueSkyCard from "./BlueSkyCard";
 
 const BACKEND_URL = "https://automatedpostingbackend-h9dc.onrender.com"; // Update with your backend URL
@@ -78,9 +78,7 @@ export default function Dashboard() {
     };
 
     const connectTwitter = () => {
-        if (!token) return;
-        const id = jwtDecode(token).id;
-        window.location.href = `${BACKEND_URL}/auth/twitter?userId=${id}`;
+        alert("Twitter (X) integration is currently under development. It will be available soon. Stay tuned!");
     };
 
     const disconnectTwitter = async () => {
@@ -310,7 +308,7 @@ export default function Dashboard() {
                                 disconnectLinkedIn={disconnectLinkedIn}
                             />
                         </div>
-                        
+
                         <div style={styles.card}><h3>Twitter</h3><TwitterCard account={twitterAccount} connect={connectTwitter} disconnect={disconnectTwitter} /></div>
 
 
@@ -340,7 +338,7 @@ export default function Dashboard() {
                             />
                         </div>
 
-                       {/* <div style={styles.card}>
+                        {/* <div style={styles.card}>
                             <h3>Pinterest</h3>
 
                             <PinterestCard
