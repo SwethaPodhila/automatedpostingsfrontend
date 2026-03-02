@@ -10,7 +10,7 @@ const Pricing = () => {
 
     const getUserFromToken = () => {
         const token = localStorage.getItem("token");
-       // console.log("Token from localStorage:", token); // ✅ check if token exists
+        // console.log("Token from localStorage:", token); // ✅ check if token exists
 
         if (!token) return null;
 
@@ -19,7 +19,7 @@ const Pricing = () => {
             //console.log("Decoded token:", decoded); // ✅ check decoded payload
             return decoded;
         } catch (err) {
-         //   console.log("Invalid token", err);
+            //   console.log("Invalid token", err);
             return null;
         }
     };
@@ -44,8 +44,6 @@ const Pricing = () => {
                 }
             );
 
-           // console.log("Cashfree order response:", data);
-
             if (!data.paymentSessionId) return alert("Payment session missing");
 
             if (!window.Cashfree) {
@@ -54,44 +52,14 @@ const Pricing = () => {
             }
 
             // 2️⃣ Initialize Cashfree
-            const cashfree = window.Cashfree({mode: "production",});
+            const cashfree = window.Cashfree({ mode: "production" });
 
-            // 3️⃣ Store orderId for verification
-            const orderId = data.orderId;
+            // 3️⃣ Checkout only — no manual verification
+            cashfree.checkout({
+                paymentSessionId: data.paymentSessionId,
+                redirectTarget: "_modal",
+            });
 
-            // 4️⃣ Checkout
-            cashfree
-                .checkout({
-                    paymentSessionId: data.paymentSessionId,
-                    redirectTarget: "_modal",
-                })
-                .then(async (result) => {
-                    // console.log("💳 Payment result:", result);
-
-                    if (result.error) {
-                        alert("Payment failed or cancelled");
-                        return;
-                    }
-
-                    // 5️⃣ MANUAL CALLBACK – verify payment status
-                   // console.log("✅ SUCCESS ORDER ID (stored):", orderId);
-
-                    try {
-                        const verify = await axios.post(
-                            "https://automatedpostingbackend-h9dc.onrender.com/payment/callback",
-                            { orderId }
-                        );
-
-                        if (verify.data.success) {
-                            alert("Payment successful 🎉 Plan activated!");
-                        } else {
-                            alert("Payment verification failed!");
-                        }
-                    } catch (err) {
-                        console.error("Payment verification error:", err.response?.data || err.message);
-                        alert("Payment verification failed!");
-                    }
-                });
         } catch (err) {
             console.error(err.response?.data || err.message);
             alert("Payment initiation failed!");
