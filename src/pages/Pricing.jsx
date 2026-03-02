@@ -25,6 +25,7 @@ const Pricing = () => {
     };
 
     const handlePayment = async (plan) => {
+        //console.log(`Initiating payment for plan: ${plan}`); // ✅ log selected plan
         const user = getUserFromToken();
         if (!user || !user.id) return alert("User not logged in!");
 
@@ -43,6 +44,8 @@ const Pricing = () => {
                     customerPhone: user.phone || "9999999999",
                 }
             );
+                console.log("Order created:", data); // ✅ log order creation response
+                console.log("Plan :", plan); // ✅ log payment session ID
 
             if (!data.paymentSessionId) return alert("Payment session missing");
 
