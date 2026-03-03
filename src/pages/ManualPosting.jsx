@@ -11,15 +11,38 @@ const ManualPosting = () => {
     const [prompt, setPrompt] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-     const [accounts, setAccounts] = useState([]);
+    const [accounts, setAccounts] = useState([]);
     const [selectedAccounts, setSelectedAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [mediaFile, setMediaFile] = useState(null);
     const [times, setTimes] = useState([""]); // default 1 time input
     const [sidebarWidth, setSidebarWidth] = useState(50);
+    const [subscription, setSubscription] = useState(null);
+    const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
     const token = localStorage.getItem("token");
     const decodedToken = token ? jwtDecode(token) : null;
+
+
+    useEffect(() => {
+        const fetchSubscription = async () => {
+            try {
+                const userId = localStorage.getItem("userId");
+
+                const res = await axios.get(
+                    `https://automatedpostingbackend-h9dc.onrender.com/user/subscription/${userId}`
+                );
+
+                setSubscription(res.data.data); // 🔥 IMPORTANT FIX
+            } catch (err) {
+                console.error("Failed to fetch subscription", err);
+            } finally {
+                setSubscriptionLoading(false);
+            }
+        };
+
+        fetchSubscription();
+    }, []);
 
     const isFreeTrialActive = (decoded) => {
         if (!decoded) return false;
@@ -33,34 +56,22 @@ const ManualPosting = () => {
         return diffDays <= 7;
     };
 
-    const getMaxSelectableAccounts = (decoded) => {
-        if (!decoded) return 0;
+    const getMaxSelectableAccounts = (sub) => {
+        if (!sub) return Infinity;
 
-        // ENTERPRISE → unlimited
-        if (decoded.plan === "ENTERPRISE") return Infinity;
+        if (sub.plan === "ENTERPRISE") return Infinity;
 
-        // PRO → 3
-        if (decoded.plan === "PRO") return 3;
+        if (sub.plan === "PRO") return 3;
 
-        // FREE
-        if (decoded.plan === "FREE") {
-            // ❌ subscription inactive → no access
-            if (decoded.subscriptionStatus !== "ACTIVE") {
+        if (sub.plan === "FREE") {
+            if (sub.subscriptionStatus !== "ACTIVE") {
                 return 0;
             }
-
-            // ✅ active trial (7 days)
-            if (isFreeTrialActive(decoded)) {
-                return Infinity;
-            }
-
-            // fallback (safety)
-            return 0;
+            return Infinity; // if you allow trial
         }
 
         return 0;
     };
-
 
     const addTime = () => {
         if (times.length >= 3) {
@@ -140,7 +151,7 @@ const ManualPosting = () => {
        TOGGLE ACCOUNT
     ======================== */
     const toggleAccount = (id) => {
-        const maxLimit = getMaxSelectableAccounts(decodedToken);
+        const maxLimit = getMaxSelectableAccounts(subscription);
 
         setSelectedAccounts((prev) => {
             if (prev.includes(id)) {
@@ -233,48 +244,46 @@ const ManualPosting = () => {
     };
 
     const renderPlanMessage = () => {
-        if (!decodedToken) return null;
+        if (!subscription) return null;
 
-        // ENTERPRISE → no message
-        if (decodedToken.plan === "ENTERPRISE") return null;
+        const { plan, subscriptionStatus } = subscription;
 
-        // FREE
-        if (decodedToken.plan === "FREE") {
-            // ❌ subscription inactive → 0 access
-            if (decodedToken.subscriptionStatus !== "ACTIVE") {
+        // ENTERPRISE → no restriction message
+        if (plan === "ENTERPRISE") return null;
+
+        // FREE PLAN
+        if (plan === "FREE") {
+            if (subscriptionStatus !== "ACTIVE") {
                 return (
                     <p style={styles.planMsg}>
-                        You don’t have access to select social accounts. Please
-                        <a href="pricing" style={styles.upgradeLink}>
+                        You don’t have access to select social accounts. Please{" "}
+                        <a href="/pricing" style={styles.upgradeLink}>
                             upgrade
-                        </a>
+                        </a>{" "}
                         to continue.
                     </p>
                 );
             }
 
-            // ✅ free trial active → no message
-            if (isFreeTrialActive(decodedToken)) {
-                return null;
-            }
+            return null; // FREE active → allow
         }
 
-        // PRO
-        if (decodedToken.plan === "PRO") {
+        // PRO PLAN
+        if (plan === "PRO") {
             return (
                 <p style={styles.planMsg}>
-                    You have access to select only <b>3 pages</b>. Please
+                    You can select only <b>3 pages</b>. Please{" "}
                     <a href="/pricing" style={styles.upgradeLink}>
                         upgrade
-                    </a>
-                    to access all pages
+                    </a>{" "}
+                    to access unlimited pages.
                 </p>
             );
         }
 
         return null;
     };
-
+    
     return (
         <>
             <Navbar />
@@ -403,7 +412,7 @@ const ManualPosting = () => {
 
                                 {/* RIGHT SIDE – 40% */}
                                 <div style={styles.right}>
-                                    <h3 style={styles.sideTitle}>Social Accounts</h3>
+                                    <h3 style={styles.sideTitle}>Connected Accounts</h3>
 
                                     {renderPlanMessage()}
 
@@ -417,9 +426,12 @@ const ManualPosting = () => {
                                                 type="checkbox"
                                                 checked={selectedAccounts.includes(acc._id)}
                                                 disabled={
-                                                    selectedAccounts.length >=
-                                                    getMaxSelectableAccounts(decodedToken) &&
-                                                    !selectedAccounts.includes(acc._id)
+                                                    subscriptionLoading ||
+                                                    (
+                                                        selectedAccounts.length >=
+                                                        getMaxSelectableAccounts(subscription) &&
+                                                        !selectedAccounts.includes(acc._id)
+                                                    )
                                                 }
                                                 onChange={() => toggleAccount(acc._id)}
                                             />

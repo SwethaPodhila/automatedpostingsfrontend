@@ -119,7 +119,7 @@ const Pricing = () => {
 
                                 </ul>
 
-                                <button className="btn btn-outline-brand w-100">
+                                <button className="btn btn-outline-brand w-100 disabled" disabled>
                                     Start Free Trial
                                 </button>
                             </div>

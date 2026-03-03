@@ -29,6 +29,7 @@ const Profile = () => {
   const [twitterAccount, setTwitterAccount] = useState(null);
   const [linkedinAccount, setLinkedinAccount] = useState(null);
 
+
   const userId = localStorage.getItem("userId");
   const [sidebarWidth, setSidebarWidth] = useState(50);
 
@@ -93,7 +94,7 @@ const Profile = () => {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-         // console.log("SOCIAL ACCOUNTS 👉", data.accounts);
+          // console.log("SOCIAL ACCOUNTS 👉", data.accounts);
 
           const fb = data.accounts.filter(a =>
             a.platform?.includes("facebook")

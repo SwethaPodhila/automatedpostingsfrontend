@@ -50,7 +50,7 @@ export default function Login() {
             setError("Please enter a valid email address");
             return;
         }
-
+ 
         setLoading(true);
         setError("");
 

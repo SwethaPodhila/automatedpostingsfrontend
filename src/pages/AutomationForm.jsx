@@ -16,8 +16,31 @@ const AutomationForm = () => {
   const [loading, setLoading] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(50);
 
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+
   const token = localStorage.getItem("token");
   const decodedToken = token ? jwtDecode(token) : null;
+
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+
+        const res = await axios.get(
+          `https://automatedpostingbackend-h9dc.onrender.com/user/subscription/${userId}`
+        );
+
+        setSubscription(res.data.data); // 🔥 IMPORTANT
+      } catch (err) {
+        console.error("Failed to fetch subscription", err);
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
+
+    fetchSubscription();
+  }, []);
 
   const isFreeTrialActive = (decoded) => {
     if (!decoded) return false;
@@ -31,35 +54,22 @@ const AutomationForm = () => {
     return diffDays <= 7;
   };
 
-  const getMaxSelectableAccounts = (decoded) => {
-    if (!decoded) return 0;
+  const getMaxSelectableAccounts = (sub) => {
+    if (!sub) return Infinity; // allow until loaded
 
-    // ENTERPRISE → unlimited
-    if (decoded.plan === "ENTERPRISE") return Infinity;
+    if (sub.plan === "ENTERPRISE") return Infinity;
 
-    // PRO → 3
-    if (decoded.plan === "PRO") return 3;
+    if (sub.plan === "PRO") return 3;
 
-    // FREE
-    if (decoded.plan === "FREE") {
-      // ❌ subscription inactive → no access
-      if (decoded.subscriptionStatus !== "ACTIVE") {
-        return 0;
-      }
-
-      // ✅ active trial (7 days)
-      if (isFreeTrialActive(decoded)) {
-        return Infinity;
-      }
-
-      // fallback (safety)
-      return 0;
+    if (sub.plan === "FREE") {
+      if (sub.subscriptionStatus !== "ACTIVE") return 0;
+      return Infinity;
     }
 
     return 0;
   };
 
-  const maxSelectable = getMaxSelectableAccounts(decodedToken);
+  const maxSelectable = getMaxSelectableAccounts(subscription);
 
   const today = new Date();
   today.setDate(today.getDate());
@@ -148,12 +158,12 @@ const AutomationForm = () => {
     // 🔥 SEND providerIds NOT _id
     const pageIds = selectedAccs.map(acc => acc.providerId);
 
-   /* console.log("🚀 Sending Automation Payload:", {
-      userId,
-      platform,
-      pageIds,
-      times
-    });*/
+    /* console.log("🚀 Sending Automation Payload:", {
+       userId,
+       platform,
+       pageIds,
+       times
+     });*/
 
     setLoading(true);
     try {
@@ -183,41 +193,32 @@ const AutomationForm = () => {
 
 
   const renderPlanMessage = () => {
-    if (!decodedToken) return null;
+    if (!subscription) return null;
 
-    // ENTERPRISE → no message
-    if (decodedToken.plan === "ENTERPRISE") return null;
+    const { plan, subscriptionStatus } = subscription;
 
-    // FREE
-    if (decodedToken.plan === "FREE") {
-      // ❌ subscription inactive → 0 access
-      if (decodedToken.subscriptionStatus !== "ACTIVE") {
-        return (
-          <p style={styles.planMsg}>
-            You don’t have access to select social accounts. Please
-            <a href="pricing" style={styles.upgradeLink}>
-              upgrade
-            </a>
-             to continue.
-          </p>
-        );
-      }
+    if (plan === "ENTERPRISE") return null;
 
-      // ✅ free trial active → no message
-      if (isFreeTrialActive(decodedToken)) {
-        return null;
-      }
-    }
-
-    // PRO
-    if (decodedToken.plan === "PRO") {
+    if (plan === "FREE" && subscriptionStatus !== "ACTIVE") {
       return (
         <p style={styles.planMsg}>
-          You have access to select only <b>3 pages</b>. Please
+          You don’t have access to select social accounts. Please{" "}
           <a href="/pricing" style={styles.upgradeLink}>
             upgrade
-          </a>
-          to access all pages
+          </a>{" "}
+          to continue.
+        </p>
+      );
+    }
+
+    if (plan === "PRO") {
+      return (
+        <p style={styles.planMsg}>
+          You can select only <b>3 pages</b>. Please{" "}
+          <a href="/pricing" style={styles.upgradeLink}>
+            upgrade
+          </a>{" "}
+          to access unlimited pages.
         </p>
       );
     }
@@ -263,7 +264,7 @@ const AutomationForm = () => {
                     setEndDate("");
                   }}
                   style={styles.input}
-                /> 
+                />
               </div>
 
               <div style={{ flex: 1 }}>
@@ -325,8 +326,11 @@ const AutomationForm = () => {
                     type="checkbox"
                     checked={selectedAccounts.includes(acc._id)}
                     disabled={
-                      !selectedAccounts.includes(acc._id) &&
-                      selectedAccounts.length >= maxSelectable
+                      subscriptionLoading ||
+                      (
+                        !selectedAccounts.includes(acc._id) &&
+                        selectedAccounts.length >= maxSelectable
+                      )
                     }
                     onChange={() => toggleAccount(acc._id)}
                   />
@@ -465,7 +469,7 @@ const styles = {
   accountList: {
     display: "flex",
     flexDirection: "column",
-    gap: 10, 
+    gap: 10,
     marginTop: 12,
   },
 
