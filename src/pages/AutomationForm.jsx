@@ -197,7 +197,14 @@ const AutomationForm = () => {
 
     const { plan, subscriptionStatus } = subscription;
 
-    if (plan === "ENTERPRISE") return null;
+    if (plan === "ENTERPRISE") {
+      return (
+        <p style={styles.planMsg}>
+          You're on the <b>Enterprise Plan</b> — you can select
+          <b> unlimited social accounts</b> without any restrictions.
+        </p>
+      );
+    }
 
     if (plan === "FREE" && subscriptionStatus !== "ACTIVE") {
       return (

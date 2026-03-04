@@ -123,6 +123,7 @@ export default function Register() {
       if (res.data.success) {
         alert("Account verified successfully!");
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userId", res.data.userId);
         window.location.href = "/dashboard";
       } else {
         setError(res.data.msg || "OTP verification failed");
@@ -228,7 +229,7 @@ export default function Register() {
           <div style={styles.aiContent}>
             <div style={styles.logoContainer}>
               <div style={styles.logo}>
-                <img src={AIWingsLogo}  alt="AIWings Logo" style={styles.logoImage} />
+                <img src={AIWingsLogo} alt="AIWings Logo" style={styles.logoImage} />
                 <span style={styles.logoText}>AiWingsGlobal</span>
               </div>
             </div>

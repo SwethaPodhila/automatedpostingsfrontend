@@ -249,7 +249,14 @@ const ManualPosting = () => {
         const { plan, subscriptionStatus } = subscription;
 
         // ENTERPRISE → no restriction message
-        if (plan === "ENTERPRISE") return null;
+        if (plan === "ENTERPRISE") {
+            return (
+                <p style={styles.planMsg}>
+                    You're on the <b>Enterprise Plan</b> — you can select
+                    <b> unlimited social accounts</b> without any restrictions.
+                </p>
+            );
+        }
 
         // FREE PLAN
         if (plan === "FREE") {
@@ -283,7 +290,7 @@ const ManualPosting = () => {
 
         return null;
     };
-    
+
     return (
         <>
             <Navbar />
